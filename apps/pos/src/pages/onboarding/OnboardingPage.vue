@@ -248,7 +248,7 @@ const canContinue = computed(() => {
             placeholder="John"
             :error="errors.firstName"
             required
-            @update:model-value="(val) => updateFormData({ firstName: val })"
+            @update:model-value="(val) => updateFormData({ firstName: String(val) })"
           />
           <FormField
             v-model="formData.lastName"
@@ -256,7 +256,7 @@ const canContinue = computed(() => {
             placeholder="Doe"
             :error="errors.lastName"
             required
-            @update:model-value="(val) => updateFormData({ lastName: val })"
+            @update:model-value="(val) => updateFormData({ lastName: String(val) })"
           />
         </div>
         <FormField
@@ -266,7 +266,7 @@ const canContinue = computed(() => {
           placeholder="john@example.com"
           :error="errors.email"
           required
-          @update:model-value="(val) => updateFormData({ email: val })"
+          @update:model-value="(val) => updateFormData({ email: String(val) })"
         />
         <PhoneInput
           v-model="formData.phone"
@@ -274,7 +274,7 @@ const canContinue = computed(() => {
           placeholder="700 000 000"
           :error="errors.phone"
           required
-          @update:model-value="(val) => updateFormData({ phone: val })"
+          @update:model-value="(val) => updateFormData({ phone: String(val) })"
         />
         <div>
           <FormField
@@ -284,7 +284,7 @@ const canContinue = computed(() => {
             placeholder="Create a strong password"
             :error="errors.password"
             required
-            @update:model-value="(val) => updateFormData({ password: val })"
+            @update:model-value="(val) => updateFormData({ password: String(val) })"
           />
           <PasswordStrength :password="formData.password || ''" />
         </div>
@@ -295,12 +295,12 @@ const canContinue = computed(() => {
           placeholder="Re-enter your password"
           :error="errors.confirmPassword"
           required
-          @update:model-value="(val) => updateFormData({ confirmPassword: val })"
+          @update:model-value="(val) => updateFormData({ confirmPassword: String(val) })"
         />
         <DataConsentCheckbox
           v-model="formData.acceptedTerms"
           :error="errors.acceptedTerms"
-          @update:model-value="(val) => updateFormData({ acceptedTerms: val })"
+          @update:model-value="(val) => updateFormData({ acceptedTerms: Boolean(val) })"
         />
       </div>
     </template>
@@ -314,7 +314,7 @@ const canContinue = computed(() => {
           placeholder="My Retail Store"
           :error="errors.organizationName"
           required
-          @update:model-value="(val) => updateFormData({ organizationName: val })"
+          @update:model-value="(val) => updateFormData({ organizationName: String(val) })"
         />
         <FormSelect
           v-model="formData.country"
@@ -322,19 +322,19 @@ const canContinue = computed(() => {
           :options="countryOptions"
           :error="errors.country"
           required
-          @update:model-value="(val) => updateFormData({ country: val })"
+          @update:model-value="(val) => updateFormData({ country: String(val) })"
         />
         <FormSelect
           v-model="formData.industry"
           label="Industry"
           :options="industryOptions"
-          @update:model-value="(val) => updateFormData({ industry: val })"
+          @update:model-value="(val) => updateFormData({ industry: String(val) })"
         />
         <FormSelect
           v-model="formData.organizationSize"
           label="Business Size"
           :options="sizeOptions"
-          @update:model-value="(val) => updateFormData({ organizationSize: val })"
+          @update:model-value="(val) => updateFormData({ organizationSize: String(val) })"
         />
       </div>
     </template>

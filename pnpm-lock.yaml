@@ -18,6 +18,64 @@ importers:
         specifier: ^4.0.18
         version: 4.0.18(jiti@2.6.1)(lightningcss@1.31.1)(yaml@2.8.2)
 
+  apps/admin:
+    dependencies:
+      '@tailwindcss/vite':
+        specifier: ^4.1.18
+        version: 4.1.18(vite@8.0.0-beta.13(esbuild@0.27.3)(jiti@2.6.1)(yaml@2.8.2))
+      '@techsavanna/auth':
+        specifier: workspace:*
+        version: link:../../packages/auth
+      '@techsavanna/shared':
+        specifier: workspace:*
+        version: link:../../packages/shared
+      '@techsavanna/tailwind-config':
+        specifier: workspace:*
+        version: link:../../packages/tailwind-config
+      '@techsavanna/ui':
+        specifier: workspace:*
+        version: link:../../packages/ui
+      pinia:
+        specifier: ^3.0.4
+        version: 3.0.4(typescript@5.9.3)(vue@3.5.27(typescript@5.9.3))
+      tailwindcss:
+        specifier: ^4.1.18
+        version: 4.1.18
+      vue:
+        specifier: ^3.5.27
+        version: 3.5.27(typescript@5.9.3)
+      vue-router:
+        specifier: ^5.0.1
+        version: 5.0.2(@vue/compiler-sfc@3.5.27)(pinia@3.0.4(typescript@5.9.3)(vue@3.5.27(typescript@5.9.3)))(vue@3.5.27(typescript@5.9.3))
+    devDependencies:
+      '@vitejs/plugin-vue':
+        specifier: ^6.0.3
+        version: 6.0.4(vite@8.0.0-beta.13(esbuild@0.27.3)(jiti@2.6.1)(yaml@2.8.2))(vue@3.5.27(typescript@5.9.3))
+      '@vue/test-utils':
+        specifier: ^2.4.6
+        version: 2.4.6
+      '@vue/tsconfig':
+        specifier: ^0.8.1
+        version: 0.8.1(typescript@5.9.3)(vue@3.5.27(typescript@5.9.3))
+      npm-run-all2:
+        specifier: ^8.0.4
+        version: 8.0.4
+      typescript:
+        specifier: ~5.9.3
+        version: 5.9.3
+      vite:
+        specifier: beta
+        version: 8.0.0-beta.13(esbuild@0.27.3)(jiti@2.6.1)(yaml@2.8.2)
+      vite-plugin-vue-devtools:
+        specifier: ^8.0.5
+        version: 8.0.6(vite@8.0.0-beta.13(esbuild@0.27.3)(jiti@2.6.1)(yaml@2.8.2))(vue@3.5.27(typescript@5.9.3))
+      vitest:
+        specifier: ^4.0.18
+        version: 4.0.18(jiti@2.6.1)(lightningcss@1.31.1)(yaml@2.8.2)
+      vue-tsc:
+        specifier: ^3.2.4
+        version: 3.2.4(typescript@5.9.3)
+
   apps/elimu:
     dependencies:
       '@tailwindcss/vite':
@@ -309,7 +367,11 @@ importers:
         specifier: ~5.9.3
         version: 5.9.3
 
-  packages/tailwind-config: {}
+  packages/tailwind-config:
+    dependencies:
+      tailwindcss:
+        specifier: ^4.1.18
+        version: 4.1.18
 
   packages/ui:
     dependencies:

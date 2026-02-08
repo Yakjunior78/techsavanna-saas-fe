@@ -259,7 +259,7 @@ const canContinue = computed(() => {
             placeholder="John"
             :error="errors.firstName"
             required
-            @update:model-value="updateFormData({ firstName: $event })"
+            @update:model-value="updateFormData({ firstName: String($event) })"
           />
           <FormField
             v-model="formData.lastName"
@@ -267,7 +267,7 @@ const canContinue = computed(() => {
             placeholder="Doe"
             :error="errors.lastName"
             required
-            @update:model-value="updateFormData({ lastName: $event })"
+            @update:model-value="updateFormData({ lastName: String($event) })"
           />
         </div>
         <FormField
@@ -277,7 +277,7 @@ const canContinue = computed(() => {
           placeholder="john@company.com"
           :error="errors.email"
           required
-          @update:model-value="updateFormData({ email: $event })"
+          @update:model-value="updateFormData({ email: String($event) })"
         />
         <PhoneInput
           v-model="formData.phone"
@@ -285,7 +285,7 @@ const canContinue = computed(() => {
           placeholder="700 000 000"
           :error="errors.phone"
           required
-          @update:model-value="updateFormData({ phone: $event })"
+          @update:model-value="updateFormData({ phone: String($event) })"
         />
         <div>
           <FormField
@@ -295,7 +295,7 @@ const canContinue = computed(() => {
             placeholder="Create a strong password"
             :error="errors.password"
             required
-            @update:model-value="updateFormData({ password: $event })"
+            @update:model-value="updateFormData({ password: String($event) })"
           />
           <PasswordStrength :password="formData.password || ''" />
         </div>
@@ -306,12 +306,12 @@ const canContinue = computed(() => {
           placeholder="Re-enter your password"
           :error="errors.confirmPassword"
           required
-          @update:model-value="updateFormData({ confirmPassword: $event })"
+          @update:model-value="updateFormData({ confirmPassword: String($event) })"
         />
         <DataConsentCheckbox
           v-model="formData.acceptedTerms"
           :error="errors.acceptedTerms"
-          @update:model-value="updateFormData({ acceptedTerms: $event })"
+          @update:model-value="updateFormData({ acceptedTerms: Boolean($event) })"
         />
       </div>
     </template>
@@ -325,7 +325,7 @@ const canContinue = computed(() => {
           placeholder="Acme Corporation Ltd"
           :error="errors.organizationName"
           required
-          @update:model-value="updateFormData({ organizationName: $event })"
+          @update:model-value="updateFormData({ organizationName: String($event) })"
         />
         <FormSelect
           v-model="formData.country"
@@ -333,26 +333,26 @@ const canContinue = computed(() => {
           :options="countryOptions"
           :error="errors.country"
           required
-          @update:model-value="updateFormData({ country: $event })"
+          @update:model-value="updateFormData({ country: String($event) })"
         />
         <FormSelect
           v-model="formData.industry"
           label="Industry"
           :options="industryOptions"
-          @update:model-value="updateFormData({ industry: $event })"
+          @update:model-value="updateFormData({ industry: String($event) })"
         />
         <FormSelect
           v-model="formData.organizationSize"
           label="Company Size"
           :options="sizeOptions"
-          @update:model-value="updateFormData({ organizationSize: $event })"
+          @update:model-value="updateFormData({ organizationSize: String($event) })"
         />
         <FormField
           v-model="formData.website"
           label="Company Website"
           placeholder="https://www.company.com"
           hint="Optional"
-          @update:model-value="updateFormData({ website: $event })"
+          @update:model-value="updateFormData({ website: String($event) })"
         />
       </div>
     </template>

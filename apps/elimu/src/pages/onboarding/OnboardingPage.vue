@@ -257,7 +257,7 @@ const canContinue = computed(() => {
             placeholder="John"
             :error="errors.firstName"
             required
-            @update:model-value="updateFormData({ firstName: $event })"
+            @update:model-value="updateFormData({ firstName: String($event) })"
           />
           <FormField
             v-model="formData.lastName"
@@ -265,7 +265,7 @@ const canContinue = computed(() => {
             placeholder="Doe"
             :error="errors.lastName"
             required
-            @update:model-value="updateFormData({ lastName: $event })"
+            @update:model-value="updateFormData({ lastName: String($event) })"
           />
         </div>
         <FormField
@@ -275,7 +275,7 @@ const canContinue = computed(() => {
           placeholder="john@school.edu"
           :error="errors.email"
           required
-          @update:model-value="updateFormData({ email: $event })"
+          @update:model-value="updateFormData({ email: String($event) })"
         />
         <PhoneInput
           v-model="formData.phone"
@@ -283,7 +283,7 @@ const canContinue = computed(() => {
           placeholder="700 000 000"
           :error="errors.phone"
           required
-          @update:model-value="updateFormData({ phone: $event })"
+          @update:model-value="updateFormData({ phone: String($event) })"
         />
         <div>
           <FormField
@@ -293,7 +293,7 @@ const canContinue = computed(() => {
             placeholder="Create a strong password"
             :error="errors.password"
             required
-            @update:model-value="updateFormData({ password: $event })"
+            @update:model-value="updateFormData({ password: String($event) })"
           />
           <PasswordStrength :password="formData.password || ''" />
         </div>
@@ -304,12 +304,12 @@ const canContinue = computed(() => {
           placeholder="Re-enter your password"
           :error="errors.confirmPassword"
           required
-          @update:model-value="updateFormData({ confirmPassword: $event })"
+          @update:model-value="updateFormData({ confirmPassword: String($event) })"
         />
         <DataConsentCheckbox
           v-model="formData.acceptedTerms"
           :error="errors.acceptedTerms"
-          @update:model-value="updateFormData({ acceptedTerms: $event })"
+          @update:model-value="updateFormData({ acceptedTerms: Boolean($event) })"
         />
       </div>
     </template>
@@ -323,7 +323,7 @@ const canContinue = computed(() => {
           placeholder="Sunrise Academy"
           :error="errors.institutionName"
           required
-          @update:model-value="updateFormData({ institutionName: $event })"
+          @update:model-value="updateFormData({ institutionName: String($event) })"
         />
         <FormSelect
           v-model="formData.country"
@@ -331,7 +331,7 @@ const canContinue = computed(() => {
           :options="countryOptions"
           :error="errors.country"
           required
-          @update:model-value="updateFormData({ country: $event })"
+          @update:model-value="updateFormData({ country: String($event) })"
         />
         <FormSelect
           v-model="formData.institutionType"
@@ -339,19 +339,19 @@ const canContinue = computed(() => {
           :options="institutionTypeOptions"
           :error="errors.institutionType"
           required
-          @update:model-value="updateFormData({ institutionType: $event })"
+          @update:model-value="updateFormData({ institutionType: String($event) })"
         />
         <FormSelect
           v-model="formData.studentCount"
           label="Number of Students"
           :options="studentCountOptions"
-          @update:model-value="updateFormData({ studentCount: $event })"
+          @update:model-value="updateFormData({ studentCount: String($event) })"
         />
         <FormField
           v-model="formData.website"
           label="School Website"
           placeholder="https://www.yourschool.edu"
-          @update:model-value="updateFormData({ website: $event })"
+          @update:model-value="updateFormData({ website: String($event) })"
         />
       </div>
     </template>
