@@ -16,7 +16,7 @@ services:
       - VITE_PEOPLE_DOMAIN=localhost:3002
       - VITE_ELIMU_DOMAIN=localhost:3003
       - VITE_ERP_DOMAIN=localhost:3004
-    command: pnpm dev --host
+    command: sh -c "cd /app && pnpm install --prefer-offline && cd /app/apps/pos && pnpm dev --host"
     networks:
       - savanna-dev
 
@@ -37,7 +37,7 @@ services:
       - VITE_PEOPLE_DOMAIN=localhost:3002
       - VITE_ELIMU_DOMAIN=localhost:3003
       - VITE_ERP_DOMAIN=localhost:3004
-    command: pnpm dev --host
+    command: sh -c "cd /app && pnpm install --prefer-offline && cd /app/apps/people && pnpm dev --host"
     networks:
       - savanna-dev
 
@@ -58,7 +58,7 @@ services:
       - VITE_PEOPLE_DOMAIN=localhost:3002
       - VITE_ELIMU_DOMAIN=localhost:3003
       - VITE_ERP_DOMAIN=localhost:3004
-    command: pnpm dev --host
+    command: sh -c "cd /app && pnpm install --prefer-offline && cd /app/apps/elimu && pnpm dev --host"
     networks:
       - savanna-dev
 
@@ -79,7 +79,7 @@ services:
       - VITE_PEOPLE_DOMAIN=localhost:3002
       - VITE_ELIMU_DOMAIN=localhost:3003
       - VITE_ERP_DOMAIN=localhost:3004
-    command: pnpm dev --host
+    command: sh -c "cd /app && pnpm install --prefer-offline && cd /app/apps/erp && pnpm dev --host"
     networks:
       - savanna-dev
 

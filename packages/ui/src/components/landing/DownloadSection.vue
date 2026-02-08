@@ -48,12 +48,12 @@ onUnmounted(() => {
 
 <template>
   <section ref="sectionRef" id="download" class="relative overflow-hidden bg-rose-50/50 py-16 lg:py-20">
-    <!-- Grid pattern background -->
+    <!-- Background grid pattern -->
     <div class="absolute inset-0 opacity-[0.3]">
       <svg class="size-full">
         <defs>
-          <pattern id="download-grid" x="0" y="0" width="32" height="32" patternUnits="userSpaceOnUse">
-            <path d="M32 0v32H0" fill="none" stroke="currentColor" stroke-width="0.5" class="text-rose-200"/>
+          <pattern id="download-grid" x="0" y="0" width="40" height="40" patternUnits="userSpaceOnUse">
+            <path d="M40 0v40H0" fill="none" stroke="currentColor" stroke-width="0.5" class="text-rose-200"/>
           </pattern>
         </defs>
         <rect width="100%" height="100%" fill="url(#download-grid)"/>

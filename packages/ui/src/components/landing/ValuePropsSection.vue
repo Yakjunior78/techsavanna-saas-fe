@@ -77,8 +77,8 @@ const dashboardVariants = [
 
 <template>
   <section ref="sectionRef" class="relative overflow-hidden bg-slate-50 py-16 lg:py-24">
-    <!-- Background decoration -->
-    <div class="absolute inset-0 opacity-[0.03]">
+    <!-- Background grid pattern -->
+    <div class="absolute inset-0 opacity-[0.08]">
       <svg class="size-full">
         <defs>
           <pattern id="value-grid-pattern" x="0" y="0" width="40" height="40" patternUnits="userSpaceOnUse">

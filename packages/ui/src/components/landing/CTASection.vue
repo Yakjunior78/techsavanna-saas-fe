@@ -62,15 +62,15 @@ const trustBadges = [
     class="relative overflow-hidden bg-gradient-to-r py-12 lg:py-16"
     :class="[gradientFrom, gradientTo]"
   >
-    <!-- Subtle pattern -->
-    <div class="absolute inset-0 opacity-10">
+    <!-- Background grid pattern -->
+    <div class="absolute inset-0 opacity-20">
       <svg class="size-full" xmlns="http://www.w3.org/2000/svg">
         <defs>
-          <pattern id="cta-pattern" x="0" y="0" width="24" height="24" patternUnits="userSpaceOnUse">
-            <circle cx="12" cy="12" r="1" fill="white"/>
+          <pattern id="cta-grid" x="0" y="0" width="40" height="40" patternUnits="userSpaceOnUse">
+            <path d="M40 0v40H0" fill="none" stroke="white" stroke-width="0.5"/>
           </pattern>
         </defs>
-        <rect width="100%" height="100%" fill="url(#cta-pattern)"/>
+        <rect width="100%" height="100%" fill="url(#cta-grid)"/>
       </svg>
     </div>
 

@@ -118,8 +118,8 @@ function getAccentClasses(index: number, type: 'bg' | 'text' | 'border' | 'light
 
 <template>
   <section ref="sectionRef" id="features" class="relative overflow-hidden bg-white py-16 lg:py-24">
-    <!-- Subtle background decoration -->
-    <div class="absolute inset-0 opacity-[0.02]">
+    <!-- Background grid pattern -->
+    <div class="absolute inset-0 opacity-[0.06]">
       <svg class="size-full">
         <defs>
           <pattern id="features-grid" x="0" y="0" width="40" height="40" patternUnits="userSpaceOnUse">

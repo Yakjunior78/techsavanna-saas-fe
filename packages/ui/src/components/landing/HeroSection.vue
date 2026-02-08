@@ -97,15 +97,15 @@ const trustBadges = [
     <div class="absolute -left-40 -top-40 size-80 animate-float rounded-full bg-white/10 blur-3xl"></div>
     <div class="absolute -bottom-40 -right-40 size-96 animate-float rounded-full bg-white/10 blur-3xl" style="animation-delay: -3s"></div>
 
-    <!-- Background Pattern -->
-    <div class="absolute inset-0 opacity-10">
+    <!-- Background Grid Pattern -->
+    <div class="absolute inset-0 opacity-20">
       <svg class="size-full" xmlns="http://www.w3.org/2000/svg">
         <defs>
-          <pattern id="hero-pattern" x="0" y="0" width="40" height="40" patternUnits="userSpaceOnUse">
-            <circle cx="20" cy="20" r="1" fill="white"/>
+          <pattern id="hero-grid" x="0" y="0" width="40" height="40" patternUnits="userSpaceOnUse">
+            <path d="M40 0v40H0" fill="none" stroke="white" stroke-width="0.5"/>
           </pattern>
         </defs>
-        <rect width="100%" height="100%" fill="url(#hero-pattern)"/>
+        <rect width="100%" height="100%" fill="url(#hero-grid)"/>
       </svg>
     </div>
 

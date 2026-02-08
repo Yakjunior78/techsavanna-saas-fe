@@ -55,15 +55,15 @@ const yearlyDiscount = computed(() => {
 
 <template>
   <section ref="sectionRef" id="pricing" class="relative overflow-hidden bg-gradient-to-b from-blue-50/30 to-white py-14 lg:py-20">
-    <!-- Subtle pattern background -->
-    <div class="absolute inset-0 opacity-[0.015]">
+    <!-- Background grid pattern -->
+    <div class="absolute inset-0 opacity-[0.08]">
       <svg class="size-full">
         <defs>
-          <pattern id="pricing-dots" x="0" y="0" width="20" height="20" patternUnits="userSpaceOnUse">
-            <circle cx="2" cy="2" r="1" fill="currentColor"/>
+          <pattern id="pricing-grid" x="0" y="0" width="40" height="40" patternUnits="userSpaceOnUse">
+            <path d="M40 0v40H0" fill="none" stroke="currentColor" stroke-width="0.5"/>
           </pattern>
         </defs>
-        <rect width="100%" height="100%" fill="url(#pricing-dots)"/>
+        <rect width="100%" height="100%" fill="url(#pricing-grid)"/>
       </svg>
     </div>
 

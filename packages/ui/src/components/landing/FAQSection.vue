@@ -83,15 +83,15 @@ function onLeave(el: Element) {
 
 <template>
   <section ref="sectionRef" id="faq" class="relative overflow-hidden bg-slate-50 py-14 lg:py-20">
-    <!-- Subtle diagonal lines background -->
-    <div class="absolute inset-0 opacity-[0.02]">
+    <!-- Background grid pattern -->
+    <div class="absolute inset-0 opacity-[0.08]">
       <svg class="size-full">
         <defs>
-          <pattern id="faq-lines" x="0" y="0" width="40" height="40" patternUnits="userSpaceOnUse">
-            <path d="M0 40L40 0" fill="none" stroke="currentColor" stroke-width="0.5"/>
+          <pattern id="faq-grid" x="0" y="0" width="40" height="40" patternUnits="userSpaceOnUse">
+            <path d="M40 0v40H0" fill="none" stroke="currentColor" stroke-width="0.5"/>
           </pattern>
         </defs>
-        <rect width="100%" height="100%" fill="url(#faq-lines)"/>
+        <rect width="100%" height="100%" fill="url(#faq-grid)"/>
       </svg>
     </div>
 

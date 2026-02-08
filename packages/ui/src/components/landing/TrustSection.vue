@@ -100,6 +100,18 @@ function getIconTextClass(color: string) {
 
 <template>
   <section ref="sectionRef" class="relative overflow-hidden bg-gradient-to-b from-gray-50 to-white py-16 lg:py-20">
+    <!-- Background grid pattern -->
+    <div class="absolute inset-0 opacity-[0.08]">
+      <svg class="size-full">
+        <defs>
+          <pattern id="trust-grid" x="0" y="0" width="40" height="40" patternUnits="userSpaceOnUse">
+            <path d="M40 0v40H0" fill="none" stroke="currentColor" stroke-width="0.5"/>
+          </pattern>
+        </defs>
+        <rect width="100%" height="100%" fill="url(#trust-grid)"/>
+      </svg>
+    </div>
+
     <!-- Decorative background elements -->
     <div class="pointer-events-none absolute inset-0">
       <div class="absolute -left-20 top-20 size-72 rounded-full bg-emerald-100/40 blur-3xl"></div>
