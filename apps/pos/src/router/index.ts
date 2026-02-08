@@ -43,6 +43,16 @@ const router = createRouter({
       path: '/contact',
       name: 'contact',
       component: () => import('@/pages/contact/ContactPage.vue')
+    },
+    {
+      path: '/sales',
+      name: 'sales',
+      component: () => import('@/pages/sales/SalesPage.vue')
+    },
+    {
+      path: '/download',
+      name: 'download',
+      component: () => import('@/pages/download/DownloadPage.vue')
     }
   ],
   scrollBehavior(to) {

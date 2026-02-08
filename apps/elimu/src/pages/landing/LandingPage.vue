@@ -10,7 +10,8 @@ import {
   PricingSection,
   TestimonialsSection,
   FAQSection,
-  CTASection
+  CTASection,
+  TrustSection
 } from '@techsavanna/ui'
 import type { Feature, Testimonial, FAQ, ValueProp } from '@techsavanna/ui'
 
@@ -165,6 +166,13 @@ const pricingPlans: PricingPlan[] = [
 // Testimonials from school administrators
 const testimonials: Testimonial[] = [
   {
+    name: 'George Njuguna',
+    role: 'CIO',
+    company: 'Safaricom PLC',
+    quote: 'TechSavanna has provided us with exceptional service. Their team was incredibly knowledgeable and professional, delivering a solution tailored to our unique needs. We have been able to efficiently manage our operations in a manner that is both cost-effective and secure.',
+    rating: 5
+  },
+  {
     name: 'Margaret Wanjiru',
     role: 'Principal',
     company: 'Sunrise Academy Nairobi',
@@ -313,6 +321,9 @@ function handleSelectPlan(plan: PricingPlan) {
       gradient-from="from-blue-600"
       gradient-to="to-indigo-700"
       @cta-click="handleGetStarted"
+      @secondary-cta-click="router.push('/sales')"
     />
+
+    <TrustSection />
   </LandingLayout>
 </template>

@@ -10,7 +10,8 @@ import {
   PricingSection,
   TestimonialsSection,
   FAQSection,
-  CTASection
+  CTASection,
+  TrustSection
 } from '@techsavanna/ui'
 import type { Feature, Testimonial, FAQ, ValueProp } from '@techsavanna/ui'
 
@@ -165,6 +166,13 @@ const pricingPlans: PricingPlan[] = [
 // Testimonials
 const testimonials: Testimonial[] = [
   {
+    name: 'George Njuguna',
+    role: 'CIO',
+    company: 'Safaricom PLC',
+    quote: 'TechSavanna has provided us with exceptional service. Their team was incredibly knowledgeable and professional, delivering a solution tailored to our unique needs. We have been able to efficiently manage our operations in a manner that is both cost-effective and secure.',
+    rating: 5
+  },
+  {
     name: 'Margaret Wambui',
     role: 'Chief Financial Officer',
     company: 'Nairobi Manufacturing Ltd',
@@ -309,10 +317,13 @@ function handleSelectPlan(plan: PricingPlan) {
       title="Ready to Transform Your Enterprise?"
       subtitle="Join hundreds of businesses using Savanna360ERP to streamline operations and accelerate growth"
       cta-text="Start Your Free Trial"
-      secondary-cta-text="Schedule a Demo"
+      secondary-cta-text="Talk to Sales"
       gradient-from="from-blue-600"
       gradient-to="to-indigo-700"
       @cta-click="handleGetStarted"
+      @secondary-cta-click="router.push('/sales')"
     />
+
+    <TrustSection />
   </LandingLayout>
 </template>

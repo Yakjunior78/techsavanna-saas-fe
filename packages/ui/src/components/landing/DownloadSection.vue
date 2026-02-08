@@ -6,7 +6,9 @@ interface Props {
   subtitle?: string
   androidUrl?: string
   iosUrl?: string
+  downloadPageUrl?: string
   features?: string[]
+  desktopComingSoon?: boolean
 }
 
 withDefaults(defineProps<Props>(), {
@@ -14,7 +16,9 @@ withDefaults(defineProps<Props>(), {
   subtitle: 'Take your business anywhere with our mobile app',
   androidUrl: '#',
   iosUrl: '#',
-  features: () => ['Works offline', 'Real-time sync', 'Push notifications', 'Secure login']
+  downloadPageUrl: '/download',
+  features: () => ['Works offline', 'Real-time sync', 'Push notifications', 'Secure login'],
+  desktopComingSoon: false
 })
 
 const sectionRef = ref<HTMLElement | null>(null)
@@ -101,7 +105,7 @@ onUnmounted(() => {
             :style="{ transitionDelay: '200ms' }"
           >
             <a
-              :href="androidUrl"
+              :href="downloadPageUrl"
               class="group flex items-center gap-3 rounded-xl border border-gray-200 bg-white px-5 py-3 transition-all hover:border-gray-300 hover:shadow-md"
             >
               <svg class="size-7 text-gray-900" viewBox="0 0 24 24" fill="currentColor">
@@ -113,7 +117,7 @@ onUnmounted(() => {
               </div>
             </a>
             <a
-              :href="iosUrl"
+              :href="downloadPageUrl"
               class="group flex items-center gap-3 rounded-xl border border-gray-200 bg-white px-5 py-3 transition-all hover:border-gray-300 hover:shadow-md"
             >
               <svg class="size-7 text-gray-900" viewBox="0 0 24 24" fill="currentColor">
