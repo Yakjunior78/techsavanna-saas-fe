@@ -1,0 +1,88 @@
+services:
+  pos:
+    build:
+      context: ..
+      dockerfile: apps/pos/Dockerfile
+      target: builder
+    ports:
+      - "3001:3001"
+    volumes:
+      - ../apps/pos/src:/app/apps/pos/src
+      - ../packages:/app/packages
+    environment:
+      - NODE_ENV=development
+      - VITE_API_BASE_URL=http://localhost:8000/api/v1
+      - VITE_POS_DOMAIN=localhost:3001
+      - VITE_PEOPLE_DOMAIN=localhost:3002
+      - VITE_ELIMU_DOMAIN=localhost:3003
+      - VITE_ERP_DOMAIN=localhost:3004
+    command: pnpm dev --host
+    networks:
+      - savanna-dev
+
+  people:
+    build:
+      context: ..
+      dockerfile: apps/people/Dockerfile
+      target: builder
+    ports:
+      - "3002:3002"
+    volumes:
+      - ../apps/people/src:/app/apps/people/src
+      - ../packages:/app/packages
+    environment:
+      - NODE_ENV=development
+      - VITE_API_BASE_URL=http://localhost:8000/api/v1
+      - VITE_POS_DOMAIN=localhost:3001
+      - VITE_PEOPLE_DOMAIN=localhost:3002
+      - VITE_ELIMU_DOMAIN=localhost:3003
+      - VITE_ERP_DOMAIN=localhost:3004
+    command: pnpm dev --host
+    networks:
+      - savanna-dev
+
+  elimu:
+    build:
+      context: ..
+      dockerfile: apps/elimu/Dockerfile
+      target: builder
+    ports:
+      - "3003:3003"
+    volumes:
+      - ../apps/elimu/src:/app/apps/elimu/src
+      - ../packages:/app/packages
+    environment:
+      - NODE_ENV=development
+      - VITE_API_BASE_URL=http://localhost:8000/api/v1
+      - VITE_POS_DOMAIN=localhost:3001
+      - VITE_PEOPLE_DOMAIN=localhost:3002
+      - VITE_ELIMU_DOMAIN=localhost:3003
+      - VITE_ERP_DOMAIN=localhost:3004
+    command: pnpm dev --host
+    networks:
+      - savanna-dev
+
+  erp:
+    build:
+      context: ..
+      dockerfile: apps/erp/Dockerfile
+      target: builder
+    ports:
+      - "3004:3004"
+    volumes:
+      - ../apps/erp/src:/app/apps/erp/src
+      - ../packages:/app/packages
+    environment:
+      - NODE_ENV=development
+      - VITE_API_BASE_URL=http://localhost:8000/api/v1
+      - VITE_POS_DOMAIN=localhost:3001
+      - VITE_PEOPLE_DOMAIN=localhost:3002
+      - VITE_ELIMU_DOMAIN=localhost:3003
+      - VITE_ERP_DOMAIN=localhost:3004
+    command: pnpm dev --host
+    networks:
+      - savanna-dev
+
+networks:
+  savanna-dev:
+    driver: bridge

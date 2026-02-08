@@ -1,0 +1,13 @@
+export { default as HeroSection } from './HeroSection.vue'
+export { default as FeaturesSection } from './FeaturesSection.vue'
+export { default as PricingSection } from './PricingSection.vue'
+export { default as TestimonialsSection } from './TestimonialsSection.vue'
+export { default as FAQSection } from './FAQSection.vue'
+export { default as CTASection } from './CTASection.vue'
+export { default as ValuePropsSection } from './ValuePropsSection.vue'
+export { default as DownloadSection } from './DownloadSection.vue'
+
+export type { Feature } from './FeaturesSection.vue'
+export type { Testimonial } from './TestimonialsSection.vue'
+export type { FAQ } from './FAQSection.vue'
+export type { ValueProp } from './ValuePropsSection.vue'

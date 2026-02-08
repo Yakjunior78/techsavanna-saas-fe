@@ -1,0 +1,95 @@
+services:
+  pos:
+    build:
+      context: ..
+      dockerfile: apps/pos/Dockerfile
+      target: production
+    restart: unless-stopped
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.pos.rule=Host(`pos.techsavanna.com`)"
+      - "traefik.http.routers.pos.entrypoints=websecure"
+      - "traefik.http.routers.pos.tls=true"
+      - "traefik.http.routers.pos.tls.certresolver=letsencrypt"
+      - "traefik.http.services.pos.loadbalancer.server.port=80"
+    networks:
+      - savanna-network
+
+  people:
+    build:
+      context: ..
+      dockerfile: apps/people/Dockerfile
+      target: production
+    restart: unless-stopped
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.people.rule=Host(`people.techsavanna.com`)"
+      - "traefik.http.routers.people.entrypoints=websecure"
+      - "traefik.http.routers.people.tls=true"
+      - "traefik.http.routers.people.tls.certresolver=letsencrypt"
+      - "traefik.http.services.people.loadbalancer.server.port=80"
+    networks:
+      - savanna-network
+
+  elimu:
+    build:
+      context: ..
+      dockerfile: apps/elimu/Dockerfile
+      target: production
+    restart: unless-stopped
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.elimu.rule=Host(`elimu.techsavanna.com`)"
+      - "traefik.http.routers.elimu.entrypoints=websecure"
+      - "traefik.http.routers.elimu.tls=true"
+      - "traefik.http.routers.elimu.tls.certresolver=letsencrypt"
+      - "traefik.http.services.elimu.loadbalancer.server.port=80"
+    networks:
+      - savanna-network
+
+  erp:
+    build:
+      context: ..
+      dockerfile: apps/erp/Dockerfile
+      target: production
+    restart: unless-stopped
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.erp.rule=Host(`erp.techsavanna.com`)"
+      - "traefik.http.routers.erp.entrypoints=websecure"
+      - "traefik.http.routers.erp.tls=true"
+      - "traefik.http.routers.erp.tls.certresolver=letsencrypt"
+      - "traefik.http.services.erp.loadbalancer.server.port=80"
+    networks:
+      - savanna-network
+
+  traefik:
+    image: traefik:v3.0
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    command:
+      - "--api.dashboard=true"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+      - "--entrypoints.web.http.redirections.entryPoint.to=websecure"
+      - "--entrypoints.web.http.redirections.entryPoint.scheme=https"
+      - "--certificatesresolvers.letsencrypt.acme.httpchallenge=true"
+      - "--certificatesresolvers.letsencrypt.acme.httpchallenge.entrypoint=web"
+      - "--certificatesresolvers.letsencrypt.acme.email=admin@techsavanna.com"
+      - "--certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - traefik-certs:/letsencrypt
+    networks:
+      - savanna-network
+
+networks:
+  savanna-network:
+    driver: bridge
+
+volumes:
+  traefik-certs:

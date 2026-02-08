@@ -1,0 +1,29 @@
+{
+  "name": "@techsavanna/ui",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts",
+    "./components/*": "./src/components/*",
+    "./composables/*": "./src/composables/*"
+  },
+  "scripts": {
+    "type-check": "vue-tsc --noEmit"
+  },
+  "peerDependencies": {
+    "vue": "^3.5.0",
+    "vue-router": "^5.0.0"
+  },
+  "dependencies": {
+    "@techsavanna/shared": "workspace:*",
+    "@techsavanna/tailwind-config": "workspace:*"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^6.0.3",
+    "@vue/tsconfig": "^0.8.1",
+    "typescript": "~5.9.3",
+    "vue-tsc": "^3.2.4"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "name": "@techsavanna/tailwind-config",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "./src/index.css",
+  "exports": {
+    ".": "./src/index.css",
+    "./theme": "./src/theme.css"
+  }
+}

@@ -1,0 +1,38 @@
+{
+  "name": "techsavanna-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "pnpm -r --parallel dev",
+    "dev:admin": "pnpm --filter @techsavanna/admin dev",
+    "dev:pos": "pnpm --filter @techsavanna/pos dev",
+    "dev:people": "pnpm --filter @techsavanna/people dev",
+    "dev:elimu": "pnpm --filter @techsavanna/elimu dev",
+    "dev:erp": "pnpm --filter @techsavanna/erp dev",
+    "build": "pnpm -r build",
+    "build:admin": "pnpm --filter @techsavanna/admin build",
+    "build:pos": "pnpm --filter @techsavanna/pos build",
+    "build:people": "pnpm --filter @techsavanna/people build",
+    "build:elimu": "pnpm --filter @techsavanna/elimu build",
+    "build:erp": "pnpm --filter @techsavanna/erp build",
+    "test": "pnpm -r test",
+    "test:unit": "vitest",
+    "test:e2e": "playwright test",
+    "type-check": "pnpm -r type-check",
+    "lint": "pnpm -r lint",
+    "clean": "pnpm -r clean && rm -rf node_modules",
+    "docker:dev": "docker compose -f docker/docker-compose.dev.yml up",
+    "docker:prod": "docker compose -f docker/docker-compose.prod.yml up -d"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.58.1",
+    "vitest": "^4.0.18",
+    "typescript": "~5.9.3"
+  },
+  "engines": {
+    "node": "^20.19.0 || >=22.12.0",
+    "pnpm": ">=9.0.0"
+  },
+  "packageManager": "pnpm@9.15.0"
+}

@@ -1,0 +1,17 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"],
+      "@techsavanna/ui": ["../../packages/ui/src"],
+      "@techsavanna/ui/*": ["../../packages/ui/src/*"],
+      "@techsavanna/shared": ["../../packages/shared/src"],
+      "@techsavanna/shared/*": ["../../packages/shared/src/*"],
+      "@techsavanna/auth": ["../../packages/auth/src"],
+      "@techsavanna/tailwind-config": ["../../packages/tailwind-config/src"]
+    }
+  },
+  "include": ["src/**/*", "src/**/*.vue", "env.d.ts"],
+  "exclude": ["node_modules", "dist"]
+}

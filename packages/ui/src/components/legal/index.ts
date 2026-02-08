@@ -1,0 +1,7 @@
+export { default as CookieConsent } from './CookieConsent.vue'
+export { default as DataConsentCheckbox } from './DataConsentCheckbox.vue'
+export { default as PrivacyPolicyContent } from './PrivacyPolicyContent.vue'
+export { default as TermsOfServiceContent } from './TermsOfServiceContent.vue'
+export { default as CookiePolicyContent } from './CookiePolicyContent.vue'
+export { default as LegalPageLayout } from './LegalPageLayout.vue'
+export { default as ContactPageLayout } from './ContactPageLayout.vue'
