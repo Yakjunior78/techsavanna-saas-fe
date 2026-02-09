@@ -8,7 +8,7 @@ set -euo pipefail
 #   ./scripts/docker-build.sh v1.2.3 pos         # Build only pos with specific tag
 #   ./scripts/docker-build.sh latest pos people   # Build pos and people
 
-REGISTRY="${DOCKER_REGISTRY:-ghcr.io/yakjunior78}"
+REGISTRY="${DOCKER_REGISTRY:-registry.gitlab.com/techsavanna-sass/techsavanna-saas-fe}"
 TAG="${1:-latest}"
 shift || true
 

@@ -22,7 +22,7 @@ spec:
     spec:
       containers:
         - name: pos
-          image: ghcr.io/yakjunior78/pos:latest
+          image: registry.gitlab.com/techsavanna-sass/techsavanna-saas-fe/pos:latest
           ports:
             - containerPort: 80
               protocol: TCP

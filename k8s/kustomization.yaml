@@ -27,11 +27,11 @@ labels:
     includeSelectors: false
 
 images:
-  - name: ghcr.io/yakjunior78/pos
+  - name: registry.gitlab.com/techsavanna-sass/techsavanna-saas-fe/pos
     newTag: latest
-  - name: ghcr.io/yakjunior78/people
+  - name: registry.gitlab.com/techsavanna-sass/techsavanna-saas-fe/people
     newTag: latest
-  - name: ghcr.io/yakjunior78/elimu
+  - name: registry.gitlab.com/techsavanna-sass/techsavanna-saas-fe/elimu
     newTag: latest
-  - name: ghcr.io/yakjunior78/erp
+  - name: registry.gitlab.com/techsavanna-sass/techsavanna-saas-fe/erp
     newTag: latest

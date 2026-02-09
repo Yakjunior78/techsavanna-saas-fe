@@ -27,14 +27,16 @@ echo "K8s dir:   $K8S_DIR"
 echo ""
 
 # Apply with kustomize, overriding the image tag
+GITLAB_REGISTRY="registry.gitlab.com/techsavanna-sass/techsavanna-saas-fe"
+
 kubectl apply -k "$K8S_DIR" $DRY_RUN \
-  --kustomize-image "ghcr.io/yakjunior78/pos:${TAG}" \
-  --kustomize-image "ghcr.io/yakjunior78/people:${TAG}" \
-  --kustomize-image "ghcr.io/yakjunior78/elimu:${TAG}" \
-  --kustomize-image "ghcr.io/yakjunior78/erp:${TAG}" \
+  --kustomize-image "${GITLAB_REGISTRY}/pos:${TAG}" \
+  --kustomize-image "${GITLAB_REGISTRY}/people:${TAG}" \
+  --kustomize-image "${GITLAB_REGISTRY}/elimu:${TAG}" \
+  --kustomize-image "${GITLAB_REGISTRY}/erp:${TAG}" \
   2>/dev/null || \
 kubectl kustomize "$K8S_DIR" | \
-  sed "s|ghcr.io/yakjunior78/\(.*\):latest|ghcr.io/yakjunior78/\1:${TAG}|g" | \
+  sed "s|${GITLAB_REGISTRY}/\(.*\):latest|${GITLAB_REGISTRY}/\1:${TAG}|g" | \
   kubectl apply $DRY_RUN -f -
 
 echo ""

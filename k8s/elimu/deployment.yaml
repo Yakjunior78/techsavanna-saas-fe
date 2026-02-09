@@ -22,7 +22,7 @@ spec:
     spec:
       containers:
         - name: elimu
-          image: ghcr.io/yakjunior78/elimu:latest
+          image: registry.gitlab.com/techsavanna-sass/techsavanna-saas-fe/elimu:latest
           ports:
             - containerPort: 80
               protocol: TCP
