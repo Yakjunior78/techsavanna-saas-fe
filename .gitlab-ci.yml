@@ -1,7 +1,6 @@
 stages:
   - detect
   - build
-  - deploy
 
 variables:
   REGISTRY: registry.gitlab.com/techsavanna-sass/techsavanna-saas-fe
@@ -114,66 +113,3 @@ build-erp:
     APP_NAME: erp
   rules:
     - if: $BUILD_ERP == "true"
-
-# -----------------------------------------------------------
-# Deploy to Kubernetes (manual trigger)
-# -----------------------------------------------------------
-deploy-staging:
-  stage: deploy
-  image:
-    name: bitnami/kubectl:latest
-    entrypoint: [""]
-  needs:
-    - job: build-pos
-      optional: true
-    - job: build-people
-      optional: true
-    - job: build-elimu
-      optional: true
-    - job: build-erp
-      optional: true
-  script:
-    - |
-      cd k8s
-      kubectl kustomize . | \
-        sed "s|registry.gitlab.com/techsavanna-sass/techsavanna-saas-fe/\(.*\):.*|registry.gitlab.com/techsavanna-sass/techsavanna-saas-fe/\1:${CI_COMMIT_SHORT_SHA}|g" | \
-        kubectl apply -f -
-    - kubectl -n techsavanna-saas rollout status deployment/pos --timeout=120s
-    - kubectl -n techsavanna-saas rollout status deployment/people --timeout=120s
-    - kubectl -n techsavanna-saas rollout status deployment/elimu --timeout=120s
-    - kubectl -n techsavanna-saas rollout status deployment/erp --timeout=120s
-  environment:
-    name: staging
-  rules:
-    - if: $CI_COMMIT_BRANCH == "dev"
-      when: manual
-
-deploy-production:
-  stage: deploy
-  image:
-    name: bitnami/kubectl:latest
-    entrypoint: [""]
-  needs:
-    - job: build-pos
-      optional: true
-    - job: build-people
-      optional: true
-    - job: build-elimu
-      optional: true
-    - job: build-erp
-      optional: true
-  script:
-    - |
-      cd k8s
-      kubectl kustomize . | \
-        sed "s|registry.gitlab.com/techsavanna-sass/techsavanna-saas-fe/\(.*\):.*|registry.gitlab.com/techsavanna-sass/techsavanna-saas-fe/\1:${CI_COMMIT_SHORT_SHA}|g" | \
-        kubectl apply -f -
-    - kubectl -n techsavanna-saas rollout status deployment/pos --timeout=120s
-    - kubectl -n techsavanna-saas rollout status deployment/people --timeout=120s
-    - kubectl -n techsavanna-saas rollout status deployment/elimu --timeout=120s
-    - kubectl -n techsavanna-saas rollout status deployment/erp --timeout=120s
-  environment:
-    name: production
-  rules:
-    - if: $CI_COMMIT_BRANCH == "main"
-      when: manual
