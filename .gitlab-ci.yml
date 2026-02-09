@@ -121,7 +121,7 @@ build-erp:
 deploy-staging:
   stage: deploy
   image:
-    name: bitnami/kubectl:1.31
+    name: bitnami/kubectl:latest
     entrypoint: [""]
   needs:
     - job: build-pos
@@ -151,7 +151,7 @@ deploy-staging:
 deploy-production:
   stage: deploy
   image:
-    name: bitnami/kubectl:1.31
+    name: bitnami/kubectl:latest
     entrypoint: [""]
   needs:
     - job: build-pos
