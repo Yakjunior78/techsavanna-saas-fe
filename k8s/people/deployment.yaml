@@ -1,0 +1,51 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: people
+  namespace: techsavanna-saas
+  labels:
+    app: people
+    app.kubernetes.io/name: people
+    app.kubernetes.io/part-of: techsavanna-saas
+    app.kubernetes.io/component: frontend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: people
+  template:
+    metadata:
+      labels:
+        app: people
+        app.kubernetes.io/name: people
+        app.kubernetes.io/part-of: techsavanna-saas
+    spec:
+      containers:
+        - name: people
+          image: ghcr.io/yakjunior78/people:latest
+          ports:
+            - containerPort: 80
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 80
+            initialDelaySeconds: 5
+            periodSeconds: 30
+            timeoutSeconds: 3
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 80
+            initialDelaySeconds: 3
+            periodSeconds: 10
+            timeoutSeconds: 3
+            failureThreshold: 3
+          resources:
+            requests:
+              cpu: 50m
+              memory: 64Mi
+            limits:
+              cpu: 200m
+              memory: 128Mi

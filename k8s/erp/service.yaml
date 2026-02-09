@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: erp
+  namespace: techsavanna-saas
+  labels:
+    app: erp
+    app.kubernetes.io/name: erp
+    app.kubernetes.io/part-of: techsavanna-saas
+spec:
+  type: ClusterIP
+  selector:
+    app: erp
+  ports:
+    - port: 80
+      targetPort: 80
+      protocol: TCP

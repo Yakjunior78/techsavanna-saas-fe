@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: pos
+  namespace: techsavanna-saas
+  labels:
+    app: pos
+    app.kubernetes.io/name: pos
+    app.kubernetes.io/part-of: techsavanna-saas
+spec:
+  type: ClusterIP
+  selector:
+    app: pos
+  ports:
+    - port: 80
+      targetPort: 80
+      protocol: TCP

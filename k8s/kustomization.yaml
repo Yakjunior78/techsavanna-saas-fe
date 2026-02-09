@@ -1,0 +1,37 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: techsavanna-saas
+
+resources:
+  - namespace.yaml
+  - cert-issuer.yaml
+  # POS
+  - pos/deployment.yaml
+  - pos/service.yaml
+  # People
+  - people/deployment.yaml
+  - people/service.yaml
+  # Elimu
+  - elimu/deployment.yaml
+  - elimu/service.yaml
+  # ERP
+  - erp/deployment.yaml
+  - erp/service.yaml
+  # Ingress
+  - ingress.yaml
+
+labels:
+  - pairs:
+      app.kubernetes.io/managed-by: kustomize
+    includeSelectors: false
+
+images:
+  - name: ghcr.io/yakjunior78/pos
+    newTag: latest
+  - name: ghcr.io/yakjunior78/people
+    newTag: latest
+  - name: ghcr.io/yakjunior78/elimu
+    newTag: latest
+  - name: ghcr.io/yakjunior78/erp
+    newTag: latest

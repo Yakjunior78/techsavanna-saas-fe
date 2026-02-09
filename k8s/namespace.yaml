@@ -1,0 +1,6 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: techsavanna-saas
+  labels:
+    app.kubernetes.io/part-of: techsavanna-saas

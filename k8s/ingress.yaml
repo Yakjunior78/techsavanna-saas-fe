@@ -1,0 +1,61 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: techsavanna-saas-ingress
+  namespace: techsavanna-saas
+  labels:
+    app.kubernetes.io/part-of: techsavanna-saas
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/proxy-body-size: "10m"
+spec:
+  ingressClassName: nginx
+  tls:
+    - hosts:
+        - savannapaypos.saas.techsavanna.technology
+        - workwisehrm.saas.techsavanna.technology
+        - elimucore.saas.techsavanna.technology
+        - savanna360erp.saas.techsavanna.technology
+      secretName: techsavanna-saas-tls
+  rules:
+    - host: savannapaypos.saas.techsavanna.technology
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: pos
+                port:
+                  number: 80
+    - host: workwisehrm.saas.techsavanna.technology
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: people
+                port:
+                  number: 80
+    - host: elimucore.saas.techsavanna.technology
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: elimu
+                port:
+                  number: 80
+    - host: savanna360erp.saas.techsavanna.technology
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: erp
+                port:
+                  number: 80
