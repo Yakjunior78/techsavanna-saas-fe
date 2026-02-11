@@ -337,9 +337,9 @@ const isSetupStep = computed(() => props.currentStepId === 'setup')
     </header>
 
     <!-- Progress Bar -->
-    <div class="h-0.5 shrink-0 bg-gray-200">
+    <div class="mx-6 h-0.5 shrink-0 rounded-full bg-gray-100">
       <div
-        class="h-full transition-all duration-500 ease-out"
+        class="h-full rounded-full transition-all duration-500 ease-out"
         :style="{ width: `${progress}%`, backgroundColor: appColor }"
       />
     </div>

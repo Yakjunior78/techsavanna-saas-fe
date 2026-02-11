@@ -73,6 +73,12 @@ const {
 // Always start from step 1 when navigating to onboarding
 resetProgress()
 
+// Dev preview: ?preview=setup or ?preview=complete to jump to setup/completion
+const devPreview = route.query.preview as string | undefined
+if (devPreview === 'setup' || devPreview === 'complete') {
+  ;['account', 'organization', 'plan'].forEach(id => completeStep(id))
+}
+
 // Local form state for validation
 const errors = ref<Record<string, string>>({})
 const isLoading = ref(false)
@@ -117,10 +123,13 @@ watch(billingCycle, () => {
 const {
   status: provisioningStatus,
   isPolling: provisioningPolling,
-  isReady: provisioningReady,
+  isReady: _provisioningReady,
   error: provisioningError,
   startPolling: startProvisioningPolling
 } = useProvisioning()
+
+// Dev preview: force ready state with ?preview=complete
+const provisioningReady = computed(() => devPreview === 'complete' || _provisioningReady.value)
 
 const activeProvisioningStepName = computed(() => {
   if (!provisioningStatus.value?.steps?.length) return ''
@@ -354,6 +363,8 @@ watch(provisioningReady, (ready) => {
       clearInterval(typingTimer)
       typingTimer = null
     }
+    // Skip auto-redirect in dev preview mode
+    if (devPreview === 'complete') return
     // Start 5-second countdown
     redirectCountdown.value = 5
     countdownTimer = setInterval(() => {
@@ -665,25 +676,27 @@ const canContinue = computed(() => {
         </div>
 
         <!-- Completion state -->
-        <div v-if="provisioningReady" class="py-4 text-center">
-          <div class="mx-auto mb-4 flex size-16 items-center justify-center rounded-full bg-blue-100">
-            <svg class="size-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
-            </svg>
+        <div v-if="provisioningReady" class="space-y-5 py-4">
+          <div class="text-center">
+            <div class="mx-auto mb-3 flex size-12 items-center justify-center rounded-full bg-green-50">
+              <svg class="size-6 text-green-500" viewBox="0 0 24 24" fill="currentColor">
+                <path fill-rule="evenodd" d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12Zm13.36-1.814a.75.75 0 1 0-1.22-.872l-3.236 4.53L9.53 12.22a.75.75 0 0 0-1.06 1.06l2.25 2.25a.75.75 0 0 0 1.14-.094l3.75-5.25Z" clip-rule="evenodd"/>
+              </svg>
+            </div>
+            <h2 class="text-lg font-semibold text-gray-900">Hurray...your workspace is ready</h2>
+            <p class="mt-2 text-sm text-gray-500">Redirecting in {{ redirectCountdown }}</p>
           </div>
-          <h2 class="text-xl font-semibold text-gray-900">Your platform is ready!</h2>
-          <p class="mt-1.5 text-sm text-gray-500">
-            Redirecting in <span class="font-semibold text-blue-600">{{ redirectCountdown }}</span> seconds...
-          </p>
-          <a
-            :href="redirectUrl"
-            class="mt-5 inline-flex items-center gap-2 rounded-xl bg-blue-600 px-6 py-3 text-sm font-medium text-white shadow-lg shadow-blue-200 transition-all hover:bg-blue-700 hover:shadow-xl"
-          >
-            Go to your workspace
-            <svg class="size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"/>
-            </svg>
-          </a>
+          <div class="flex justify-center pt-2">
+            <a
+              :href="redirectUrl"
+              class="group inline-flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 transition-all hover:border-gray-300 hover:shadow-sm"
+            >
+              Go to workspace now
+              <svg class="size-4 text-gray-400 transition-colors group-hover:text-gray-600" viewBox="0 0 24 24" fill="currentColor">
+                <path fill-rule="evenodd" d="M16.28 11.47a.75.75 0 0 1 0 1.06l-7.5 7.5a.75.75 0 0 1-1.06-1.06L14.69 12 7.72 5.03a.75.75 0 0 1 1.06-1.06l7.5 7.5Z" clip-rule="evenodd"/>
+              </svg>
+            </a>
+          </div>
         </div>
 
         <!-- In-progress state -->
