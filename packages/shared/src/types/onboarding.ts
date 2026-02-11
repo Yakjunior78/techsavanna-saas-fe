@@ -48,7 +48,12 @@ export interface OnboardingFormData {
   selectedPlanId?: string
   billingPeriod?: 'monthly' | 'yearly'
 
-  // Payment step
+  // Signup response data
+  tenantId?: string
+  subscriptionId?: string
+
+  // Payment tracking
+  paymentId?: string
   paymentReference?: string
   paymentStatus?: 'pending' | 'completed' | 'failed'
 }

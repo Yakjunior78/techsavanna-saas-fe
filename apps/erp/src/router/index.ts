@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
+import { authGuard } from '@techsavanna/auth'
 
 // Disable browser's native scroll restoration to prevent auto-scrolling on reload
 if (typeof window !== 'undefined' && 'scrollRestoration' in history) {
@@ -48,6 +49,12 @@ const router = createRouter({
       path: '/sales',
       name: 'sales',
       component: () => import('@/pages/sales/SalesPage.vue')
+    },
+    {
+      path: '/dashboard',
+      name: 'dashboard',
+      component: () => import('@/pages/dashboard/DashboardPage.vue'),
+      meta: { requiresAuth: true }
     }
   ],
   scrollBehavior(to) {
@@ -58,5 +65,7 @@ const router = createRouter({
     return { top: 0, behavior: 'instant' }
   }
 })
+
+router.beforeEach(authGuard)
 
 export default router

@@ -1,14 +1,17 @@
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
-import { SAVANNA_APPS, COUNTRIES, INDUSTRIES } from '@techsavanna/shared'
-import type { OnboardingConfig, OnboardingStep, PricingPlan } from '@techsavanna/shared'
+import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
+import { SAVANNA_APPS, INDUSTRIES, slugify, validateName, validateEmail, validatePhone, validatePasswordField, validateConfirmPassword } from '@techsavanna/shared'
+import type { OnboardingConfig, OnboardingStep } from '@techsavanna/shared'
 import { useOnboarding } from '@techsavanna/onboarding'
-import { OnboardingWizard, FormField, FormSelect, Drawer, PhoneInput, PasswordStrength, DataConsentCheckbox } from '@techsavanna/ui'
+import { useAuth } from '@techsavanna/auth'
+import { OnboardingWizard, FormField, FormSelect, PhoneInput, PasswordStrength, DataConsentCheckbox, usePlans, useProvisioning } from '@techsavanna/ui'
 
-const route = useRoute()
 const router = useRouter()
+const route = useRoute()
 const appConfig = SAVANNA_APPS.erp
+const appDomain = import.meta.env.VITE_ERP_DOMAIN || 'saas.techsavanna.technology'
+const { signup, logout, isLoading: authLoading, error: authError, isAuthenticated, fullName, initials } = useAuth()
 
 // Define onboarding steps
 const steps: OnboardingStep[] = [
@@ -31,10 +34,18 @@ const steps: OnboardingStep[] = [
   {
     id: 'plan',
     title: 'Select Your Plan',
-    description: 'Choose the plan that fits your enterprise',
+    description: 'Choose the billing cycle that fits your enterprise',
     icon: 'credit-card',
     required: true,
     order: 3
+  },
+  {
+    id: 'setup',
+    title: 'Setting Up',
+    description: 'We\'re preparing your workspace',
+    icon: 'cog',
+    required: true,
+    order: 4
   }
 ]
 
@@ -55,58 +66,93 @@ const {
   goBack,
   skipStep,
   updateFormData,
-  goToStep
+  goToStep,
+  resetProgress
 } = useOnboarding(onboardingConfig)
+
+// Always start from step 1 when navigating to onboarding
+resetProgress()
 
 // Local form state for validation
 const errors = ref<Record<string, string>>({})
 const isLoading = ref(false)
 
-// Pricing plans
-const pricingPlans: PricingPlan[] = [
-  {
-    id: 'startup',
-    name: 'Startup',
-    description: 'Essential ERP for growing businesses',
-    monthlyPrice: 14999,
-    yearlyPrice: 149990,
-    features: ['Up to 10 users', 'Core accounting', 'Basic inventory']
-  },
-  {
-    id: 'business',
-    name: 'Business',
-    description: 'Complete ERP for medium enterprises',
-    monthlyPrice: 34999,
-    yearlyPrice: 349990,
-    featured: true,
-    features: ['Up to 50 users', 'Full accounting suite', 'CRM module']
-  },
-  {
-    id: 'enterprise',
-    name: 'Enterprise',
-    description: 'Scalable solution for large organizations',
-    monthlyPrice: 79999,
-    yearlyPrice: 799990,
-    features: ['Unlimited users', 'All modules', 'Custom workflows']
+// Re-validate fields with existing errors as user types
+watch(formData, () => {
+  for (const field of Object.keys(errors.value)) {
+    validateField(field)
   }
-]
+}, { deep: true })
 
-const erpModules = [
-  { id: 'accounting', name: 'Accounting & Finance', description: 'General ledger, AP/AR, bank reconciliation', recommended: true },
-  { id: 'inventory', name: 'Inventory Management', description: 'Stock tracking, warehouses, barcode scanning', recommended: true },
-  { id: 'procurement', name: 'Procurement', description: 'Purchase orders, vendor management', recommended: false },
-  { id: 'crm', name: 'CRM', description: 'Leads, opportunities, customer management', recommended: false },
-  { id: 'projects', name: 'Project Management', description: 'Tasks, resources, time tracking', recommended: false },
-  { id: 'bi', name: 'Business Intelligence', description: 'Dashboards, reports, analytics', recommended: true }
-]
+// Fetch plans from backend
+const { rawPlans, fetchPlans } = usePlans()
 
-const selectedModules = ref<string[]>(['accounting', 'inventory', 'bi'])
+onMounted(() => {
+  fetchPlans('PRODUCT_ERP', { description: '', features: [] })
+})
 
-const selectedPlan = computed(() =>
-  pricingPlans.find(p => p.id === formData.value.selectedPlanId) || pricingPlans[1]
+const activePlan = computed(() => rawPlans.value[0] || null)
+
+// Billing options - derived from API plan data
+const billingCycle = ref<'monthly' | 'annual'>(
+  route.query.billing === 'yearly' || route.query.billing === 'annual' ? 'annual' : 'monthly'
 )
+const MONTHLY_PRICE = computed(() => activePlan.value?.basePriceKes ?? 0)
+const ANNUAL_PRICE = computed(() => {
+  if (!activePlan.value) return 0
+  const p = activePlan.value
+  return Math.round(p.basePriceKes * 12 * (1 - p.annualDiscountPercent / 100))
+})
+const TRIAL_DAYS = 14
+const annualMonthlySaving = computed(() => activePlan.value?.annualDiscountPercent ?? 0)
 
-const countryOptions = COUNTRIES.map(c => ({ label: `${c.flag} ${c.name}`, value: c.code }))
+const selectedPlanId = computed(() => activePlan.value?.id ?? '')
+
+// Keep formData in sync with billing cycle selection
+watch(billingCycle, () => {
+  updateFormData({ selectedPlanId: selectedPlanId.value })
+}, { immediate: true })
+
+// Provisioning composable
+const {
+  status: provisioningStatus,
+  isPolling: provisioningPolling,
+  isReady: provisioningReady,
+  error: provisioningError,
+  startPolling: startProvisioningPolling
+} = useProvisioning()
+
+const activeProvisioningStepName = computed(() => {
+  if (!provisioningStatus.value?.steps?.length) return ''
+  const active = provisioningStatus.value.steps.find(
+    s => s.stepNumber === provisioningStatus.value!.currentStepNumber
+  )
+  return active?.name || ''
+})
+
+// Wizard dynamic props
+const wizardCtaText = computed(() => {
+  if (currentStep.value?.id === 'plan') return 'Submit'
+  return ''
+})
+const wizardHideFooter = computed(() => currentStep.value?.id === 'setup')
+const wizardHideBackButton = computed(() => currentStep.value?.id === 'setup')
+
+const siteUrl = computed(() => {
+  const subdomain = tenantSubdomain.value
+  return subdomain ? `https://${subdomain}.${appDomain}` : ''
+})
+
+async function handleLogout() {
+  await logout()
+  router.push('/')
+}
+
+const tenantSubdomain = computed(() => {
+  const name = String(formData.value.organizationName || '')
+  return name.trim() ? slugify(name) : ''
+})
+
 const industryOptions = INDUSTRIES.map(i => ({ label: i, value: i }))
 const sizeOptions = [
   { label: '1-10 employees', value: '1-10' },
@@ -116,36 +162,56 @@ const sizeOptions = [
   { label: '500+ employees', value: '500+' }
 ]
 
-onMounted(() => {
-  // Pre-select plan from URL query
-  const planId = route.query.plan as string
-  if (planId && pricingPlans.some(p => p.id === planId)) {
-    updateFormData({ selectedPlanId: planId })
+function validateField(field: string) {
+  const data = formData.value
+  switch (field) {
+    case 'firstName':
+      errors.value.firstName = validateName(String(data.firstName || ''), 'First name')
+      break
+    case 'lastName':
+      errors.value.lastName = validateName(String(data.lastName || ''), 'Last name')
+      break
+    case 'email':
+      errors.value.email = validateEmail(String(data.email || ''))
+      break
+    case 'phone':
+      errors.value.phone = validatePhone(String(data.phone || ''))
+      break
+    case 'password':
+      errors.value.password = validatePasswordField(String(data.password || ''))
+      if (data.confirmPassword) {
+        errors.value.confirmPassword = validateConfirmPassword(String(data.password || ''), String(data.confirmPassword || ''))
+      }
+      break
+    case 'confirmPassword':
+      errors.value.confirmPassword = validateConfirmPassword(String(data.password || ''), String(data.confirmPassword || ''))
+      break
   }
-})
+  if (!errors.value[field]) delete errors.value[field]
+}
 
 function validateCurrentStep(): boolean {
   errors.value = {}
   const data = formData.value
 
   if (currentStep.value?.id === 'account') {
-    if (!data.email) errors.value.email = 'Email is required'
-    if (!data.password) errors.value.password = 'Password is required'
-    if (!data.confirmPassword) errors.value.confirmPassword = 'Confirm password is required'
-    else if (data.password !== data.confirmPassword) errors.value.confirmPassword = 'Passwords do not match'
-    if (!data.firstName) errors.value.firstName = 'First name is required'
-    if (!data.lastName) errors.value.lastName = 'Last name is required'
-    if (!data.phone) errors.value.phone = 'Phone number is required'
+    const emailErr = validateEmail(String(data.email || ''))
+    if (emailErr) errors.value.email = emailErr
+    const pwErr = validatePasswordField(String(data.password || ''))
+    if (pwErr) errors.value.password = pwErr
+    const cpErr = validateConfirmPassword(String(data.password || ''), String(data.confirmPassword || ''))
+    if (cpErr) errors.value.confirmPassword = cpErr
+    const fnErr = validateName(String(data.firstName || ''), 'First name')
+    if (fnErr) errors.value.firstName = fnErr
+    const lnErr = validateName(String(data.lastName || ''), 'Last name')
+    if (lnErr) errors.value.lastName = lnErr
+    const phErr = validatePhone(String(data.phone || ''))
+    if (phErr) errors.value.phone = phErr
     if (!data.acceptedTerms) errors.value.acceptedTerms = 'You must accept the terms and conditions'
   }
 
   if (currentStep.value?.id === 'organization') {
     if (!data.organizationName) errors.value.organizationName = 'Company name is required'
-    if (!data.country) errors.value.country = 'Country is required'
-  }
-
-  if (currentStep.value?.id === 'plan') {
-    if (!data.selectedPlanId) errors.value.plan = 'Please select a plan'
   }
 
   return Object.keys(errors.value).length === 0
@@ -157,19 +223,143 @@ async function handleNext() {
   isLoading.value = true
 
   try {
+    const stepId = currentStep.value?.id
+
+    // Step 3: Plan → call signup API
+    if (stepId === 'plan') {
+      const data = formData.value
+      const response = await signup({
+        firstName: String(data.firstName || ''),
+        lastName: String(data.lastName || ''),
+        email: String(data.email || ''),
+        phone: String(data.phone || ''),
+        password: String(data.password || ''),
+        companyName: String(data.organizationName || ''),
+        subdomainSlug: tenantSubdomain.value,
+        country: String(data.country || ''),
+        industry: String(data.industry || ''),
+        companySize: String(data.organizationSize || ''),
+        website: String(data.website || ''),
+        product: 'PRODUCT_ERP',
+        planId: selectedPlanId.value,
+        billingCycle: billingCycle.value
+      })
+
+      // Store signup response data for provisioning step
+      updateFormData({
+        tenantId: response.tenantId,
+        subscriptionId: response.subscriptionId
+      })
+
+      completeStep('plan')
+      return
+    }
+
+    // Steps 1-2: normal advance
     if (currentStep.value) {
       completeStep(currentStep.value.id)
     }
-
-    // If completed all steps, redirect to dashboard
-    if (isComplete.value || currentStepIndex.value === steps.length - 1) {
-      // In real app, would call API to create account here
-      router.push('/')
-    }
+  } catch {
+    // Error is already set in authError by the composables
   } finally {
     isLoading.value = false
   }
 }
+
+// Watch for entering setup step → start provisioning polling
+watch(() => currentStep.value?.id, (id) => {
+  if (id === 'setup' && formData.value.tenantId) {
+    startProvisioningPolling(formData.value.tenantId)
+  }
+})
+
+// Rotating setup messages
+const setupMessages = [
+  'We\'re creating a private workspace just for you...',
+  'Setting up your own dedicated database to keep your data completely isolated...',
+  'This takes a little while because we ensure your data never mixes with anyone else\'s...',
+  'Your workspace will have its own secure environment with dedicated resources...',
+  'Almost there! Finalizing your workspace configuration...'
+]
+const currentMessageIndex = ref(0)
+const displayedText = ref('')
+let messageTimer: ReturnType<typeof setInterval> | null = null
+let typingTimer: ReturnType<typeof setInterval> | null = null
+
+function startTyping(message: string) {
+  displayedText.value = ''
+  let charIndex = 0
+  if (typingTimer) clearInterval(typingTimer)
+  typingTimer = setInterval(() => {
+    if (charIndex < message.length) {
+      displayedText.value = message.slice(0, charIndex + 1)
+      charIndex++
+    } else {
+      if (typingTimer) clearInterval(typingTimer)
+    }
+  }, 35)
+}
+
+// Start rotating messages when entering setup step
+watch(() => currentStep.value?.id, (id) => {
+  if (id === 'setup') {
+    startTyping(setupMessages[0])
+    messageTimer = setInterval(() => {
+      currentMessageIndex.value = (currentMessageIndex.value + 1) % setupMessages.length
+      startTyping(setupMessages[currentMessageIndex.value])
+    }, 6000)
+  } else if (messageTimer) {
+    clearInterval(messageTimer)
+    messageTimer = null
+  }
+})
+
+// Countdown + redirect on provisioning complete
+const redirectCountdown = ref(5)
+let countdownTimer: ReturnType<typeof setInterval> | null = null
+
+const redirectUrl = computed(() => {
+  const subdomain = tenantSubdomain.value
+  return subdomain
+    ? `https://${subdomain}.${appDomain}`
+    : '/'
+})
+
+function redirectToApp() {
+  const subdomain = tenantSubdomain.value
+  if (subdomain) {
+    window.location.href = redirectUrl.value
+  } else {
+    router.push('/')
+  }
+}
+
+watch(provisioningReady, (ready) => {
+  if (ready) {
+    if (messageTimer) {
+      clearInterval(messageTimer)
+      messageTimer = null
+    }
+    if (typingTimer) {
+      clearInterval(typingTimer)
+      typingTimer = null
+    }
+    redirectCountdown.value = 5
+    countdownTimer = setInterval(() => {
+      redirectCountdown.value--
+      if (redirectCountdown.value <= 0) {
+        if (countdownTimer) clearInterval(countdownTimer)
+        redirectToApp()
+      }
+    }, 1000)
+  }
+})
+
+onUnmounted(() => {
+  if (messageTimer) clearInterval(messageTimer)
+  if (typingTimer) clearInterval(typingTimer)
+  if (countdownTimer) clearInterval(countdownTimer)
+})
 
 function handleBack() {
   goBack()
@@ -179,16 +369,9 @@ function handleSkip() {
   skipStep()
 }
 
-function selectPlan(planId: string) {
-  updateFormData({ selectedPlanId: planId })
-}
-
-const drawerPlan = ref<PricingPlan | null>(null)
-function openPlanDetails(plan: PricingPlan) {
-  drawerPlan.value = plan
-}
-function closePlanDrawer() {
-  drawerPlan.value = null
+function handleWebsiteInput(event: Event) {
+  const value = (event.target as HTMLInputElement).value
+  updateFormData({ website: 'https://' + value })
 }
 
 // App-specific features to display on signup
@@ -198,7 +381,6 @@ const appFeatures = [
   { icon: 'shield', title: 'Enterprise Security', description: 'Role-based access with audit trails' }
 ]
 
-// Computed property to check if current step requirements are met
 const canContinue = computed(() => {
   const data = formData.value
   const stepId = currentStep.value?.id
@@ -217,15 +399,16 @@ const canContinue = computed(() => {
   }
 
   if (stepId === 'organization') {
-    return !!(data.organizationName && data.country)
+    return !!data.organizationName
   }
 
   if (stepId === 'plan') {
-    return !!data.selectedPlanId
+    return true
   }
 
   return true
 })
+
 </script>
 
 <template>
@@ -233,8 +416,11 @@ const canContinue = computed(() => {
     :steps="steps"
     :current-step-id="currentStep?.id || steps[0].id"
     :completed-steps="completedSteps || []"
-    :is-loading="isLoading"
+    :is-loading="isLoading || authLoading"
     :can-continue="canContinue"
+    :cta-text="wizardCtaText"
+    :hide-footer="wizardHideFooter"
+    :hide-back-button="wizardHideBackButton"
     :app-id="appConfig.id"
     :app-name="appConfig.name"
     :app-tagline="appConfig.tagline"
@@ -244,10 +430,15 @@ const canContinue = computed(() => {
     :app-logo="appConfig.logo"
     :app-logo-white="appConfig.logoWhite"
     :features="appFeatures"
+    :is-authenticated="isAuthenticated"
+    :user-name="fullName"
+    :user-initials="initials"
+    :site-url="siteUrl"
     @next="handleNext"
     @back="handleBack"
     @skip="handleSkip"
     @step-click="goToStep"
+    @logout="handleLogout"
   >
     <!-- Account Step -->
     <template v-if="currentStep?.id === 'account'">
@@ -260,6 +451,7 @@ const canContinue = computed(() => {
             :error="errors.firstName"
             required
             @update:model-value="updateFormData({ firstName: String($event) })"
+            @blur="validateField('firstName')"
           />
           <FormField
             v-model="formData.lastName"
@@ -268,6 +460,7 @@ const canContinue = computed(() => {
             :error="errors.lastName"
             required
             @update:model-value="updateFormData({ lastName: String($event) })"
+            @blur="validateField('lastName')"
           />
         </div>
         <FormField
@@ -278,6 +471,7 @@ const canContinue = computed(() => {
           :error="errors.email"
           required
           @update:model-value="updateFormData({ email: String($event) })"
+          @blur="validateField('email')"
         />
         <PhoneInput
           v-model="formData.phone"
@@ -286,6 +480,8 @@ const canContinue = computed(() => {
           :error="errors.phone"
           required
           @update:model-value="updateFormData({ phone: String($event) })"
+          @update:country="(code) => updateFormData({ country: code })"
+          @blur="validateField('phone')"
         />
         <div>
           <FormField
@@ -296,6 +492,7 @@ const canContinue = computed(() => {
             :error="errors.password"
             required
             @update:model-value="updateFormData({ password: String($event) })"
+            @blur="validateField('password')"
           />
           <PasswordStrength :password="formData.password || ''" />
         </div>
@@ -307,6 +504,7 @@ const canContinue = computed(() => {
           :error="errors.confirmPassword"
           required
           @update:model-value="updateFormData({ confirmPassword: String($event) })"
+          @blur="validateField('confirmPassword')"
         />
         <DataConsentCheckbox
           v-model="formData.acceptedTerms"
@@ -319,22 +517,19 @@ const canContinue = computed(() => {
     <!-- Organization Step -->
     <template v-else-if="currentStep?.id === 'organization'">
       <div class="space-y-4">
-        <FormField
-          v-model="formData.organizationName"
-          label="Company Name"
-          placeholder="Acme Corporation Ltd"
-          :error="errors.organizationName"
-          required
-          @update:model-value="updateFormData({ organizationName: String($event) })"
-        />
-        <FormSelect
-          v-model="formData.country"
-          label="Country"
-          :options="countryOptions"
-          :error="errors.country"
-          required
-          @update:model-value="updateFormData({ country: String($event) })"
-        />
+        <div>
+          <FormField
+            v-model="formData.organizationName"
+            label="Company Name"
+            placeholder="Acme Corporation Ltd"
+            :error="errors.organizationName"
+            required
+            @update:model-value="updateFormData({ organizationName: String($event) })"
+          />
+          <p v-if="tenantSubdomain" class="mt-1 text-xs text-gray-500">
+            Your subdomain: <span class="font-medium text-violet-600">{{ tenantSubdomain }}.{{ appDomain }}</span>
+          </p>
+        </div>
         <FormSelect
           v-model="formData.industry"
           label="Industry"
@@ -347,120 +542,202 @@ const canContinue = computed(() => {
           :options="sizeOptions"
           @update:model-value="updateFormData({ organizationSize: String($event) })"
         />
-        <FormField
-          v-model="formData.website"
-          label="Company Website"
-          placeholder="https://www.company.com"
-          hint="Optional"
-          @update:model-value="updateFormData({ website: String($event) })"
-        />
+        <div class="w-full">
+          <label class="mb-1 block text-xs font-medium text-gray-600">Company Website</label>
+          <div class="flex overflow-hidden rounded-lg border border-gray-300 hover:border-gray-400 focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-100">
+            <span class="flex shrink-0 items-center border-r border-gray-200 bg-gray-50 px-2.5 text-xs text-gray-500">https://</span>
+            <input
+              :value="(formData.website || '').replace(/^https?:\/\//, '')"
+              type="text"
+              placeholder="www.company.com"
+              class="flex-1 bg-white px-3 py-2 text-sm placeholder:text-xs placeholder:text-gray-400 focus:outline-none"
+              @input="handleWebsiteInput"
+            />
+          </div>
+        </div>
       </div>
     </template>
 
     <!-- Plan Selection Step -->
     <template v-else-if="currentStep?.id === 'plan'">
-      <div class="space-y-3">
+      <div class="space-y-4">
+        <div v-if="authError" class="rounded-md bg-red-50 p-3 text-sm text-red-600">
+          {{ authError }}
+        </div>
+
+        <!-- Trial period info -->
+        <div v-if="TRIAL_DAYS" class="flex items-center gap-2.5 rounded-lg border border-violet-200 bg-violet-50/60 px-3.5 py-2.5">
+          <svg class="size-4 shrink-0 text-violet-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <p class="text-xs text-gray-700">
+            <span class="font-semibold text-violet-700">{{ TRIAL_DAYS }}-day free trial</span> — No credit card required. Full access to all features.
+          </p>
+        </div>
+
         <div
-          v-for="plan in pricingPlans"
-          :key="plan.id"
-          class="rounded-xl border-2 transition-all"
-          :class="[
-            formData.selectedPlanId === plan.id
-              ? 'border-violet-500 bg-violet-50'
-              : 'border-gray-200 hover:border-gray-300'
-          ]"
+          class="cursor-pointer rounded-xl border-2 p-3.5 transition-all"
+          :class="billingCycle === 'monthly' ? 'border-violet-500 bg-violet-50/50' : 'border-gray-200 hover:border-gray-300'"
+          @click="billingCycle = 'monthly'"
         >
-          <button
-            class="flex w-full cursor-pointer items-center justify-between p-3 text-left"
-            @click="selectPlan(plan.id)"
-          >
-            <div class="flex items-center gap-3">
-              <div
-                class="flex size-5 shrink-0 items-center justify-center rounded-full border-2"
-                :class="formData.selectedPlanId === plan.id ? 'border-violet-500 bg-violet-500' : 'border-gray-300'"
-              >
-                <svg v-if="formData.selectedPlanId === plan.id" class="size-3 text-white" fill="currentColor" viewBox="0 0 20 20">
-                  <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
-                </svg>
-              </div>
-              <div>
-                <div class="flex items-center gap-2">
-                  <span class="font-medium text-gray-900">{{ plan.name }}</span>
-                  <span v-if="plan.featured" class="rounded bg-violet-100 px-1.5 py-0.5 text-[10px] font-medium text-violet-700">Popular</span>
-                </div>
-                <p class="text-xs text-gray-500">{{ plan.description }}</p>
-              </div>
-            </div>
-            <div class="text-right">
-              <span class="text-sm font-semibold text-gray-900">KES {{ plan.monthlyPrice.toLocaleString() }}</span>
-              <span class="text-xs text-gray-500">/mo</span>
-            </div>
-          </button>
-          <div class="border-t border-gray-100 px-3 py-2">
-            <button
-              class="flex cursor-pointer items-center gap-1 text-xs text-violet-600 hover:text-violet-700"
-              @click.stop="openPlanDetails(plan)"
+          <div class="flex items-center gap-3">
+            <div
+              class="flex size-5 shrink-0 items-center justify-center rounded-full border-2"
+              :class="billingCycle === 'monthly' ? 'border-violet-500 bg-violet-500' : 'border-gray-300'"
             >
-              <span>View details</span>
-              <svg class="size-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+              <svg v-if="billingCycle === 'monthly'" class="size-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
               </svg>
-            </button>
+            </div>
+            <div class="min-w-0 flex-1">
+              <div class="flex items-center justify-between">
+                <span class="text-sm font-medium text-gray-900">Monthly</span>
+                <div class="flex items-baseline gap-1">
+                  <span class="text-base font-bold text-gray-900">KES {{ MONTHLY_PRICE.toLocaleString() }}</span>
+                  <span class="text-[11px] text-gray-500">/user/mo</span>
+                </div>
+              </div>
+              <div class="mt-0.5 flex items-center justify-between">
+                <span class="text-[11px] text-gray-500">Pay month-to-month, cancel anytime</span>
+                <span class="text-[10px] text-gray-400">VAT incl.</span>
+              </div>
+            </div>
           </div>
         </div>
-        <p v-if="errors.plan" class="text-sm text-red-600">{{ errors.plan }}</p>
+
+        <div
+          class="cursor-pointer rounded-xl border-2 p-3.5 transition-all"
+          :class="billingCycle === 'annual' ? 'border-violet-500 bg-violet-50/50' : 'border-gray-200 hover:border-gray-300'"
+          @click="billingCycle = 'annual'"
+        >
+          <div class="flex items-center gap-3">
+            <div
+              class="flex size-5 shrink-0 items-center justify-center rounded-full border-2"
+              :class="billingCycle === 'annual' ? 'border-violet-500 bg-violet-500' : 'border-gray-300'"
+            >
+              <svg v-if="billingCycle === 'annual'" class="size-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+              </svg>
+            </div>
+            <div class="min-w-0 flex-1">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-1.5">
+                  <span class="text-sm font-medium text-gray-900">Annual</span>
+                  <span class="rounded bg-violet-100 px-1.5 py-0.5 text-[10px] font-medium text-violet-700">Save {{ annualMonthlySaving }}%</span>
+                </div>
+                <div class="flex items-baseline gap-1">
+                  <span class="text-base font-bold text-gray-900">KES {{ ANNUAL_PRICE.toLocaleString() }}</span>
+                  <span class="text-[11px] text-gray-500">/user/yr</span>
+                </div>
+              </div>
+              <div class="mt-0.5 flex items-center justify-between">
+                <span class="text-[11px] text-gray-500">Billed annually, best value</span>
+                <span class="text-[10px] text-gray-400">VAT incl.</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <p class="text-center text-[11px] text-gray-400">All prices include 16% VAT. Billing starts after your {{ TRIAL_DAYS }}-day trial ends.</p>
+      </div>
+    </template>
+
+    <!-- Setup / Provisioning Step -->
+    <template v-else-if="currentStep?.id === 'setup'">
+      <div class="space-y-6">
+        <div v-if="provisioningError" class="rounded-lg bg-red-50 p-3 text-sm text-red-600">
+          {{ provisioningError }}
+        </div>
+
+        <!-- Completion state -->
+        <div v-if="provisioningReady" class="py-4 text-center">
+          <div class="mx-auto mb-4 flex size-16 items-center justify-center rounded-full bg-violet-100">
+            <svg class="size-8 text-violet-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+            </svg>
+          </div>
+          <h2 class="text-xl font-semibold text-gray-900">Your platform is ready!</h2>
+          <p class="mt-1.5 text-sm text-gray-500">
+            Redirecting in <span class="font-semibold text-violet-600">{{ redirectCountdown }}</span> seconds...
+          </p>
+          <a
+            :href="redirectUrl"
+            class="mt-5 inline-flex items-center gap-2 rounded-xl bg-violet-600 px-6 py-3 text-sm font-medium text-white shadow-lg shadow-violet-200 transition-all hover:bg-violet-700 hover:shadow-xl"
+          >
+            Go to your workspace
+            <svg class="size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"/>
+            </svg>
+          </a>
+        </div>
+
+        <!-- In-progress state -->
+        <template v-else>
+          <div class="space-y-6">
+            <!-- Header -->
+            <div>
+              <h2 class="text-lg font-semibold text-gray-900">Setting up your workspace...</h2>
+              <p class="mt-0.5 text-xs text-gray-400">This may take a moment. Please don't close this page.</p>
+            </div>
+
+            <!-- Progress bar with percentage -->
+            <div class="space-y-2">
+              <div class="flex items-center justify-between">
+                <span v-if="provisioningStatus" class="text-xs text-gray-500">
+                  {{ activeProvisioningStepName }}
+                </span>
+                <span v-else class="text-xs text-gray-400">Initializing...</span>
+                <span class="text-sm font-semibold text-violet-600">
+                  {{ provisioningStatus ? Math.round((provisioningStatus.currentStepNumber / Math.max(provisioningStatus.totalSteps, 1)) * 100) : 0 }}%
+                </span>
+              </div>
+              <div class="relative h-3 overflow-hidden rounded-full bg-gray-100">
+                <div
+                  v-if="provisioningStatus"
+                  class="h-full rounded-full bg-gradient-to-r from-violet-400 to-violet-500 transition-all duration-700 ease-out"
+                  :style="{ width: `${(provisioningStatus.currentStepNumber / Math.max(provisioningStatus.totalSteps, 1)) * 100}%` }"
+                />
+                <div
+                  v-else
+                  class="absolute inset-y-0 w-1/3 animate-progress-slide rounded-full bg-gradient-to-r from-violet-300 to-violet-400"
+                />
+              </div>
+            </div>
+
+            <!-- Skeleton loaders -->
+            <div class="space-y-3">
+              <div class="flex items-center gap-3">
+                <div class="size-8 animate-pulse rounded-lg bg-violet-100" />
+                <div class="flex-1 space-y-1.5">
+                  <div class="h-3 w-3/4 animate-pulse rounded bg-gray-200" />
+                  <div class="h-2 w-1/2 animate-pulse rounded bg-gray-100" />
+                </div>
+              </div>
+              <div class="flex items-center gap-3">
+                <div class="size-8 animate-pulse rounded-lg bg-violet-50" style="animation-delay: 150ms" />
+                <div class="flex-1 space-y-1.5">
+                  <div class="h-3 w-2/3 animate-pulse rounded bg-gray-200" style="animation-delay: 150ms" />
+                  <div class="h-2 w-2/5 animate-pulse rounded bg-gray-100" style="animation-delay: 150ms" />
+                </div>
+              </div>
+              <div class="flex items-center gap-3">
+                <div class="size-8 animate-pulse rounded-lg bg-violet-50" style="animation-delay: 300ms" />
+                <div class="flex-1 space-y-1.5">
+                  <div class="h-3 w-4/5 animate-pulse rounded bg-gray-100" style="animation-delay: 300ms" />
+                  <div class="h-2 w-1/3 animate-pulse rounded bg-gray-50" style="animation-delay: 300ms" />
+                </div>
+              </div>
+            </div>
+
+            <!-- Typing message -->
+            <div class="rounded-xl border border-gray-100 bg-gray-50/80 px-4 py-3">
+              <p class="min-h-[40px] text-sm leading-relaxed text-gray-600">
+                {{ displayedText }}<span class="ml-0.5 inline-block h-4 w-0.5 animate-pulse bg-violet-500" />
+              </p>
+            </div>
+          </div>
+        </template>
       </div>
     </template>
   </OnboardingWizard>
-
-  <!-- Plan Details Drawer -->
-  <Drawer
-    :open="!!drawerPlan"
-    :title="drawerPlan?.name"
-    width="sm"
-    @close="closePlanDrawer"
-  >
-    <div v-if="drawerPlan" class="p-4">
-      <!-- Plan Header -->
-      <div class="mb-6">
-        <div class="flex items-center gap-2">
-          <span v-if="drawerPlan.featured" class="rounded bg-violet-100 px-2 py-0.5 text-xs font-medium text-violet-700">Most Popular</span>
-        </div>
-        <p class="mt-2 text-sm text-gray-600">{{ drawerPlan.description }}</p>
-      </div>
-
-      <!-- Pricing -->
-      <div class="mb-6 rounded-lg bg-gray-50 p-4">
-        <div class="flex items-baseline gap-1">
-          <span class="text-2xl font-bold text-gray-900">KES {{ drawerPlan.monthlyPrice.toLocaleString() }}</span>
-          <span class="text-sm text-gray-500">/month</span>
-        </div>
-        <p class="mt-1 text-xs text-gray-500">
-          or KES {{ drawerPlan.yearlyPrice.toLocaleString() }}/year (save {{ Math.round((1 - drawerPlan.yearlyPrice / (drawerPlan.monthlyPrice * 12)) * 100) }}%)
-        </p>
-      </div>
-
-      <!-- Features -->
-      <div>
-        <h4 class="mb-3 text-sm font-medium text-gray-900">What's included</h4>
-        <ul class="space-y-3">
-          <li v-for="feature in drawerPlan.features" :key="feature" class="flex items-start gap-2">
-            <svg class="mt-0.5 size-4 shrink-0 text-violet-500" fill="currentColor" viewBox="0 0 20 20">
-              <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
-            </svg>
-            <span class="text-sm text-gray-600">{{ feature }}</span>
-          </li>
-        </ul>
-      </div>
-    </div>
-
-    <template #footer>
-      <button
-        class="w-full rounded-lg bg-violet-600 px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-violet-700"
-        @click="drawerPlan && selectPlan(drawerPlan.id); closePlanDrawer()"
-      >
-        Select {{ drawerPlan?.name }} Plan
-      </button>
-    </template>
-  </Drawer>
 </template>

@@ -1,16 +1,14 @@
 export interface User {
   id: string
-  email: string
   firstName: string
   lastName: string
-  avatarUrl?: string
+  email: string
   phone?: string
-  role: UserRole
+  tenantId?: string
+  tenantName?: string
+  avatarUrl?: string
+  role?: UserRole
   organizationId?: string
-  createdAt: Date
-  updatedAt: Date
-  emailVerified: boolean
-  isActive: boolean
 }
 
 export type UserRole = 'owner' | 'admin' | 'manager' | 'staff' | 'viewer'
@@ -32,7 +30,8 @@ export type OrganizationSize = '1-10' | '11-50' | '51-200' | '201-500' | '500+'
 
 export interface AuthState {
   user: User | null
-  token: string | null
+  accessToken: string | null
+  refreshToken: string | null
   isAuthenticated: boolean
   isLoading: boolean
 }

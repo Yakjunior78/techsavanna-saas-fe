@@ -4,9 +4,10 @@ export function isValidEmail(email: string): boolean {
 }
 
 export function isValidPhone(phone: string): boolean {
-  // Supports various African phone formats
-  const phoneRegex = /^(\+?[0-9]{1,3})?[0-9]{9,12}$/
-  return phoneRegex.test(phone.replace(/[\s-]/g, ''))
+  // Strip spaces, dashes, and leading +
+  const digits = phone.replace(/[\s\-+]/g, '')
+  // Must be between 7 and 15 digits (E.164 standard)
+  return /^[0-9]{7,15}$/.test(digits)
 }
 
 export function isValidPassword(password: string): { valid: boolean; errors: string[] } {
@@ -33,6 +34,38 @@ export function isRequired(value: unknown): boolean {
   if (typeof value === 'string') return value.trim().length > 0
   if (Array.isArray(value)) return value.length > 0
   return true
+}
+
+export function validateName(value: string, fieldName = 'Name'): string {
+  if (!value.trim()) return `${fieldName} is required`
+  if (value.trim().length < 2) return `${fieldName} must be at least 2 characters`
+  if (!/^[a-zA-Z\s'-]+$/.test(value.trim())) return `${fieldName} can only contain letters, spaces, hyphens, and apostrophes`
+  return ''
+}
+
+export function validateEmail(value: string): string {
+  if (!value.trim()) return 'Email is required'
+  if (!isValidEmail(value)) return 'Please enter a valid email address'
+  return ''
+}
+
+export function validatePhone(value: string): string {
+  if (!value.trim()) return 'Phone number is required'
+  if (!isValidPhone(value)) return 'Please enter a valid phone number'
+  return ''
+}
+
+export function validatePasswordField(value: string): string {
+  if (!value) return 'Password is required'
+  const result = isValidPassword(value)
+  if (!result.valid) return result.errors[0]
+  return ''
+}
+
+export function validateConfirmPassword(password: string, confirmPassword: string): string {
+  if (!confirmPassword) return 'Please confirm your password'
+  if (password !== confirmPassword) return 'Passwords do not match'
+  return ''
 }
 
 export interface ValidationRule {

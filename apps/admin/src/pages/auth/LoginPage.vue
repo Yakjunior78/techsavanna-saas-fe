@@ -2,13 +2,13 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { AuthLayout, Button, Input } from '@techsavanna/ui'
+import { useAuth } from '@techsavanna/auth'
 
 const router = useRouter()
+const { login, isLoading, error, clearError } = useAuth()
 
 const email = ref('')
 const password = ref('')
-const isLoading = ref(false)
-const error = ref('')
 
 async function handleLogin() {
   if (!email.value || !password.value) {
@@ -16,17 +16,11 @@ async function handleLogin() {
     return
   }
 
-  isLoading.value = true
-  error.value = ''
-
-  try {
-    // In real app, would call auth API here
-    await new Promise(resolve => setTimeout(resolve, 1000))
-    router.push('/dashboard')
-  } catch {
-    error.value = 'Invalid email or password'
-  } finally {
-    isLoading.value = false
+  clearError()
+  const success = await login({ email: email.value, password: password.value })
+  if (success) {
+    const redirect = router.currentRoute.value.query.redirect as string
+    router.push(redirect || '/dashboard')
   }
 }
 

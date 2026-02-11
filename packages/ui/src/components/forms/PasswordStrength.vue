@@ -37,33 +37,33 @@ const strengthLabel = computed(() => {
 </script>
 
 <template>
-  <div v-if="password" class="mt-2 space-y-2">
+  <div v-if="password" class="mx-0.5 space-y-0.5">
     <!-- Strength bar -->
     <div class="flex items-center gap-2">
-      <div class="h-1 flex-1 overflow-hidden rounded-full bg-gray-200">
+      <div class="h-0.5 flex-1 overflow-hidden rounded-full bg-gray-200">
         <div
           class="h-full transition-all duration-300"
           :class="strengthColor"
           :style="{ width: `${strengthPercent}%` }"
         />
       </div>
-      <span class="text-xs font-medium" :class="strengthColor.replace('bg-', 'text-')">
+      <span class="text-[10px] font-medium" :class="strengthColor.replace('bg-', 'text-')">
         {{ strengthLabel }}
       </span>
     </div>
 
     <!-- Requirements checklist -->
-    <div class="grid grid-cols-2 gap-1">
+    <div class="grid grid-cols-2 gap-0.5">
       <div
         v-for="req in requirements"
         :key="req.label"
-        class="flex items-center gap-1.5 text-xs"
+        class="flex items-center gap-1 text-[10px]"
         :class="req.met ? 'text-green-600' : 'text-gray-400'"
       >
-        <svg v-if="req.met" class="size-3" fill="currentColor" viewBox="0 0 20 20">
+        <svg v-if="req.met" class="size-2.5" fill="currentColor" viewBox="0 0 20 20">
           <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
         </svg>
-        <svg v-else class="size-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg v-else class="size-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <circle cx="12" cy="12" r="10" stroke-width="2"/>
         </svg>
         <span>{{ req.label }}</span>

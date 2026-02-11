@@ -2,6 +2,7 @@ export * from './apps'
 
 export const STORAGE_KEYS = {
   AUTH_TOKEN: 'savanna_auth_token',
+  REFRESH_TOKEN: 'savanna_refresh_token',
   USER: 'savanna_user',
   ONBOARDING_PROGRESS: 'savanna_onboarding',
   THEME: 'savanna_theme',
@@ -11,6 +12,7 @@ export const STORAGE_KEYS = {
 export const API_ENDPOINTS = {
   AUTH: {
     LOGIN: '/auth/login',
+    SIGNUP: '/auth/signup',
     REGISTER: '/auth/register',
     LOGOUT: '/auth/logout',
     REFRESH: '/auth/refresh',
@@ -35,8 +37,15 @@ export const API_ENDPOINTS = {
     UPDATE_PAYMENT: '/subscriptions/payment-method'
   },
   PAYMENTS: {
-    INITIALIZE: '/payments/initialize',
-    VERIFY: '/payments/verify'
+    INITIATE: '/payments/initiate',
+    VERIFY: '/payments/verify',
+    STATUS: '/payments'
+  },
+  TENANTS: {
+    STATUS: '/tenants'
+  },
+  BILLING: {
+    PLANS: '/billing/plans'
   }
 } as const
 

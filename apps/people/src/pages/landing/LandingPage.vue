@@ -1,6 +1,8 @@
 <script setup lang="ts">
+import { onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
-import { SAVANNA_APPS } from '@techsavanna/shared'
+import { SAVANNA_APPS, slugify } from '@techsavanna/shared'
+import { useAuth } from '@techsavanna/auth'
 import type { PricingPlan } from '@techsavanna/shared'
 import {
   LandingLayout,
@@ -11,12 +13,21 @@ import {
   TestimonialsSection,
   FAQSection,
   CTASection,
-  TrustSection
+  TrustSection,
+  usePlans
 } from '@techsavanna/ui'
 import type { Feature, Testimonial, FAQ, ValueProp } from '@techsavanna/ui'
 
 const router = useRouter()
 const appConfig = SAVANNA_APPS.people
+const appDomain = import.meta.env.VITE_PEOPLE_DOMAIN || 'saas.techsavanna.technology'
+const { isAuthenticated, fullName, initials, user, logout } = useAuth()
+
+const siteUrl = computed(() => {
+  const tenantName = user.value?.tenantName
+  const subdomain = tenantName ? slugify(tenantName) : ''
+  return subdomain ? `https://${subdomain}.${appDomain}` : ''
+})
 
 // Value Propositions
 const valueProps: ValueProp[] = [
@@ -100,65 +111,28 @@ const features: Feature[] = [
   }
 ]
 
-// Pricing Plans
-const pricingPlans: PricingPlan[] = [
-  {
-    id: 'starter',
-    name: 'Starter',
-    description: 'Perfect for small teams',
-    monthlyPrice: 4999,
-    yearlyPrice: 49990,
-    trialDays: 14,
+// Pricing Plans - fetched from backend
+const { plans: pricingPlans, fetchPlans } = usePlans()
+
+onMounted(() => {
+  fetchPlans('PRODUCT_PEOPLE', {
+    description: 'Complete HR & payroll solution for teams of all sizes',
     features: [
-      'Up to 25 employees',
-      'Basic payroll processing',
-      'Leave management',
-      'Employee self-service portal',
-      'Email support',
-      'NHIF & NSSF compliance'
-    ]
-  },
-  {
-    id: 'professional',
-    name: 'Professional',
-    description: 'For growing companies',
-    monthlyPrice: 12999,
-    yearlyPrice: 129990,
-    featured: true,
-    trialDays: 14,
-    features: [
-      'Up to 100 employees',
+      'Unlimited employees',
       'Advanced payroll with multi-location',
       'Time & attendance tracking',
       'Performance management',
-      'Custom leave policies',
-      'Priority support',
-      'API access',
-      'Custom reports & analytics'
+      'Leave management & custom policies',
+      'NHIF & NSSF compliance',
+      'Employee self-service portal',
+      'Custom reports & analytics',
+      'Priority support'
     ],
-    ctaText: 'Start Free Trial'
-  },
-  {
-    id: 'enterprise',
-    name: 'Enterprise',
-    description: 'For large organizations',
-    monthlyPrice: 29999,
-    yearlyPrice: 299990,
-    trialDays: 14,
-    features: [
-      'Unlimited employees',
-      'Multi-country payroll',
-      'Advanced compliance automation',
-      'Biometric integration',
-      'Custom workflows & approvals',
-      'Dedicated account manager',
-      'SLA guarantee (99.9% uptime)',
-      'On-site training',
-      'White-label options'
-    ],
-    ctaText: 'Contact Sales'
-  }
-]
+    featured: true,
+    ctaText: 'Start Free Trial',
+    trialDays: 14
+  })
+})
 
 // Testimonials from HR managers
 const testimonials: Testimonial[] = [
@@ -257,16 +231,26 @@ function handleLogin() {
   router.push('/login')
 }
 
-function handleSelectPlan(plan: PricingPlan) {
-  router.push({ path: '/signup', query: { plan: plan.id } })
+async function handleLogout() {
+  await logout()
+  router.push('/')
+}
+
+function handleSelectPlan(plan: PricingPlan, billing: 'monthly' | 'yearly') {
+  router.push({ path: '/signup', query: { plan: plan.id, billing } })
 }
 </script>
 
 <template>
   <LandingLayout
     app-id="people"
+    :is-authenticated="isAuthenticated"
+    :user-name="fullName"
+    :user-initials="initials"
+    :site-url="siteUrl"
     @login="handleLogin"
     @signup="handleGetStarted"
+    @logout="handleLogout"
   >
     <HeroSection
       pill="Trusted by 2,000+ Companies"
@@ -297,8 +281,8 @@ function handleSelectPlan(plan: PricingPlan) {
     />
 
     <PricingSection
-      title="Simple, Transparent Pricing"
-      subtitle="No hidden fees. No long-term contracts. Start with a 14-day free trial."
+      title="Simple, Per-User Pricing"
+      subtitle="One plan, all features included. Pay per user with a 14-day free trial."
       :plans="pricingPlans"
       currency="KES"
       @select-plan="handleSelectPlan"

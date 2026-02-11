@@ -1,6 +1,8 @@
 <script setup lang="ts">
+import { onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
-import { SAVANNA_APPS } from '@techsavanna/shared'
+import { SAVANNA_APPS, slugify } from '@techsavanna/shared'
+import { useAuth } from '@techsavanna/auth'
 import type { PricingPlan } from '@techsavanna/shared'
 import {
   LandingLayout,
@@ -11,12 +13,21 @@ import {
   TestimonialsSection,
   FAQSection,
   CTASection,
-  TrustSection
+  TrustSection,
+  usePlans
 } from '@techsavanna/ui'
 import type { Feature, Testimonial, FAQ, ValueProp } from '@techsavanna/ui'
 
 const router = useRouter()
 const appConfig = SAVANNA_APPS.elimu
+const appDomain = import.meta.env.VITE_ELIMU_DOMAIN || 'saas.techsavanna.technology'
+const { isAuthenticated, fullName, initials, user, logout } = useAuth()
+
+const siteUrl = computed(() => {
+  const tenantName = user.value?.tenantName
+  const subdomain = tenantName ? slugify(tenantName) : ''
+  return subdomain ? `https://${subdomain}.${appDomain}` : ''
+})
 
 // Value Propositions
 const valueProps: ValueProp[] = [
@@ -100,68 +111,28 @@ const features: Feature[] = [
   }
 ]
 
-// Pricing Plans
-const pricingPlans: PricingPlan[] = [
-  {
-    id: 'basic-school',
-    name: 'Basic School',
-    description: 'Perfect for primary and secondary schools',
-    monthlyPrice: 9999,
-    yearlyPrice: 99990,
-    trialDays: 14,
-    features: [
-      'Up to 500 students',
-      'Student information system',
-      'Basic fee collection',
-      'Attendance tracking',
-      'Grade management',
-      'Parent SMS notifications',
-      'Email support'
-    ]
-  },
-  {
-    id: 'multi-campus',
-    name: 'Multi-Campus',
-    description: 'For school groups and chains',
-    monthlyPrice: 24999,
-    yearlyPrice: 249990,
-    featured: true,
-    trialDays: 14,
-    features: [
-      'Up to 2,500 students',
-      'Multiple campus management',
-      'Advanced admissions workflow',
-      'Online fee payment portal',
-      'Parent & student portals',
-      'Library management',
-      'Transport tracking',
-      'Priority support',
-      'Custom reports'
-    ],
-    ctaText: 'Start Free Trial'
-  },
-  {
-    id: 'university',
-    name: 'University',
-    description: 'For colleges and universities',
-    monthlyPrice: 49999,
-    yearlyPrice: 499990,
-    trialDays: 14,
+// Pricing Plans - fetched from backend
+const { plans: pricingPlans, fetchPlans } = usePlans()
+
+onMounted(() => {
+  fetchPlans('PRODUCT_ELIMU', {
+    description: 'Complete school management for institutions of all sizes',
     features: [
       'Unlimited students',
-      'Multi-faculty management',
-      'Course & credit management',
-      'Hostel management',
-      'Examination management',
-      'Alumni portal',
-      'API & integrations',
-      'Dedicated account manager',
-      'On-site training',
-      'Custom development'
+      'Student information system',
+      'Fee collection with M-Pesa',
+      'Attendance & grade management',
+      'Parent & student portals',
+      'Multiple campus management',
+      'Library & transport tracking',
+      'Custom reports & analytics',
+      'Priority support'
     ],
-    ctaText: 'Contact Sales'
-  }
-]
+    featured: true,
+    ctaText: 'Start Free Trial',
+    trialDays: 14
+  })
+})
 
 // Testimonials from school administrators
 const testimonials: Testimonial[] = [
@@ -260,16 +231,26 @@ function handleLogin() {
   router.push('/login')
 }
 
-function handleSelectPlan(plan: PricingPlan) {
-  router.push({ path: '/signup', query: { plan: plan.id } })
+async function handleLogout() {
+  await logout()
+  router.push('/')
+}
+
+function handleSelectPlan(plan: PricingPlan, billing: 'monthly' | 'yearly') {
+  router.push({ path: '/signup', query: { plan: plan.id, billing } })
 }
 </script>
 
 <template>
   <LandingLayout
     app-id="elimu"
+    :is-authenticated="isAuthenticated"
+    :user-name="fullName"
+    :user-initials="initials"
+    :site-url="siteUrl"
     @login="handleLogin"
     @signup="handleGetStarted"
+    @logout="handleLogout"
   >
     <HeroSection
       pill="Trusted by 500+ Schools Across Africa"
@@ -300,8 +281,8 @@ function handleSelectPlan(plan: PricingPlan) {
     />
 
     <PricingSection
-      title="Simple, Transparent Pricing"
-      subtitle="No hidden fees. No long-term contracts. Start with a 14-day free trial."
+      title="Simple, Per-User Pricing"
+      subtitle="One plan, all features included. Pay per user with a 14-day free trial."
       :plans="pricingPlans"
       currency="KES"
       @select-plan="handleSelectPlan"

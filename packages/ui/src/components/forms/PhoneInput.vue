@@ -21,6 +21,8 @@ const props = withDefaults(defineProps<Props>(), {
 
 const emit = defineEmits<{
   'update:modelValue': [value: string]
+  'update:country': [code: string]
+  blur: []
 }>()
 
 const isOpen = ref(false)
@@ -65,11 +67,31 @@ watch(fullPhoneNumber, (value) => {
   emit('update:modelValue', value)
 })
 
+watch(selectedCountry, (country) => {
+  emit('update:country', country.code)
+}, { immediate: true })
+
 function selectCountry(country: typeof COUNTRIES[number]) {
   selectedCountry.value = country
   isOpen.value = false
   searchQuery.value = ''
   inputRef.value?.focus()
+}
+
+function handleInput() {
+  phoneNumber.value = phoneNumber.value.replace(/[^0-9]/g, '')
+}
+
+function handleKeydown(event: KeyboardEvent) {
+  // Allow: backspace, delete, tab, escape, enter, arrows, home, end
+  const allowedKeys = ['Backspace', 'Delete', 'Tab', 'Escape', 'Enter', 'ArrowLeft', 'ArrowRight', 'Home', 'End']
+  if (allowedKeys.includes(event.key)) return
+  // Allow Ctrl/Cmd+A, C, V, X
+  if ((event.ctrlKey || event.metaKey) && ['a', 'c', 'v', 'x'].includes(event.key.toLowerCase())) return
+  // Block non-digit keys
+  if (!/^[0-9]$/.test(event.key)) {
+    event.preventDefault()
+  }
 }
 
 function handleClickOutside(event: MouseEvent) {
@@ -130,9 +152,13 @@ onUnmounted(() => {
           ref="inputRef"
           v-model="phoneNumber"
           type="tel"
+          inputmode="numeric"
           :placeholder="placeholder"
           :disabled="disabled"
           class="flex-1 rounded-r-lg px-3 py-1.5 text-sm placeholder:text-xs placeholder:text-gray-400 focus:outline-none disabled:cursor-not-allowed disabled:bg-gray-100"
+          @input="handleInput"
+          @keydown="handleKeydown"
+          @blur="emit('blur')"
         />
       </div>
 

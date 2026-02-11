@@ -7,6 +7,7 @@ export function useAuth() {
   const {
     user,
     token,
+    refreshToken,
     isLoading,
     error,
     isAuthenticated,
@@ -18,6 +19,7 @@ export function useAuth() {
     // Reactive state
     user,
     token,
+    refreshToken,
     isLoading,
     error,
     isAuthenticated,
@@ -27,6 +29,7 @@ export function useAuth() {
     initialize: store.initialize,
     login: store.login,
     register: store.register,
+    signup: store.signup,
     logout: store.logout,
     refreshUser: store.refreshUser,
     updateProfile: store.updateProfile,

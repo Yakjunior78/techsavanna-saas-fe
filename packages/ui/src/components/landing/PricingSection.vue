@@ -12,14 +12,14 @@ interface Props {
   currency?: string
 }
 
-withDefaults(defineProps<Props>(), {
+const props = withDefaults(defineProps<Props>(), {
   title: 'Simple, Transparent Pricing',
   subtitle: 'Choose the plan that fits your business needs',
   currency: 'KES'
 })
 
 defineEmits<{
-  selectPlan: [plan: PricingPlan]
+  selectPlan: [plan: PricingPlan, billingPeriod: 'monthly' | 'yearly']
 }>()
 
 const sectionRef = ref<HTMLElement | null>(null)
@@ -50,6 +50,13 @@ onUnmounted(() => {
 
 const yearlyDiscount = computed(() => {
   return billingPeriod.value === 'yearly' ? 20 : 0
+})
+
+const gridCols = computed(() => {
+  const count = props.plans.length
+  if (count === 1) return 'max-w-md mx-auto'
+  if (count === 2) return 'max-w-3xl mx-auto lg:grid-cols-2'
+  return 'max-w-7xl lg:grid-cols-3'
 })
 </script>
 
@@ -117,7 +124,7 @@ const yearlyDiscount = computed(() => {
       </div>
 
       <!-- Pricing Cards -->
-      <div class="mx-auto mt-10 grid max-w-7xl gap-6 lg:grid-cols-3">
+      <div class="mx-auto mt-10 grid gap-6" :class="gridCols">
         <div
           v-for="(plan, index) in plans"
           :key="plan.id"
@@ -170,13 +177,14 @@ const yearlyDiscount = computed(() => {
                     ) }}
                   </span>
                 </Transition>
-                <span class="ml-1.5 text-xs text-gray-500">/month</span>
+                <span class="ml-1.5 text-xs text-gray-500">/user/month</span>
               </div>
               <Transition name="fade">
                 <p v-if="billingPeriod === 'yearly'" class="mt-0.5 text-xs text-blue-600 font-medium">
-                  Billed {{ formatCurrency(plan.yearlyPrice, currency) }} yearly
+                  Billed {{ formatCurrency(plan.yearlyPrice, currency) }}/user yearly
                 </p>
               </Transition>
+              <p class="mt-0.5 text-[10px] text-gray-400">VAT inclusive</p>
             </div>
 
             <!-- Features with staggered check animation -->
@@ -203,9 +211,9 @@ const yearlyDiscount = computed(() => {
               size="sm"
               :variant="plan.featured ? 'primary' : 'outline'"
               fullWidth
-              @click="$emit('selectPlan', plan)"
+              @click="$emit('selectPlan', plan, billingPeriod)"
             >
-              {{ plan.ctaText || 'Get Started' }}
+              {{ plan.ctaText || 'Start Free Trial' }}
             </Button>
 
             <!-- Trial Info -->

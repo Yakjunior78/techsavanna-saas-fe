@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref, onMounted, onUnmounted } from 'vue'
 import type { OnboardingStep } from '@techsavanna/shared'
 import Button from '../base/Button.vue'
 
@@ -9,6 +9,9 @@ interface Props {
   completedSteps: string[]
   isLoading?: boolean
   canContinue?: boolean
+  ctaText?: string
+  hideFooter?: boolean
+  hideBackButton?: boolean
   appId?: string
   appName?: string
   appTagline?: string
@@ -17,11 +20,18 @@ interface Props {
   appGradientTo?: string
   appLogo?: string
   appLogoWhite?: string
+  isAuthenticated?: boolean
+  userName?: string
+  userInitials?: string
+  siteUrl?: string
 }
 
 const props = withDefaults(defineProps<Props>(), {
   isLoading: false,
   canContinue: true,
+  ctaText: '',
+  hideFooter: false,
+  hideBackButton: false,
   appId: 'pos',
   appName: 'Savanna',
   appTagline: 'Get started with your account',
@@ -29,7 +39,11 @@ const props = withDefaults(defineProps<Props>(), {
   appGradientFrom: 'from-emerald-600',
   appGradientTo: 'to-teal-500',
   appLogo: '',
-  appLogoWhite: ''
+  appLogoWhite: '',
+  isAuthenticated: false,
+  userName: '',
+  userInitials: '',
+  siteUrl: ''
 })
 
 defineEmits<{
@@ -37,7 +51,30 @@ defineEmits<{
   back: []
   skip: []
   stepClick: [stepId: string]
+  logout: []
 }>()
+
+// User dropdown state
+const showUserMenu = ref(false)
+
+function toggleUserMenu() {
+  showUserMenu.value = !showUserMenu.value
+}
+
+function handleClickOutside(event: MouseEvent) {
+  const target = event.target as HTMLElement
+  if (!target.closest('.user-menu-container')) {
+    showUserMenu.value = false
+  }
+}
+
+onMounted(() => {
+  document.addEventListener('click', handleClickOutside)
+})
+
+onUnmounted(() => {
+  document.removeEventListener('click', handleClickOutside)
+})
 
 const currentStep = computed(() =>
   props.steps.find(s => s.id === props.currentStepId)
@@ -65,6 +102,9 @@ const logoPath = computed(() => {
   }
   return logos[props.appId] || logos.pos
 })
+
+// Whether the current step is the setup/provisioning step
+const isSetupStep = computed(() => props.currentStepId === 'setup')
 </script>
 
 <template>
@@ -179,16 +219,116 @@ const logoPath = computed(() => {
     <!-- Header -->
     <header class="relative z-10 shrink-0 border-b border-gray-200/60 bg-white/60 backdrop-blur-md">
       <div class="mx-auto flex h-14 max-w-6xl items-center justify-between px-4 sm:px-6 lg:px-8">
-        <a href="/" class="flex items-center">
+        <a href="/" class="flex shrink-0 items-center">
           <img
             :src="logoPath"
             :alt="appName"
             class="h-8 max-w-[160px] w-auto object-contain"
           />
         </a>
+
+        <!-- Step Indicators (centered) -->
+        <div class="flex items-center gap-1">
+          <div
+            v-for="(step, index) in steps"
+            :key="step.id"
+            class="flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-medium"
+            :class="[
+              currentStepIndex === index
+                ? 'bg-gray-900 text-white'
+                : completedSteps.includes(step.id)
+                  ? 'bg-gray-200 text-gray-700'
+                  : 'bg-gray-100 text-gray-500'
+            ]"
+          >
+            <span
+              v-if="completedSteps.includes(step.id) && currentStepIndex !== index"
+              class="flex size-3 items-center justify-center rounded-full text-white"
+              :style="{ backgroundColor: appColor }"
+            >
+              <svg class="size-2" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+              </svg>
+            </span>
+            <span v-else class="text-[9px]">{{ index + 1 }}</span>
+            <span class="hidden sm:inline">{{ step.title.split(' ').slice(0, 3).join(' ') }}</span>
+          </div>
+        </div>
+
+        <!-- User dropdown (authenticated) -->
+        <div v-if="isAuthenticated" class="user-menu-container relative shrink-0">
+          <button
+            class="flex cursor-pointer items-center gap-2.5 rounded-lg px-1.5 py-1 transition-all hover:bg-gray-100/80"
+            @click.stop="toggleUserMenu"
+          >
+            <div
+              class="flex size-7 items-center justify-center rounded-full ring-2 ring-white text-[11px] font-semibold text-white shadow-sm"
+              :style="{ backgroundColor: appColor }"
+            >
+              {{ userInitials }}
+            </div>
+            <span class="hidden max-w-[100px] truncate text-[13px] font-medium text-gray-600 sm:inline">{{ userName }}</span>
+            <svg class="size-3 text-gray-400/70 transition-transform" :class="{ 'rotate-180': showUserMenu }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/>
+            </svg>
+          </button>
+
+          <!-- Dropdown menu -->
+          <Transition
+            enter-active-class="transition duration-100 ease-out"
+            enter-from-class="scale-95 opacity-0"
+            enter-to-class="scale-100 opacity-100"
+            leave-active-class="transition duration-75 ease-in"
+            leave-from-class="scale-100 opacity-100"
+            leave-to-class="scale-95 opacity-0"
+          >
+            <div
+              v-if="showUserMenu"
+              class="absolute right-0 top-full z-50 mt-1.5 w-56 origin-top-right overflow-hidden rounded-xl border border-gray-200 bg-white shadow-lg shadow-gray-200/50"
+            >
+              <div class="border-b border-gray-100 px-4 py-3">
+                <p class="truncate text-sm font-medium text-gray-900">{{ userName }}</p>
+              </div>
+              <div class="py-1">
+                <a
+                  href="/dashboard"
+                  class="flex items-center gap-2.5 px-4 py-2 text-sm text-gray-700 transition-colors hover:bg-gray-50"
+                >
+                  <svg class="size-4 text-gray-400" viewBox="0 0 24 24" fill="currentColor">
+                    <path fill-rule="evenodd" d="M3 6a3 3 0 013-3h2.25a3 3 0 013 3v2.25a3 3 0 01-3 3H6a3 3 0 01-3-3V6zm9.75 0a3 3 0 013-3H18a3 3 0 013 3v2.25a3 3 0 01-3 3h-2.25a3 3 0 01-3-3V6zM3 15.75a3 3 0 013-3h2.25a3 3 0 013 3V18a3 3 0 01-3 3H6a3 3 0 01-3-3v-2.25zm9.75 0a3 3 0 013-3H18a3 3 0 013 3V18a3 3 0 01-3 3h-2.25a3 3 0 01-3-3v-2.25z" clip-rule="evenodd"/>
+                  </svg>
+                  Dashboard
+                </a>
+                <a
+                  v-if="siteUrl"
+                  :href="siteUrl"
+                  target="_blank"
+                  class="flex items-center gap-2.5 px-4 py-2 text-sm text-gray-700 transition-colors hover:bg-gray-50"
+                >
+                  <svg class="size-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25"/>
+                  </svg>
+                  View My Site
+                </a>
+                <button
+                  class="flex w-full items-center gap-2.5 px-4 py-2 text-sm text-red-600 transition-colors hover:bg-red-50"
+                  @click="$emit('logout')"
+                >
+                  <svg class="size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9"/>
+                  </svg>
+                  Log out
+                </button>
+              </div>
+            </div>
+          </Transition>
+        </div>
+
+        <!-- Login link (not authenticated) -->
         <a
+          v-else
           href="/login"
-          class="text-sm text-gray-500 transition-colors hover:text-gray-900"
+          class="shrink-0 text-sm text-gray-500 transition-colors hover:text-gray-900"
         >
           Already have an account? <span class="font-medium" :style="{ color: appColor }">Log in</span>
         </a>
@@ -204,41 +344,18 @@ const logoPath = computed(() => {
     </div>
 
     <!-- Main Content (scrollable) -->
-    <div class="relative z-10 min-h-0 flex-1 overflow-y-auto pb-20">
-      <div class="mx-auto w-full max-w-md px-4 py-4 sm:py-6">
-        <!-- Step Indicators -->
-        <div class="mb-4 flex items-center justify-center gap-1">
-          <button
-            v-for="(step, index) in steps"
-            :key="step.id"
-            class="flex cursor-pointer items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-medium transition-all hover:bg-gray-200"
-            :class="[
-              currentStepIndex === index
-                ? 'bg-gray-900 text-white hover:bg-gray-800'
-                : completedSteps.includes(step.id)
-                  ? 'bg-gray-200 text-gray-700'
-                  : 'bg-gray-100 text-gray-500'
-            ]"
-            @click="$emit('stepClick', step.id)"
-          >
-            <span
-              v-if="completedSteps.includes(step.id) && currentStepIndex !== index"
-              class="flex size-3 items-center justify-center rounded-full text-white"
-              :style="{ backgroundColor: appColor }"
-            >
-              <svg class="size-2" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
-              </svg>
-            </span>
-            <span v-else class="text-[9px]">{{ index + 1 }}</span>
-            <span class="hidden sm:inline">{{ step.title.split(' ').slice(0, 3).join(' ') }}</span>
-          </button>
-        </div>
-
+    <div
+      class="relative z-10 min-h-0 flex-1 overflow-y-auto"
+      :class="isSetupStep ? 'flex items-center justify-center' : 'pb-20'"
+    >
+      <div class="mx-auto w-full px-4" :class="[isSetupStep ? 'max-w-xl' : 'max-w-md py-4 sm:py-6']">
         <!-- Card Container -->
-        <div class="rounded-xl border border-gray-200/60 bg-white/70 p-4 shadow-lg shadow-gray-200/40 backdrop-blur-md sm:p-6">
+        <div
+          class="border border-gray-200/60 bg-white/70 backdrop-blur-md"
+          :class="isSetupStep ? 'rounded-3xl p-6 sm:p-8' : 'rounded-xl p-4 shadow-lg shadow-gray-200/40 sm:p-6'"
+        >
           <!-- Step Header -->
-          <div class="-mx-4 -mt-1 mb-4 border-b border-gray-200/60 px-4 pb-3 sm:-mx-6 sm:-mt-2 sm:px-6">
+          <div v-if="!isSetupStep" class="-mx-4 -mt-1 mb-4 border-b border-gray-200/60 px-4 pb-3 sm:-mx-6 sm:-mt-2 sm:px-6">
             <h1 class="text-base font-semibold leading-tight text-gray-900">
               {{ currentStep?.title }}
             </h1>
@@ -256,11 +373,11 @@ const logoPath = computed(() => {
     </div>
 
     <!-- Fixed Footer Navigation -->
-    <footer class="relative z-10 shrink-0 border-t border-gray-200/60 bg-white/60 backdrop-blur-md">
+    <footer v-if="!hideFooter" class="relative z-10 shrink-0 border-t border-gray-200/60 bg-white/60 backdrop-blur-md">
       <div class="mx-auto flex h-14 max-w-md items-center justify-between px-4">
         <div>
           <Button
-            v-if="!isFirstStep"
+            v-if="!isFirstStep && !hideBackButton"
             variant="ghost"
             size="sm"
             @click="$emit('back')"
@@ -287,8 +404,8 @@ const logoPath = computed(() => {
             :disabled="!canContinue"
             @click="$emit('next')"
           >
-            {{ isLastStep ? 'Complete Setup' : 'Continue' }}
-            <svg v-if="!isLastStep" class="ml-1 size-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            {{ ctaText || (isLastStep ? 'Complete Setup' : 'Continue') }}
+            <svg v-if="!ctaText && !isLastStep" class="ml-1 size-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
             </svg>
           </Button>

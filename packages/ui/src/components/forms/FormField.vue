@@ -21,6 +21,7 @@ withDefaults(defineProps<Props>(), {
 
 defineEmits<{
   'update:modelValue': [value: string | number]
+  blur: [event: FocusEvent]
 }>()
 </script>
 
@@ -35,5 +36,6 @@ defineEmits<{
     :required="required"
     :disabled="disabled"
     @update:model-value="$emit('update:modelValue', $event)"
+    @blur="$emit('blur', $event)"
   />
 </template>

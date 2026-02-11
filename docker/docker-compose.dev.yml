@@ -1,4 +1,26 @@
 services:
+  admin:
+    build:
+      context: ..
+      dockerfile: apps/admin/Dockerfile
+      target: builder
+    ports:
+      - "3000:3000"
+    volumes:
+      - ../apps/admin/src:/app/apps/admin/src
+      - ../packages:/app/packages
+    env_file:
+      - ../apps/admin/.env
+    environment:
+      - NODE_ENV=development
+      - VITE_POS_DOMAIN=localhost:3001
+      - VITE_PEOPLE_DOMAIN=localhost:3002
+      - VITE_ELIMU_DOMAIN=localhost:3003
+      - VITE_ERP_DOMAIN=localhost:3004
+    command: sh -c "cd /app && pnpm install --prefer-offline && cd /app/apps/admin && pnpm dev --host"
+    networks:
+      - savanna-dev
+
   pos:
     build:
       context: ..
@@ -9,9 +31,10 @@ services:
     volumes:
       - ../apps/pos/src:/app/apps/pos/src
       - ../packages:/app/packages
+    env_file:
+      - ../apps/pos/.env
     environment:
       - NODE_ENV=development
-      - VITE_API_BASE_URL=http://localhost:8000/api/v1
       - VITE_POS_DOMAIN=localhost:3001
       - VITE_PEOPLE_DOMAIN=localhost:3002
       - VITE_ELIMU_DOMAIN=localhost:3003
@@ -30,9 +53,10 @@ services:
     volumes:
       - ../apps/people/src:/app/apps/people/src
       - ../packages:/app/packages
+    env_file:
+      - ../apps/people/.env
     environment:
       - NODE_ENV=development
-      - VITE_API_BASE_URL=http://localhost:8000/api/v1
       - VITE_POS_DOMAIN=localhost:3001
       - VITE_PEOPLE_DOMAIN=localhost:3002
       - VITE_ELIMU_DOMAIN=localhost:3003
@@ -51,9 +75,10 @@ services:
     volumes:
       - ../apps/elimu/src:/app/apps/elimu/src
       - ../packages:/app/packages
+    env_file:
+      - ../apps/elimu/.env
     environment:
       - NODE_ENV=development
-      - VITE_API_BASE_URL=http://localhost:8000/api/v1
       - VITE_POS_DOMAIN=localhost:3001
       - VITE_PEOPLE_DOMAIN=localhost:3002
       - VITE_ELIMU_DOMAIN=localhost:3003
@@ -72,9 +97,10 @@ services:
     volumes:
       - ../apps/erp/src:/app/apps/erp/src
       - ../packages:/app/packages
+    env_file:
+      - ../apps/erp/.env
     environment:
       - NODE_ENV=development
-      - VITE_API_BASE_URL=http://localhost:8000/api/v1
       - VITE_POS_DOMAIN=localhost:3001
       - VITE_PEOPLE_DOMAIN=localhost:3002
       - VITE_ELIMU_DOMAIN=localhost:3003

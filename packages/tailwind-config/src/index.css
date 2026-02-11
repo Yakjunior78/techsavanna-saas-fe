@@ -74,6 +74,10 @@
   animation: shimmer 1.5s ease-in-out infinite;
 }
 
+@utility animate-progress-slide {
+  animation: progressSlide 1.5s ease-in-out infinite;
+}
+
 @utility animate-ripple {
   animation: ripple 0.6s ease-out;
 }
@@ -242,6 +246,15 @@
   }
   75% {
     transform: translateY(2px);
+  }
+}
+
+@keyframes progressSlide {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(400%);
   }
 }
 

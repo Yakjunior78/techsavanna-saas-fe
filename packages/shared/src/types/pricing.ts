@@ -1,3 +1,20 @@
+// Backend API response types
+export interface ApiPlan {
+  id: string
+  productCode: string
+  name: string
+  billingCycle: string
+  basePriceKes: number
+  perSeatPriceKes: number
+  includedSeats: number
+  annualDiscountPercent: number
+}
+
+export interface PlansApiResponse {
+  plans: ApiPlan[]
+}
+
+// Frontend display types
 export interface PricingPlan {
   id: string
   name: string

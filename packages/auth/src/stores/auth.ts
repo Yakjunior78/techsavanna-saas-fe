@@ -1,7 +1,8 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import type { User, AuthState } from '@techsavanna/shared'
+import type { User } from '@techsavanna/shared'
 import { STORAGE_KEYS, getItem, setItem, removeItem, apiPost, apiGet, API_ENDPOINTS } from '@techsavanna/shared'
+import type { ApiError } from '@techsavanna/shared'
 
 interface LoginCredentials {
   email: string
@@ -16,14 +17,47 @@ interface RegisterData {
   phone?: string
 }
 
+interface SignupData {
+  firstName: string
+  lastName: string
+  email: string
+  phone: string
+  password: string
+  companyName: string
+  subdomainSlug: string
+  country: string
+  industry: string
+  companySize: string
+  website: string
+  product: string
+  planId: string
+  billingCycle: string
+}
+
 interface AuthResponse {
+  accessToken: string
+  refreshToken: string
   user: User
-  token: string
+}
+
+interface SignupResponse {
+  userId: string
+  tenantId: string
+  subscriptionId: string
+  accessToken: string
+  refreshToken: string
+  product: string
+  amount: number
+  currency: string
+  subdomainSlug: string
+  message: string
 }
 
 export const useAuthStore = defineStore('auth', () => {
   const user = ref<User | null>(null)
   const token = ref<string | null>(null)
+  const refreshToken = ref<string | null>(null)
+  const signupResponse = ref<SignupResponse | null>(null)
   const isLoading = ref(false)
   const error = ref<string | null>(null)
 
@@ -43,11 +77,18 @@ export const useAuthStore = defineStore('auth', () => {
   // Initialize from storage
   function initialize() {
     const storedToken = getItem<string>(STORAGE_KEYS.AUTH_TOKEN)
+    const storedRefreshToken = getItem<string>(STORAGE_KEYS.REFRESH_TOKEN)
     const storedUser = getItem<User>(STORAGE_KEYS.USER)
 
     if (storedToken && storedUser) {
       token.value = storedToken
+      refreshToken.value = storedRefreshToken
       user.value = storedUser
+    }
+
+    const storedSignupResponse = getItem<SignupResponse>('savanna_signup_response')
+    if (storedSignupResponse) {
+      signupResponse.value = storedSignupResponse
     }
   }
 
@@ -59,15 +100,18 @@ export const useAuthStore = defineStore('auth', () => {
     try {
       const response = await apiPost<AuthResponse>(API_ENDPOINTS.AUTH.LOGIN, credentials)
 
-      token.value = response.token
+      token.value = response.accessToken
+      refreshToken.value = response.refreshToken
       user.value = response.user
 
-      setItem(STORAGE_KEYS.AUTH_TOKEN, response.token)
+      setItem(STORAGE_KEYS.AUTH_TOKEN, response.accessToken)
+      setItem(STORAGE_KEYS.REFRESH_TOKEN, response.refreshToken)
       setItem(STORAGE_KEYS.USER, response.user)
 
       return true
     } catch (e) {
-      error.value = (e as Error).message || 'Login failed'
+      const apiError = e as ApiError
+      error.value = apiError.message || 'Login failed'
       return false
     } finally {
       isLoading.value = false
@@ -81,16 +125,57 @@ export const useAuthStore = defineStore('auth', () => {
     try {
       const response = await apiPost<AuthResponse>(API_ENDPOINTS.AUTH.REGISTER, data)
 
-      token.value = response.token
+      token.value = response.accessToken
+      refreshToken.value = response.refreshToken
       user.value = response.user
 
-      setItem(STORAGE_KEYS.AUTH_TOKEN, response.token)
+      setItem(STORAGE_KEYS.AUTH_TOKEN, response.accessToken)
+      setItem(STORAGE_KEYS.REFRESH_TOKEN, response.refreshToken)
       setItem(STORAGE_KEYS.USER, response.user)
 
       return true
     } catch (e) {
-      error.value = (e as Error).message || 'Registration failed'
+      const apiError = e as ApiError
+      error.value = apiError.message || 'Registration failed'
       return false
+    } finally {
+      isLoading.value = false
+    }
+  }
+
+  async function signup(data: SignupData): Promise<SignupResponse> {
+    isLoading.value = true
+    error.value = null
+
+    try {
+      const response = await apiPost<SignupResponse>(API_ENDPOINTS.AUTH.SIGNUP, data)
+
+      token.value = response.accessToken
+      refreshToken.value = response.refreshToken
+
+      // Build user from signup data + response
+      user.value = {
+        id: response.userId,
+        firstName: data.firstName,
+        lastName: data.lastName,
+        email: data.email,
+        phone: data.phone,
+        tenantId: response.tenantId,
+        tenantName: data.companyName
+      }
+
+      signupResponse.value = response
+
+      setItem(STORAGE_KEYS.AUTH_TOKEN, response.accessToken)
+      setItem(STORAGE_KEYS.REFRESH_TOKEN, response.refreshToken)
+      setItem(STORAGE_KEYS.USER, user.value)
+      setItem('savanna_signup_response', response)
+
+      return response
+    } catch (e) {
+      const apiError = e as ApiError
+      error.value = apiError.message || 'Signup failed'
+      throw e
     } finally {
       isLoading.value = false
     }
@@ -103,9 +188,13 @@ export const useAuthStore = defineStore('auth', () => {
       // Ignore logout API errors
     } finally {
       token.value = null
+      refreshToken.value = null
       user.value = null
+      signupResponse.value = null
       removeItem(STORAGE_KEYS.AUTH_TOKEN)
+      removeItem(STORAGE_KEYS.REFRESH_TOKEN)
       removeItem(STORAGE_KEYS.USER)
+      removeItem('savanna_signup_response')
     }
   }
 
@@ -132,7 +221,8 @@ export const useAuthStore = defineStore('auth', () => {
       setItem(STORAGE_KEYS.USER, response)
       return true
     } catch (e) {
-      error.value = (e as Error).message || 'Update failed'
+      const apiError = e as ApiError
+      error.value = apiError.message || 'Update failed'
       return false
     } finally {
       isLoading.value = false
@@ -147,6 +237,8 @@ export const useAuthStore = defineStore('auth', () => {
     // State
     user,
     token,
+    refreshToken,
+    signupResponse,
     isLoading,
     error,
     // Computed
@@ -157,6 +249,7 @@ export const useAuthStore = defineStore('auth', () => {
     initialize,
     login,
     register,
+    signup,
     logout,
     refreshUser,
     updateProfile,

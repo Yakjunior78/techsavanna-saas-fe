@@ -84,7 +84,7 @@ const sizeClasses = {
       <button
         v-if="type === 'password'"
         type="button"
-        class="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 transition-colors hover:text-gray-600 focus:outline-none"
+        class="absolute right-2.5 top-1/2 -translate-y-1/2 cursor-pointer text-gray-400 transition-colors hover:text-gray-600 focus:outline-none"
         @click="togglePassword"
       >
         <!-- Eye icon (show password) -->

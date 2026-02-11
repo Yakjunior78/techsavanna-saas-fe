@@ -6,13 +6,23 @@ import Footer from './Footer.vue'
 
 interface Props {
   appId?: string
+  isAuthenticated?: boolean
+  userName?: string
+  userInitials?: string
+  siteUrl?: string
 }
 
-const props = defineProps<Props>()
+const props = withDefaults(defineProps<Props>(), {
+  isAuthenticated: false,
+  userName: '',
+  userInitials: '',
+  siteUrl: ''
+})
 
 defineEmits<{
   login: []
   signup: []
+  logout: []
 }>()
 
 const appConfig = computed(() => {
@@ -34,8 +44,13 @@ const navLinks = [
     <Navbar
       :app-config="appConfig"
       :links="navLinks"
+      :is-authenticated="isAuthenticated"
+      :user-name="userName"
+      :user-initials="userInitials"
+      :site-url="siteUrl"
       @login="$emit('login')"
       @signup="$emit('signup')"
+      @logout="$emit('logout')"
     />
     <main class="pt-14">
       <slot />
