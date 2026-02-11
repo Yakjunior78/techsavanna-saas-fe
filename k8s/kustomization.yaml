@@ -1,0 +1,37 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: techsavanna-saas
+
+resources:
+  - namespace.yaml
+  - cert-issuer.yaml
+  # POS
+  - pos/deployment.yaml
+  - pos/service.yaml
+  # People
+  - people/deployment.yaml
+  - people/service.yaml
+  # Elimu
+  - elimu/deployment.yaml
+  - elimu/service.yaml
+  # ERP
+  - erp/deployment.yaml
+  - erp/service.yaml
+  # Ingress
+  - ingress.yaml
+
+labels:
+  - pairs:
+      app.kubernetes.io/managed-by: kustomize
+    includeSelectors: false
+
+images:
+  - name: registry.gitlab.com/techsavanna-sass/techsavanna-saas-fe/pos
+    newTag: latest
+  - name: registry.gitlab.com/techsavanna-sass/techsavanna-saas-fe/people
+    newTag: latest
+  - name: registry.gitlab.com/techsavanna-sass/techsavanna-saas-fe/elimu
+    newTag: latest
+  - name: registry.gitlab.com/techsavanna-sass/techsavanna-saas-fe/erp
+    newTag: latest

@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: people
+  namespace: techsavanna-saas
+  labels:
+    app: people
+    app.kubernetes.io/name: people
+    app.kubernetes.io/part-of: techsavanna-saas
+spec:
+  type: ClusterIP
+  selector:
+    app: people
+  ports:
+    - port: 80
+      targetPort: 80
+      protocol: TCP

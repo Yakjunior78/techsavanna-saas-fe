@@ -1,0 +1,51 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: erp
+  namespace: techsavanna-saas
+  labels:
+    app: erp
+    app.kubernetes.io/name: erp
+    app.kubernetes.io/part-of: techsavanna-saas
+    app.kubernetes.io/component: frontend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: erp
+  template:
+    metadata:
+      labels:
+        app: erp
+        app.kubernetes.io/name: erp
+        app.kubernetes.io/part-of: techsavanna-saas
+    spec:
+      containers:
+        - name: erp
+          image: registry.gitlab.com/techsavanna-sass/techsavanna-saas-fe/erp:latest
+          ports:
+            - containerPort: 80
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 80
+            initialDelaySeconds: 5
+            periodSeconds: 30
+            timeoutSeconds: 3
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 80
+            initialDelaySeconds: 3
+            periodSeconds: 10
+            timeoutSeconds: 3
+            failureThreshold: 3
+          resources:
+            requests:
+              cpu: 50m
+              memory: 64Mi
+            limits:
+              cpu: 200m
+              memory: 128Mi
