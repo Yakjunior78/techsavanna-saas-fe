@@ -336,14 +336,6 @@ const isSetupStep = computed(() => props.currentStepId === 'setup')
       </div>
     </header>
 
-    <!-- Progress Bar -->
-    <div class="mx-6 h-0.5 shrink-0 rounded-full bg-gray-100">
-      <div
-        class="h-full rounded-full transition-all duration-500 ease-out"
-        :style="{ width: `${progress}%`, backgroundColor: appColor }"
-      />
-    </div>
-
     <!-- Main Content (scrollable) -->
     <div
       class="relative z-10 min-h-0 flex-1 overflow-y-auto"
@@ -374,7 +366,17 @@ const isSetupStep = computed(() => props.currentStepId === 'setup')
     </div>
 
     <!-- Fixed Footer Navigation -->
-    <footer v-if="!hideFooter" class="relative z-10 shrink-0 border-t border-gray-200/60 bg-white/60 backdrop-blur-md">
+    <footer v-if="!hideFooter" class="relative z-10 shrink-0 bg-white/60 backdrop-blur-md">
+      <!-- Segmented Progress Bar -->
+      <div class="mx-auto flex max-w-md gap-1.5 px-4">
+        <div
+          v-for="(step, index) in steps"
+          :key="step.id"
+          class="h-[3px] flex-1 rounded-full transition-all duration-500 ease-out"
+          :class="index <= currentStepIndex ? '' : 'bg-gray-200/60'"
+          :style="index <= currentStepIndex ? { backgroundColor: appColor } : {}"
+        />
+      </div>
       <div class="mx-auto flex h-14 max-w-md items-center justify-between px-4">
         <div>
           <Button
