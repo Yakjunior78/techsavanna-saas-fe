@@ -20,9 +20,11 @@ spec:
         app.kubernetes.io/name: pos
         app.kubernetes.io/part-of: techsavanna-saas
     spec:
+      imagePullSecrets:
+        - name: gitlab-registry-secret
       containers:
         - name: pos
-          image: registry.gitlab.com/techsavanna-sass/techsavanna-saas-fe/pos:latest
+          image: registry.gitlab.com/techsavanna-sass/techsavanna-saas-fe/pos:dev
           ports:
             - containerPort: 80
               protocol: TCP

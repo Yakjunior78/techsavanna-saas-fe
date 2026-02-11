@@ -28,10 +28,10 @@ labels:
 
 images:
   - name: registry.gitlab.com/techsavanna-sass/techsavanna-saas-fe/pos
-    newTag: latest
+    newTag: dev
   - name: registry.gitlab.com/techsavanna-sass/techsavanna-saas-fe/people
-    newTag: latest
+    newTag: dev
   - name: registry.gitlab.com/techsavanna-sass/techsavanna-saas-fe/elimu
-    newTag: latest
+    newTag: dev
   - name: registry.gitlab.com/techsavanna-sass/techsavanna-saas-fe/erp
-    newTag: latest
+    newTag: dev
