@@ -205,7 +205,7 @@ const dashboardVariants = [
                           class="h-3 w-10 rounded"
                           :class="{
                             'bg-blue-200': index % 5 === 0,
-                            'bg-emerald-200': index % 5 === 1,
+                            'bg-indigo-200': index % 5 === 1,
                             'bg-purple-200': index % 5 === 2,
                             'bg-amber-200': index % 5 === 3,
                             'bg-rose-200': index % 5 === 4

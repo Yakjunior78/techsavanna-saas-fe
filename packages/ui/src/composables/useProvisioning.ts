@@ -27,7 +27,7 @@ export function useProvisioning() {
       )
       status.value = res
 
-      if (res.status.includes('ACTIVE') || res.status.includes('READY')) {
+      if (res.status.includes('ACTIVE') || res.status.includes('READY') || res.progressPercent >= 100) {
         isReady.value = true
         stopPolling()
       } else if (res.status.includes('FAILED')) {

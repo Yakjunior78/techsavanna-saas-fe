@@ -35,9 +35,9 @@ const props = withDefaults(defineProps<Props>(), {
   appId: 'pos',
   appName: 'Savanna',
   appTagline: 'Get started with your account',
-  appColor: '#10B981',
-  appGradientFrom: 'from-emerald-600',
-  appGradientTo: 'to-teal-500',
+  appColor: '#0f62ae',
+  appGradientFrom: 'from-blue-600',
+  appGradientTo: 'to-blue-500',
   appLogo: '',
   appLogoWhite: '',
   isAuthenticated: false,
@@ -46,12 +46,14 @@ const props = withDefaults(defineProps<Props>(), {
   siteUrl: ''
 })
 
-defineEmits<{
+const emit = defineEmits<{
   next: []
   back: []
   skip: []
   stepClick: [stepId: string]
   logout: []
+  navigateDashboard: []
+  navigateSite: []
 }>()
 
 // User dropdown state
@@ -217,7 +219,7 @@ const isSetupStep = computed(() => props.currentStepId === 'setup')
     </div>
 
     <!-- Header -->
-    <header class="relative z-10 shrink-0 border-b border-gray-200/60 bg-white/60 backdrop-blur-md">
+    <header class="relative z-30 shrink-0 border-b border-gray-200/60 bg-white/60 backdrop-blur-md">
       <div class="mx-auto flex h-14 max-w-6xl items-center justify-between px-4 sm:px-6 lg:px-8">
         <a href="/" class="flex shrink-0 items-center">
           <img
@@ -227,8 +229,8 @@ const isSetupStep = computed(() => props.currentStepId === 'setup')
           />
         </a>
 
-        <!-- Step Indicators (centered) -->
-        <div class="flex items-center gap-1">
+        <!-- Step Indicators (centered, hidden on mobile) -->
+        <div class="hidden items-center gap-1 sm:flex">
           <div
             v-for="(step, index) in steps"
             :key="step.id"
@@ -268,8 +270,8 @@ const isSetupStep = computed(() => props.currentStepId === 'setup')
               {{ userInitials }}
             </div>
             <span class="hidden max-w-[100px] truncate text-[13px] font-medium text-gray-600 sm:inline">{{ userName }}</span>
-            <svg class="size-3 text-gray-400/70 transition-transform" :class="{ 'rotate-180': showUserMenu }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/>
+            <svg class="size-3 text-gray-400/70 transition-transform" :class="{ 'rotate-180': showUserMenu }" viewBox="0 0 24 24" fill="currentColor">
+              <path fill-rule="evenodd" d="M12.53 16.28a.75.75 0 0 1-1.06 0l-7.5-7.5a.75.75 0 0 1 1.06-1.06L12 14.69l6.97-6.97a.75.75 0 1 1 1.06 1.06l-7.5 7.5Z" clip-rule="evenodd"/>
             </svg>
           </button>
 
@@ -290,32 +292,31 @@ const isSetupStep = computed(() => props.currentStepId === 'setup')
                 <p class="truncate text-sm font-medium text-gray-900">{{ userName }}</p>
               </div>
               <div class="py-1">
-                <a
-                  href="/dashboard"
-                  class="flex items-center gap-2.5 px-4 py-2 text-sm text-gray-700 transition-colors hover:bg-gray-50"
+                <button
+                  class="flex w-full cursor-pointer items-center gap-2.5 px-4 py-2 text-left text-sm text-gray-700 transition-colors hover:bg-gray-50"
+                  @click="emit('navigateDashboard'); showUserMenu = false"
                 >
                   <svg class="size-4 text-gray-400" viewBox="0 0 24 24" fill="currentColor">
-                    <path fill-rule="evenodd" d="M3 6a3 3 0 013-3h2.25a3 3 0 013 3v2.25a3 3 0 01-3 3H6a3 3 0 01-3-3V6zm9.75 0a3 3 0 013-3H18a3 3 0 013 3v2.25a3 3 0 01-3 3h-2.25a3 3 0 01-3-3V6zM3 15.75a3 3 0 013-3h2.25a3 3 0 013 3V18a3 3 0 01-3 3H6a3 3 0 01-3-3v-2.25zm9.75 0a3 3 0 013-3H18a3 3 0 013 3V18a3 3 0 01-3 3h-2.25a3 3 0 01-3-3v-2.25z" clip-rule="evenodd"/>
+                    <path fill-rule="evenodd" d="M3 6a3 3 0 0 1 3-3h2.25a3 3 0 0 1 3 3v2.25a3 3 0 0 1-3 3H6a3 3 0 0 1-3-3V6Zm9.75 0a3 3 0 0 1 3-3H18a3 3 0 0 1 3 3v2.25a3 3 0 0 1-3 3h-2.25a3 3 0 0 1-3-3V6ZM3 15.75a3 3 0 0 1 3-3h2.25a3 3 0 0 1 3 3V18a3 3 0 0 1-3 3H6a3 3 0 0 1-3-3v-2.25Zm9.75 0a3 3 0 0 1 3-3H18a3 3 0 0 1 3 3V18a3 3 0 0 1-3 3h-2.25a3 3 0 0 1-3-3v-2.25Z" clip-rule="evenodd"/>
                   </svg>
                   Dashboard
-                </a>
-                <a
+                </button>
+                <button
                   v-if="siteUrl"
-                  :href="siteUrl"
-                  target="_blank"
-                  class="flex items-center gap-2.5 px-4 py-2 text-sm text-gray-700 transition-colors hover:bg-gray-50"
+                  class="flex w-full cursor-pointer items-center gap-2.5 px-4 py-2 text-left text-sm text-gray-700 transition-colors hover:bg-gray-50"
+                  @click="emit('navigateSite'); showUserMenu = false"
                 >
-                  <svg class="size-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25"/>
+                  <svg class="size-4 text-gray-400" viewBox="0 0 24 24" fill="currentColor">
+                    <path fill-rule="evenodd" d="M15.75 2.25H21a.75.75 0 0 1 .75.75v5.25a.75.75 0 0 1-1.5 0V4.81l-8.97 8.97a.75.75 0 0 1-1.06-1.06l8.97-8.97h-3.44a.75.75 0 0 1 0-1.5Zm-10.5 4.5a1.5 1.5 0 0 0-1.5 1.5v10.5a1.5 1.5 0 0 0 1.5 1.5h10.5a1.5 1.5 0 0 0 1.5-1.5V10.5a.75.75 0 0 1 1.5 0v8.25a3 3 0 0 1-3 3H5.25a3 3 0 0 1-3-3V8.25a3 3 0 0 1 3-3h8.25a.75.75 0 0 1 0 1.5H5.25Z" clip-rule="evenodd"/>
                   </svg>
                   View My Site
-                </a>
+                </button>
                 <button
-                  class="flex w-full items-center gap-2.5 px-4 py-2 text-sm text-red-600 transition-colors hover:bg-red-50"
-                  @click="$emit('logout')"
+                  class="flex w-full cursor-pointer items-center gap-2.5 px-4 py-2 text-left text-sm text-red-600 transition-colors hover:bg-red-50"
+                  @click="emit('logout'); showUserMenu = false"
                 >
-                  <svg class="size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9"/>
+                  <svg class="size-4" viewBox="0 0 24 24" fill="currentColor">
+                    <path fill-rule="evenodd" d="M16.5 3.75a1.5 1.5 0 0 1 1.5 1.5v13.5a1.5 1.5 0 0 1-1.5 1.5h-6a1.5 1.5 0 0 1-1.5-1.5V15a.75.75 0 0 0-1.5 0v3.75a3 3 0 0 0 3 3h6a3 3 0 0 0 3-3V5.25a3 3 0 0 0-3-3h-6a3 3 0 0 0-3 3V9A.75.75 0 0 0 9 9V5.25a1.5 1.5 0 0 1 1.5-1.5h6ZM5.78 8.47a.75.75 0 0 0-1.06 0l-3 3a.75.75 0 0 0 0 1.06l3 3a.75.75 0 0 0 1.06-1.06l-1.72-1.72H15a.75.75 0 0 0 0-1.5H4.06l1.72-1.72a.75.75 0 0 0 0-1.06Z" clip-rule="evenodd"/>
                   </svg>
                   Log out
                 </button>

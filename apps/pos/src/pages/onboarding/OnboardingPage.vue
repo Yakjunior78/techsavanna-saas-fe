@@ -127,7 +127,7 @@ const activeProvisioningStepName = computed(() => {
   const active = provisioningStatus.value.steps.find(
     s => s.stepNumber === provisioningStatus.value!.currentStepNumber
   )
-  return active?.name || ''
+  return active?.displayName || ''
 })
 
 // Wizard dynamic props
@@ -146,6 +146,15 @@ const siteUrl = computed(() => {
 async function handleLogout() {
   await logout()
   router.push('/')
+}
+
+function handleNavigateDashboard() {
+  router.push('/dashboard')
+}
+
+function handleNavigateSite() {
+  const url = siteUrl.value
+  if (url) window.open(url, '_blank')
 }
 
 const tenantSubdomain = computed(() => {
@@ -442,6 +451,8 @@ const canContinue = computed(() => {
     @skip="handleSkip"
     @step-click="goToStep"
     @logout="handleLogout"
+    @navigate-dashboard="handleNavigateDashboard"
+    @navigate-site="handleNavigateSite"
   >
     <!-- Account Step -->
     <template v-if="currentStep?.id === 'account'">
@@ -530,7 +541,7 @@ const canContinue = computed(() => {
             @update:model-value="(val) => updateFormData({ organizationName: String(val) })"
           />
           <p v-if="tenantSubdomain" class="mt-1 text-xs text-gray-500">
-            Your subdomain: <span class="font-medium text-emerald-600">{{ tenantSubdomain }}.{{ appDomain }}</span>
+            Your subdomain: <span class="font-medium text-blue-600">{{ tenantSubdomain }}.{{ appDomain }}</span>
           </p>
         </div>
         <FormSelect
@@ -569,25 +580,25 @@ const canContinue = computed(() => {
         </div>
 
         <!-- Trial period info -->
-        <div v-if="TRIAL_DAYS" class="flex items-center gap-2.5 rounded-lg border border-emerald-200 bg-emerald-50/60 px-3.5 py-2.5">
-          <svg class="size-4 shrink-0 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+        <div v-if="TRIAL_DAYS" class="flex items-center gap-2.5 rounded-lg border border-blue-200 bg-blue-50/60 px-3.5 py-2.5">
+          <svg class="size-4 shrink-0 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
             <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
           <p class="text-xs text-gray-700">
-            <span class="font-semibold text-emerald-700">{{ TRIAL_DAYS }}-day free trial</span> — No credit card required. Full access to all features.
+            <span class="font-semibold text-blue-700">{{ TRIAL_DAYS }}-day free trial</span> — No credit card required. Full access to all features.
           </p>
         </div>
 
         <!-- Billing cycle toggle -->
         <div
           class="cursor-pointer rounded-xl border-2 p-3.5 transition-all"
-          :class="billingCycle === 'monthly' ? 'border-emerald-500 bg-emerald-50/50' : 'border-gray-200 hover:border-gray-300'"
+          :class="billingCycle === 'monthly' ? 'border-blue-500 bg-blue-50/50' : 'border-gray-200 hover:border-gray-300'"
           @click="billingCycle = 'monthly'"
         >
           <div class="flex items-center gap-3">
             <div
               class="flex size-5 shrink-0 items-center justify-center rounded-full border-2"
-              :class="billingCycle === 'monthly' ? 'border-emerald-500 bg-emerald-500' : 'border-gray-300'"
+              :class="billingCycle === 'monthly' ? 'border-blue-500 bg-blue-500' : 'border-gray-300'"
             >
               <svg v-if="billingCycle === 'monthly'" class="size-3 text-white" fill="currentColor" viewBox="0 0 20 20">
                 <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
@@ -611,13 +622,13 @@ const canContinue = computed(() => {
 
         <div
           class="cursor-pointer rounded-xl border-2 p-3.5 transition-all"
-          :class="billingCycle === 'annual' ? 'border-emerald-500 bg-emerald-50/50' : 'border-gray-200 hover:border-gray-300'"
+          :class="billingCycle === 'annual' ? 'border-blue-500 bg-blue-50/50' : 'border-gray-200 hover:border-gray-300'"
           @click="billingCycle = 'annual'"
         >
           <div class="flex items-center gap-3">
             <div
               class="flex size-5 shrink-0 items-center justify-center rounded-full border-2"
-              :class="billingCycle === 'annual' ? 'border-emerald-500 bg-emerald-500' : 'border-gray-300'"
+              :class="billingCycle === 'annual' ? 'border-blue-500 bg-blue-500' : 'border-gray-300'"
             >
               <svg v-if="billingCycle === 'annual'" class="size-3 text-white" fill="currentColor" viewBox="0 0 20 20">
                 <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
@@ -627,7 +638,7 @@ const canContinue = computed(() => {
               <div class="flex items-center justify-between">
                 <div class="flex items-center gap-1.5">
                   <span class="text-sm font-medium text-gray-900">Annual</span>
-                  <span class="rounded bg-emerald-100 px-1.5 py-0.5 text-[10px] font-medium text-emerald-700">Save {{ annualMonthlySaving }}%</span>
+                  <span class="rounded bg-blue-100 px-1.5 py-0.5 text-[10px] font-medium text-blue-700">Save {{ annualMonthlySaving }}%</span>
                 </div>
                 <div class="flex items-baseline gap-1">
                   <span class="text-base font-bold text-gray-900">KES {{ ANNUAL_PRICE.toLocaleString() }}</span>
@@ -655,18 +666,18 @@ const canContinue = computed(() => {
 
         <!-- Completion state -->
         <div v-if="provisioningReady" class="py-4 text-center">
-          <div class="mx-auto mb-4 flex size-16 items-center justify-center rounded-full bg-emerald-100">
-            <svg class="size-8 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+          <div class="mx-auto mb-4 flex size-16 items-center justify-center rounded-full bg-blue-100">
+            <svg class="size-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
               <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
             </svg>
           </div>
           <h2 class="text-xl font-semibold text-gray-900">Your platform is ready!</h2>
           <p class="mt-1.5 text-sm text-gray-500">
-            Redirecting in <span class="font-semibold text-emerald-600">{{ redirectCountdown }}</span> seconds...
+            Redirecting in <span class="font-semibold text-blue-600">{{ redirectCountdown }}</span> seconds...
           </p>
           <a
             :href="redirectUrl"
-            class="mt-5 inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-6 py-3 text-sm font-medium text-white shadow-lg shadow-emerald-200 transition-all hover:bg-emerald-700 hover:shadow-xl"
+            class="mt-5 inline-flex items-center gap-2 rounded-xl bg-blue-600 px-6 py-3 text-sm font-medium text-white shadow-lg shadow-blue-200 transition-all hover:bg-blue-700 hover:shadow-xl"
           >
             Go to your workspace
             <svg class="size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
@@ -691,19 +702,19 @@ const canContinue = computed(() => {
                   {{ activeProvisioningStepName }}
                 </span>
                 <span v-else class="text-xs text-gray-400">Initializing...</span>
-                <span class="text-sm font-semibold text-emerald-600">
-                  {{ provisioningStatus ? Math.round((provisioningStatus.currentStepNumber / Math.max(provisioningStatus.totalSteps, 1)) * 100) : 0 }}%
+                <span class="text-sm font-semibold text-blue-600">
+                  {{ provisioningStatus?.progressPercent ?? 0 }}%
                 </span>
               </div>
               <div class="relative h-3 overflow-hidden rounded-full bg-gray-100">
                 <div
                   v-if="provisioningStatus"
-                  class="h-full rounded-full bg-gradient-to-r from-emerald-400 to-emerald-500 transition-all duration-700 ease-out"
-                  :style="{ width: `${(provisioningStatus.currentStepNumber / Math.max(provisioningStatus.totalSteps, 1)) * 100}%` }"
+                  class="h-full rounded-full bg-gradient-to-r from-blue-400 to-blue-500 transition-all duration-700 ease-out"
+                  :style="{ width: `${provisioningStatus.progressPercent}%` }"
                 />
                 <div
                   v-else
-                  class="absolute inset-y-0 w-1/3 animate-progress-slide rounded-full bg-gradient-to-r from-emerald-300 to-emerald-400"
+                  class="absolute inset-y-0 w-1/3 animate-progress-slide rounded-full bg-gradient-to-r from-blue-300 to-blue-400"
                 />
               </div>
             </div>
@@ -711,21 +722,21 @@ const canContinue = computed(() => {
             <!-- Skeleton loaders -->
             <div class="space-y-3">
               <div class="flex items-center gap-3">
-                <div class="size-8 animate-pulse rounded-lg bg-emerald-100" />
+                <div class="size-8 animate-pulse rounded-lg bg-blue-100" />
                 <div class="flex-1 space-y-1.5">
                   <div class="h-3 w-3/4 animate-pulse rounded bg-gray-200" />
                   <div class="h-2 w-1/2 animate-pulse rounded bg-gray-100" />
                 </div>
               </div>
               <div class="flex items-center gap-3">
-                <div class="size-8 animate-pulse rounded-lg bg-emerald-50" style="animation-delay: 150ms" />
+                <div class="size-8 animate-pulse rounded-lg bg-blue-50" style="animation-delay: 150ms" />
                 <div class="flex-1 space-y-1.5">
                   <div class="h-3 w-2/3 animate-pulse rounded bg-gray-200" style="animation-delay: 150ms" />
                   <div class="h-2 w-2/5 animate-pulse rounded bg-gray-100" style="animation-delay: 150ms" />
                 </div>
               </div>
               <div class="flex items-center gap-3">
-                <div class="size-8 animate-pulse rounded-lg bg-emerald-50" style="animation-delay: 300ms" />
+                <div class="size-8 animate-pulse rounded-lg bg-blue-50" style="animation-delay: 300ms" />
                 <div class="flex-1 space-y-1.5">
                   <div class="h-3 w-4/5 animate-pulse rounded bg-gray-100" style="animation-delay: 300ms" />
                   <div class="h-2 w-1/3 animate-pulse rounded bg-gray-50" style="animation-delay: 300ms" />
@@ -736,7 +747,7 @@ const canContinue = computed(() => {
             <!-- Typing message -->
             <div class="rounded-xl border border-gray-100 bg-gray-50/80 px-4 py-3">
               <p class="min-h-[40px] text-sm leading-relaxed text-gray-600">
-                {{ displayedText }}<span class="ml-0.5 inline-block h-4 w-0.5 animate-pulse bg-emerald-500" />
+                {{ displayedText }}<span class="ml-0.5 inline-block h-4 w-0.5 animate-pulse bg-blue-500" />
               </p>
             </div>
           </div>

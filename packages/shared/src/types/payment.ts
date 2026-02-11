@@ -49,6 +49,7 @@ export interface ProvisioningStatusResponse {
   currentStep: string
   currentStepNumber: number
   totalSteps: number
+  progressPercent: number
   steps: ProvisioningStepInfo[]
   errorMessage: string
 }

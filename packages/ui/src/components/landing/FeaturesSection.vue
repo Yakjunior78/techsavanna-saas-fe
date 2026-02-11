@@ -187,7 +187,7 @@ function getAccentClasses(index: number, type: 'bg' | 'text' | 'border' | 'light
                   </div>
                   <div class="rounded-lg bg-gray-50 p-2">
                     <div class="mb-1 h-1.5 w-7 rounded bg-gray-200"></div>
-                    <div class="h-3 w-9 rounded bg-green-300"></div>
+                    <div class="h-3 w-9 rounded bg-blue-300"></div>
                   </div>
                 </div>
                 <!-- Chart -->
@@ -390,7 +390,7 @@ function getAccentClasses(index: number, type: 'bg' | 'text' | 'border' | 'light
                   >
                     <div class="mb-2 flex items-center justify-between">
                       <div class="size-6 rounded-full" :class="getAccentClasses(index, 'light')"></div>
-                      <div class="size-3 rounded-full" :class="i === 1 ? 'bg-green-400' : i === 2 ? 'bg-amber-400' : 'bg-gray-200'"></div>
+                      <div class="size-3 rounded-full" :class="i === 1 ? 'bg-blue-400' : i === 2 ? 'bg-amber-400' : 'bg-gray-200'"></div>
                     </div>
                     <div class="h-1.5 w-full rounded bg-gray-200"></div>
                     <div class="mt-1 h-1 w-3/4 rounded bg-gray-100"></div>
@@ -423,7 +423,7 @@ function getAccentClasses(index: number, type: 'bg' | 'text' | 'border' | 'light
                 <div class="mb-3 flex gap-2">
                   <div class="flex-1 rounded-lg border-2 p-2" :class="getAccentClasses(index, 'border')">
                     <div class="mb-1 flex items-center gap-1">
-                      <div class="size-4 rounded bg-green-500"></div>
+                      <div class="size-4 rounded bg-blue-500"></div>
                       <div class="h-1.5 w-10 rounded bg-gray-200"></div>
                     </div>
                     <div class="h-1 w-8 rounded bg-gray-100"></div>

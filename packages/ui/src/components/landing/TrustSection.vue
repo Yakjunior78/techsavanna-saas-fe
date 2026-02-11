@@ -6,7 +6,7 @@ interface Certification {
   title: string
   description: string
   icon: 'lock' | 'badge' | 'shield'
-  color: 'emerald' | 'blue' | 'amber'
+  color: 'blue' | 'red' | 'amber'
   certificateUrl?: string
 }
 
@@ -26,14 +26,14 @@ const defaultCertifications: Certification[] = [
     title: 'Data Protection Compliance',
     description: 'Ensuring secure and ethical handling of your information',
     icon: 'lock',
-    color: 'emerald',
+    color: 'blue',
     certificateUrl: '/imgs/certificates/Techsavanna-Limited-Company-Registration-Certificate.jpg'
   },
   {
     title: 'ISO 9001:2015 Certified',
     description: 'Recognized for excellence in quality management and customer satisfaction',
     icon: 'badge',
-    color: 'blue',
+    color: 'amber',
     certificateUrl: '/imgs/certificates/Techsavanna-Company-Limited_QMS_GR24_UAF-Cert.jpg'
   }
 ]
@@ -81,8 +81,8 @@ onUnmounted(() => {
 
 function getIconBgClass(color: string) {
   const colors: Record<string, string> = {
-    emerald: 'bg-emerald-50',
     blue: 'bg-blue-50',
+    red: 'bg-red-50',
     amber: 'bg-amber-50'
   }
   return colors[color] || 'bg-gray-50'
@@ -90,8 +90,8 @@ function getIconBgClass(color: string) {
 
 function getIconTextClass(color: string) {
   const colors: Record<string, string> = {
-    emerald: 'text-emerald-600',
     blue: 'text-blue-600',
+    red: 'text-red-600',
     amber: 'text-amber-600'
   }
   return colors[color] || 'text-gray-600'
@@ -114,7 +114,7 @@ function getIconTextClass(color: string) {
 
     <!-- Decorative background elements -->
     <div class="pointer-events-none absolute inset-0">
-      <div class="absolute -left-20 top-20 size-72 rounded-full bg-emerald-100/40 blur-3xl"></div>
+      <div class="absolute -left-20 top-20 size-72 rounded-full bg-blue-100/40 blur-3xl"></div>
       <div class="absolute -right-20 bottom-20 size-72 rounded-full bg-blue-100/40 blur-3xl"></div>
     </div>
 
@@ -124,7 +124,7 @@ function getIconTextClass(color: string) {
         class="text-center transition-all duration-700"
         :class="isVisible ? 'translate-y-0 opacity-100 blur-0' : 'translate-y-8 opacity-0 blur-sm'"
       >
-        <span class="mb-4 inline-flex items-center gap-2 rounded-full bg-emerald-50 px-4 py-1.5 text-sm font-medium text-emerald-700">
+        <span class="mb-4 inline-flex items-center gap-2 rounded-full bg-blue-50 px-4 py-1.5 text-sm font-medium text-blue-700">
           <svg class="size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
             <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
           </svg>
@@ -151,7 +151,7 @@ function getIconTextClass(color: string) {
           <div
             class="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-500 group-hover:opacity-100"
             :class="{
-              'bg-gradient-to-br from-emerald-50/50 via-transparent to-transparent': cert.color === 'emerald',
+              'bg-gradient-to-br from-blue-50/50 via-transparent to-transparent': cert.color === 'blue',
               'bg-gradient-to-br from-blue-50/50 via-transparent to-transparent': cert.color === 'blue',
               'bg-gradient-to-br from-amber-50/50 via-transparent to-transparent': cert.color === 'amber'
             }"
@@ -161,7 +161,7 @@ function getIconTextClass(color: string) {
           <div
             class="absolute -right-8 -top-8 size-24 rounded-full opacity-20 transition-transform duration-500 group-hover:scale-150"
             :class="{
-              'bg-emerald-200': cert.color === 'emerald',
+              'bg-blue-200': cert.color === 'blue',
               'bg-blue-200': cert.color === 'blue',
               'bg-amber-200': cert.color === 'amber'
             }"
@@ -172,7 +172,7 @@ function getIconTextClass(color: string) {
             <div
               class="flex size-16 items-center justify-center rounded-2xl transition-all duration-300 group-hover:scale-110 group-hover:shadow-lg"
               :class="{
-                'bg-gradient-to-br from-emerald-50 to-emerald-100 group-hover:shadow-emerald-200/50': cert.color === 'emerald',
+                'bg-gradient-to-br from-blue-50 to-blue-100 group-hover:shadow-blue-200/50': cert.color === 'blue',
                 'bg-gradient-to-br from-blue-50 to-blue-100 group-hover:shadow-blue-200/50': cert.color === 'blue',
                 'bg-gradient-to-br from-amber-50 to-amber-100 group-hover:shadow-amber-200/50': cert.color === 'amber'
               }"
@@ -232,7 +232,7 @@ function getIconTextClass(color: string) {
             <div
               class="absolute inset-0 -z-10 rounded-2xl opacity-0 transition-all duration-500 group-hover:scale-125 group-hover:opacity-100"
               :class="{
-                'bg-emerald-200/30': cert.color === 'emerald',
+                'bg-blue-200/30': cert.color === 'blue',
                 'bg-blue-200/30': cert.color === 'blue',
                 'bg-amber-200/30': cert.color === 'amber'
               }"
@@ -249,7 +249,7 @@ function getIconTextClass(color: string) {
             type="button"
             class="relative mt-5 inline-flex cursor-pointer items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition-all duration-300 hover:gap-3"
             :class="{
-              'bg-emerald-50 text-emerald-700 hover:bg-emerald-100': cert.color === 'emerald',
+              'bg-blue-50 text-blue-700 hover:bg-blue-100': cert.color === 'blue',
               'bg-blue-50 text-blue-700 hover:bg-blue-100': cert.color === 'blue',
               'bg-amber-50 text-amber-700 hover:bg-amber-100': cert.color === 'amber'
             }"

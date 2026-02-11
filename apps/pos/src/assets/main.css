@@ -8,15 +8,15 @@
 /* POS App Theme Overrides */
 @theme {
   /* Brand Colors */
-  --color-primary: #10b981;
-  --color-primary-50: #ecfdf5;
-  --color-primary-100: #d1fae5;
-  --color-primary-200: #a7f3d0;
-  --color-primary-300: #6ee7b7;
-  --color-primary-400: #34d399;
-  --color-primary-500: #10b981;
-  --color-primary-600: #059669;
-  --color-primary-700: #047857;
-  --color-primary-800: #065f46;
-  --color-primary-900: #064e3b;
+  --color-primary: #0f62ae;
+  --color-primary-50: #eff6ff;
+  --color-primary-100: #dbeafe;
+  --color-primary-200: #bfdbfe;
+  --color-primary-300: #93c5fd;
+  --color-primary-400: #3b82f6;
+  --color-primary-500: #0f62ae;
+  --color-primary-600: #0d569a;
+  --color-primary-700: #0b4a85;
+  --color-primary-800: #093d6e;
+  --color-primary-900: #073259;
 }

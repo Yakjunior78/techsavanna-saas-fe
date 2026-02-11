@@ -118,7 +118,7 @@ const industries = [
     name: 'General Retail',
     description: 'Supermarkets, convenience stores, and retail shops',
     icon: 'shopping-cart',
-    color: 'emerald'
+    color: 'blue'
   },
   {
     name: 'Bars & Restaurants',
@@ -351,7 +351,7 @@ function handleSelectPlan(plan: PricingPlan, billing: 'monthly' | 'yearly') {
             <div
               class="mb-3 flex size-10 items-center justify-center rounded-lg transition-colors duration-300"
               :class="{
-                'bg-emerald-50 text-emerald-600 group-hover:bg-emerald-100': industry.color === 'emerald',
+                'bg-blue-50 text-blue-600 group-hover:bg-blue-100': industry.color === 'blue',
                 'bg-amber-50 text-amber-600 group-hover:bg-amber-100': industry.color === 'amber',
                 'bg-blue-50 text-blue-600 group-hover:bg-blue-100': industry.color === 'blue',
                 'bg-purple-50 text-purple-600 group-hover:bg-purple-100': industry.color === 'purple',

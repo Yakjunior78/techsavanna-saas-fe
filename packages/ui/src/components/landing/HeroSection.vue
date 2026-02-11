@@ -311,8 +311,8 @@ const trustBadges = [
                           {{ previewType === 'pos' ? '45.2K' : previewType === 'hrm' ? '248' : previewType === 'lms' ? '1,250' : '8.2M' }}
                         </p>
                         <div class="mt-1 flex items-center gap-1">
-                          <span class="text-[9px] font-medium text-emerald-600">+12.5%</span>
-                          <svg class="size-2.5 text-emerald-600" fill="currentColor" viewBox="0 0 20 20">
+                          <span class="text-[9px] font-medium text-blue-600">+12.5%</span>
+                          <svg class="size-2.5 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
                             <path fill-rule="evenodd" d="M5.293 9.707a1 1 0 010-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 01-1.414 1.414L11 7.414V15a1 1 0 11-2 0V7.414L6.707 9.707a1 1 0 01-1.414 0z" clip-rule="evenodd"/>
                           </svg>
                         </div>
@@ -325,8 +325,8 @@ const trustBadges = [
                           {{ previewType === 'pos' ? '156' : previewType === 'hrm' ? '236' : previewType === 'lms' ? '48' : '324' }}
                         </p>
                         <div class="mt-1 flex items-center gap-1">
-                          <span class="text-[9px] font-medium text-emerald-600">+8.2%</span>
-                          <svg class="size-2.5 text-emerald-600" fill="currentColor" viewBox="0 0 20 20">
+                          <span class="text-[9px] font-medium text-blue-600">+8.2%</span>
+                          <svg class="size-2.5 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
                             <path fill-rule="evenodd" d="M5.293 9.707a1 1 0 010-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 01-1.414 1.414L11 7.414V15a1 1 0 11-2 0V7.414L6.707 9.707a1 1 0 01-1.414 0z" clip-rule="evenodd"/>
                           </svg>
                         </div>
@@ -450,7 +450,7 @@ const trustBadges = [
               <!-- iPhone Frame -->
               <div class="relative h-[320px] w-[160px]">
                 <!-- Phone Glow -->
-                <div class="absolute -inset-3 rounded-[2.5rem] bg-gradient-to-br from-emerald-400/30 to-teal-400/30 blur-xl"></div>
+                <div class="absolute -inset-3 rounded-[2.5rem] bg-gradient-to-br from-blue-400/30 to-blue-500/30 blur-xl"></div>
 
                 <!-- Phone Body -->
                 <div class="relative h-full overflow-hidden rounded-[1.75rem] bg-gray-900 p-[3px] shadow-2xl ring-1 ring-white/40">
@@ -467,7 +467,7 @@ const trustBadges = [
                       <div class="flex items-center gap-0.5">
                         <svg class="size-3" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M17.778 8.222c-4.296-4.296-11.26-4.296-15.556 0A1 1 0 01.808 6.808c5.076-5.077 13.308-5.077 18.384 0a1 1 0 01-1.414 1.414zM14.95 11.05a7 7 0 00-9.9 0 1 1 0 01-1.414-1.414 9 9 0 0112.728 0 1 1 0 01-1.414 1.414zM12.12 13.88a3 3 0 00-4.242 0 1 1 0 01-1.415-1.415 5 5 0 017.072 0 1 1 0 01-1.415 1.415zM9 16a1 1 0 011-1h.01a1 1 0 110 2H10a1 1 0 01-1-1z" clip-rule="evenodd"/></svg>
                         <div class="flex h-3 w-6 items-center rounded-sm border border-gray-400 p-px">
-                          <div class="h-full w-4/5 rounded-sm bg-emerald-500"></div>
+                          <div class="h-full w-4/5 rounded-sm bg-blue-500"></div>
                         </div>
                       </div>
                     </div>
@@ -476,7 +476,7 @@ const trustBadges = [
                     <div class="bg-white px-2.5 pb-2">
                       <div class="mb-1.5 flex items-center justify-between">
                         <p class="text-[10px] font-bold text-gray-900">Quick Sale</p>
-                        <div class="flex size-5 items-center justify-center rounded-full bg-emerald-500 text-white">
+                        <div class="flex size-5 items-center justify-center rounded-full bg-blue-500 text-white">
                           <svg class="size-3" fill="currentColor" viewBox="0 0 20 20"><path d="M3 1a1 1 0 000 2h1.22l.305 1.222a.997.997 0 00.01.042l1.358 5.43-.893.892C3.74 11.846 4.632 14 6.414 14H15a1 1 0 000-2H6.414l1-1H14a1 1 0 00.894-.553l3-6A1 1 0 0017 3H6.28l-.31-1.243A1 1 0 005 1H3z"/></svg>
                         </div>
                       </div>
@@ -495,7 +495,7 @@ const trustBadges = [
                           <span class="text-sm">🥤</span>
                         </div>
                         <p class="truncate text-[7px] font-medium text-gray-800">Coca-Cola</p>
-                        <p class="text-[8px] font-bold text-emerald-600">75</p>
+                        <p class="text-[8px] font-bold text-blue-600">75</p>
                       </div>
                       <!-- Product 2 -->
                       <div class="rounded-lg bg-white p-1.5 shadow-sm">
@@ -503,15 +503,15 @@ const trustBadges = [
                           <span class="text-sm">🍞</span>
                         </div>
                         <p class="truncate text-[7px] font-medium text-gray-800">Bread</p>
-                        <p class="text-[8px] font-bold text-emerald-600">85</p>
+                        <p class="text-[8px] font-bold text-blue-600">85</p>
                       </div>
                       <!-- Product 3 -->
-                      <div class="rounded-lg bg-white p-1.5 shadow-sm ring-2 ring-emerald-500">
+                      <div class="rounded-lg bg-white p-1.5 shadow-sm ring-2 ring-blue-500">
                         <div class="mb-1 flex size-8 items-center justify-center rounded-md bg-blue-50">
                           <span class="text-sm">🥛</span>
                         </div>
                         <p class="truncate text-[7px] font-medium text-gray-800">Fresh Milk</p>
-                        <p class="text-[8px] font-bold text-emerald-600">180</p>
+                        <p class="text-[8px] font-bold text-blue-600">180</p>
                       </div>
                       <!-- Product 4 -->
                       <div class="rounded-lg bg-white p-1.5 shadow-sm">
@@ -519,7 +519,7 @@ const trustBadges = [
                           <span class="text-sm">🧈</span>
                         </div>
                         <p class="truncate text-[7px] font-medium text-gray-800">Butter</p>
-                        <p class="text-[8px] font-bold text-emerald-600">250</p>
+                        <p class="text-[8px] font-bold text-blue-600">250</p>
                       </div>
                     </div>
 
@@ -527,12 +527,12 @@ const trustBadges = [
                     <div class="absolute bottom-0 left-0 right-0 border-t border-gray-100 bg-white/95 px-2.5 py-2 backdrop-blur-sm">
                       <div class="mb-1.5 flex items-center justify-between">
                         <div class="flex items-center gap-1">
-                          <span class="flex size-4 items-center justify-center rounded-full bg-emerald-500 text-[7px] font-bold text-white">3</span>
+                          <span class="flex size-4 items-center justify-center rounded-full bg-blue-500 text-[7px] font-bold text-white">3</span>
                           <p class="text-[8px] text-gray-500">items</p>
                         </div>
                         <p class="text-[10px] font-bold text-gray-900">KES 590</p>
                       </div>
-                      <button class="flex w-full items-center justify-center gap-1 rounded-lg bg-emerald-500 py-2 text-[9px] font-semibold text-white shadow-md">
+                      <button class="flex w-full items-center justify-center gap-1 rounded-lg bg-blue-500 py-2 text-[9px] font-semibold text-white shadow-md">
                         <svg class="size-3" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"/></svg>
                         Pay Now
                       </button>
@@ -652,8 +652,8 @@ const trustBadges = [
                           {{ previewType === 'hrm' ? '248' : previewType === 'lms' ? '1,250' : '8.2M' }}
                         </p>
                         <div class="mt-1 flex items-center gap-1">
-                          <span class="text-[9px] font-medium text-emerald-600">+12.5%</span>
-                          <svg class="size-2.5 text-emerald-600" fill="currentColor" viewBox="0 0 20 20">
+                          <span class="text-[9px] font-medium text-blue-600">+12.5%</span>
+                          <svg class="size-2.5 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
                             <path fill-rule="evenodd" d="M5.293 9.707a1 1 0 010-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 01-1.414 1.414L11 7.414V15a1 1 0 11-2 0V7.414L6.707 9.707a1 1 0 01-1.414 0z" clip-rule="evenodd"/>
                           </svg>
                         </div>
@@ -666,8 +666,8 @@ const trustBadges = [
                           {{ previewType === 'hrm' ? '236' : previewType === 'lms' ? '48' : '324' }}
                         </p>
                         <div class="mt-1 flex items-center gap-1">
-                          <span class="text-[9px] font-medium text-emerald-600">+8.2%</span>
-                          <svg class="size-2.5 text-emerald-600" fill="currentColor" viewBox="0 0 20 20">
+                          <span class="text-[9px] font-medium text-blue-600">+8.2%</span>
+                          <svg class="size-2.5 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
                             <path fill-rule="evenodd" d="M5.293 9.707a1 1 0 010-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 01-1.414 1.414L11 7.414V15a1 1 0 11-2 0V7.414L6.707 9.707a1 1 0 01-1.414 0z" clip-rule="evenodd"/>
                           </svg>
                         </div>
@@ -810,7 +810,7 @@ const trustBadges = [
                       <p class="truncate text-[9px] font-medium text-gray-800">Senior Developer</p>
                       <p class="text-[8px] text-gray-400">Engineering</p>
                     </div>
-                    <span class="rounded-full bg-green-100 px-1.5 py-0.5 text-[7px] font-medium text-green-700">12</span>
+                    <span class="rounded-full bg-blue-100 px-1.5 py-0.5 text-[7px] font-medium text-blue-700">12</span>
                   </div>
                   <!-- Job 2 -->
                   <div class="flex items-center gap-2 py-1.5">
@@ -821,7 +821,7 @@ const trustBadges = [
                       <p class="truncate text-[9px] font-medium text-gray-800">Marketing Lead</p>
                       <p class="text-[8px] text-gray-400">Marketing</p>
                     </div>
-                    <span class="rounded-full bg-green-100 px-1.5 py-0.5 text-[7px] font-medium text-green-700">8</span>
+                    <span class="rounded-full bg-blue-100 px-1.5 py-0.5 text-[7px] font-medium text-blue-700">8</span>
                   </div>
                   <!-- Job 3 -->
                   <div class="flex items-center gap-2 py-1.5">
@@ -853,7 +853,7 @@ const trustBadges = [
             :style="floatingStyle"
           >
             <div class="flex items-center gap-2">
-              <div class="flex size-8 items-center justify-center rounded-full bg-gradient-to-br from-emerald-400 to-teal-500">
+              <div class="flex size-8 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-blue-600">
                 <svg class="size-4 text-white" fill="currentColor" viewBox="0 0 20 20">
                   <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
                 </svg>
@@ -929,14 +929,14 @@ const trustBadges = [
             :style="{ transform: `translate(${-mouseX}px, ${-mouseY}px)` }"
           >
             <div class="flex items-center gap-2">
-              <div class="flex size-8 items-center justify-center rounded-full bg-gradient-to-br from-emerald-400 to-teal-500">
+              <div class="flex size-8 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-blue-600">
                 <svg class="size-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/>
                 </svg>
               </div>
               <div>
                 <p class="text-xs font-semibold text-gray-900">Revenue</p>
-                <p class="text-[10px] text-green-600">+24% today</p>
+                <p class="text-[10px] text-blue-600">+24% today</p>
               </div>
             </div>
           </div>
@@ -974,7 +974,7 @@ const trustBadges = [
               </div>
               <div>
                 <p class="text-xs font-semibold text-gray-900">Attendance</p>
-                <p class="text-[10px] text-green-600">98% today</p>
+                <p class="text-[10px] text-blue-600">98% today</p>
               </div>
             </div>
           </div>

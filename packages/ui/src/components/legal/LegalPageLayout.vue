@@ -111,7 +111,7 @@ const legalLinks = [
         <!-- Data Protection Illustrations - Right Side -->
         <div class="absolute right-0 top-0 bottom-0 w-1/2 overflow-hidden">
           <!-- Shield with checkmark -->
-          <svg class="absolute right-[10%] top-[15%] size-16 text-emerald-300/50 sm:size-20" fill="currentColor" viewBox="0 0 24 24">
+          <svg class="absolute right-[10%] top-[15%] size-16 text-blue-300/50 sm:size-20" fill="currentColor" viewBox="0 0 24 24">
             <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-2 16l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z"/>
           </svg>
 
@@ -139,7 +139,7 @@ const legalLinks = [
           </svg>
 
           <!-- Key -->
-          <svg class="absolute right-[18%] top-[78%] size-7 text-teal-300/35 sm:size-8" fill="currentColor" viewBox="0 0 24 24">
+          <svg class="absolute right-[18%] top-[78%] size-7 text-blue-300/35 sm:size-8" fill="currentColor" viewBox="0 0 24 24">
             <path d="M12.65 10C11.83 7.67 9.61 6 7 6c-3.31 0-6 2.69-6 6s2.69 6 6 6c2.61 0 4.83-1.67 5.65-4H17v4h4v-4h2v-4H12.65zM7 14c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2z"/>
           </svg>
         </div>

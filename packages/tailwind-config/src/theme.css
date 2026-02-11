@@ -33,10 +33,10 @@
 
   /* Shadows - Basic */
   --shadow-soft: 0 2px 15px -3px rgb(0 0 0 / 0.07), 0 10px 20px -2px rgb(0 0 0 / 0.04);
-  --shadow-glow: 0 0 20px rgb(34 197 94 / 0.3);
+  --shadow-glow: 0 0 20px rgb(15 98 174 / 0.3);
 
   /* Shadows - Colored */
-  --shadow-emerald: 0 10px 40px -10px rgba(16, 185, 129, 0.3);
+  --shadow-blue: 0 10px 40px -10px rgba(15, 98, 174, 0.3);
   --shadow-indigo: 0 10px 40px -10px rgba(99, 102, 241, 0.3);
   --shadow-amber: 0 10px 40px -10px rgba(245, 158, 11, 0.3);
   --shadow-violet: 0 10px 40px -10px rgba(139, 92, 246, 0.3);
@@ -46,9 +46,9 @@
   --shadow-2xl-soft: 0 25px 50px -12px rgb(0 0 0 / 0.15);
 
   /* Glow effects */
-  --glow-sm: 0 0 10px rgba(16, 185, 129, 0.3);
-  --glow-md: 0 0 20px rgba(16, 185, 129, 0.4);
-  --glow-lg: 0 0 40px rgba(16, 185, 129, 0.5);
+  --glow-sm: 0 0 10px rgba(15, 98, 174, 0.3);
+  --glow-md: 0 0 20px rgba(15, 98, 174, 0.4);
+  --glow-lg: 0 0 40px rgba(15, 98, 174, 0.5);
 
   /* Animation durations */
   --duration-fast: 150ms;

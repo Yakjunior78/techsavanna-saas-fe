@@ -166,7 +166,7 @@ const requirements = {
           <div class="flex items-start gap-4">
             <!-- Android Icon -->
             <div class="flex size-14 shrink-0 items-center justify-center rounded-xl bg-green-50">
-              <svg class="size-8 text-green-600" viewBox="0 0 24 24" fill="currentColor">
+              <svg class="size-8 text-blue-600" viewBox="0 0 24 24" fill="currentColor">
                 <path d="M17.523 2.047a.5.5 0 0 0-.682.182l-1.61 2.79a7.94 7.94 0 0 0-6.462 0l-1.61-2.79a.5.5 0 1 0-.865.5l1.56 2.703A7.97 7.97 0 0 0 4 11.5h16a7.97 7.97 0 0 0-3.854-5.568l1.56-2.703a.5.5 0 0 0-.183-.682zM8.5 9a1 1 0 1 1 0-2 1 1 0 0 1 0 2zm7 0a1 1 0 1 1 0-2 1 1 0 0 1 0 2zM4 12.5v7A2.5 2.5 0 0 0 6.5 22h11a2.5 2.5 0 0 0 2.5-2.5v-7H4zm-2.5 0v5a1.5 1.5 0 0 0 3 0v-5a1.5 1.5 0 0 0-3 0zm19 0v5a1.5 1.5 0 0 0 3 0v-5a1.5 1.5 0 0 0-3 0z"/>
               </svg>
             </div>
@@ -207,10 +207,10 @@ const requirements = {
             <a
               v-if="apkUrl"
               :href="apkUrl"
-              class="flex items-center justify-between rounded-xl border border-green-200 bg-green-50 p-4 transition-all hover:border-green-300 hover:bg-green-100"
+              class="flex items-center justify-between rounded-xl border border-blue-200 bg-blue-50 p-4 transition-all hover:border-blue-300 hover:bg-blue-100"
             >
               <div class="flex items-center gap-3">
-                <div class="flex size-8 items-center justify-center rounded-lg bg-green-600">
+                <div class="flex size-8 items-center justify-center rounded-lg bg-blue-600">
                   <svg class="size-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
                   </svg>
@@ -220,7 +220,7 @@ const requirements = {
                   <p class="text-xs text-gray-500">Version {{ apkVersion }} ({{ apkSize }})</p>
                 </div>
               </div>
-              <svg class="size-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg class="size-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
               </svg>
             </a>

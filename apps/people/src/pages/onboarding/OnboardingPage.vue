@@ -127,7 +127,7 @@ const activeProvisioningStepName = computed(() => {
   const active = provisioningStatus.value.steps.find(
     s => s.stepNumber === provisioningStatus.value!.currentStepNumber
   )
-  return active?.name || ''
+  return active?.displayName || ''
 })
 
 // Wizard dynamic props
@@ -146,6 +146,15 @@ const siteUrl = computed(() => {
 async function handleLogout() {
   await logout()
   router.push('/')
+}
+
+function handleNavigateDashboard() {
+  router.push('/dashboard')
+}
+
+function handleNavigateSite() {
+  const url = siteUrl.value
+  if (url) window.open(url, '_blank')
 }
 
 const tenantSubdomain = computed(() => {
@@ -440,6 +449,8 @@ const canContinue = computed(() => {
     @skip="handleSkip"
     @step-click="goToStep"
     @logout="handleLogout"
+    @navigate-dashboard="handleNavigateDashboard"
+    @navigate-site="handleNavigateSite"
   >
     <!-- Account Step -->
     <template v-if="currentStep?.id === 'account'">
@@ -689,14 +700,14 @@ const canContinue = computed(() => {
                 </span>
                 <span v-else class="text-xs text-gray-400">Initializing...</span>
                 <span class="text-sm font-semibold text-indigo-600">
-                  {{ provisioningStatus ? Math.round((provisioningStatus.currentStepNumber / Math.max(provisioningStatus.totalSteps, 1)) * 100) : 0 }}%
+                  {{ provisioningStatus?.progressPercent ?? 0 }}%
                 </span>
               </div>
               <div class="relative h-3 overflow-hidden rounded-full bg-gray-100">
                 <div
                   v-if="provisioningStatus"
                   class="h-full rounded-full bg-gradient-to-r from-indigo-400 to-indigo-500 transition-all duration-700 ease-out"
-                  :style="{ width: `${(provisioningStatus.currentStepNumber / Math.max(provisioningStatus.totalSteps, 1)) * 100}%` }"
+                  :style="{ width: `${provisioningStatus.progressPercent}%` }"
                 />
                 <div
                   v-else

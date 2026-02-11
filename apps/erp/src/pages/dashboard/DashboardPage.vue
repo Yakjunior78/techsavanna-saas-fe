@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { SAVANNA_APPS, slugify } from '@techsavanna/shared'
 import { useAuth } from '@techsavanna/auth'
+import { DashboardLayout, type SidebarItem } from '@techsavanna/ui'
 
 const router = useRouter()
 const appConfig = SAVANNA_APPS.erp
@@ -20,146 +21,224 @@ async function handleLogout() {
   router.push('/login')
 }
 
-const quickActions = [
-  { icon: 'chart', label: 'Financial Overview', description: 'Revenue and expenses', color: 'violet' },
-  { icon: 'box', label: 'Supply Chain', description: 'Manage procurement', color: 'blue' },
-  { icon: 'doc', label: 'Invoices', description: 'Billing & invoicing', color: 'amber' },
-  { icon: 'settings', label: 'Settings', description: 'ERP configuration', color: 'emerald' }
+const sidebarItems: SidebarItem[] = [
+  { id: 'overview', label: 'Overview', icon: 'home' },
+  { id: 'tenants', label: 'My Tenants', icon: 'building' },
+  { id: 'payments', label: 'My Payments', icon: 'credit-card' },
+  { id: 'subscriptions', label: 'My Subscriptions', icon: 'receipt' },
+  { id: 'workspace', label: 'My Workspace', icon: 'globe' },
+  { id: 'account', label: 'My Account', icon: 'user' },
+  { id: 'settings', label: 'Settings', icon: 'cog' }
 ]
+
+const activeSidebarId = ref('overview')
+
+function handleNavigate(id: string) {
+  activeSidebarId.value = id
+}
 </script>
 
 <template>
-  <div class="min-h-screen bg-gray-50">
-    <!-- Header -->
-    <header class="sticky top-0 z-50 border-b border-gray-200 bg-white/80 backdrop-blur-xl">
-      <div class="mx-auto flex h-14 max-w-5xl items-center justify-between px-4 sm:px-6">
-        <div class="flex items-center gap-3">
-          <img
-            :src="appConfig.logo"
-            :alt="appConfig.name"
-            class="h-8 max-w-[160px] w-auto object-contain"
-          />
-        </div>
-        <div class="flex items-center gap-3">
-          <div class="flex items-center gap-2.5">
-            <div
-              class="flex size-8 items-center justify-center rounded-full ring-2 ring-white text-[11px] font-semibold text-white shadow-sm"
-              style="background-color: #8B5CF6"
-            >
-              {{ initials }}
-            </div>
-            <span class="hidden text-[13px] font-medium text-gray-600 sm:block">{{ fullName }}</span>
-          </div>
-          <button
-            class="cursor-pointer rounded-lg px-3 py-1.5 text-sm text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-700"
-            @click="handleLogout"
-          >
-            Sign Out
-          </button>
-        </div>
-      </div>
-    </header>
-
-    <!-- Main Content -->
-    <main class="mx-auto max-w-5xl px-4 py-8 sm:px-6">
-      <!-- Welcome -->
-      <div class="mb-8">
-        <h1 class="text-2xl font-bold text-gray-900">Welcome back, {{ user?.firstName }}!</h1>
-        <p class="mt-1 text-sm text-gray-500">Here's your {{ appConfig.shortName }} dashboard overview.</p>
+  <DashboardLayout
+    :app-config="appConfig"
+    :user-name="fullName"
+    :user-initials="initials"
+    :organization-name="user?.tenantName"
+    :avatar-color="appConfig.primaryColor"
+    :sidebar-items="sidebarItems"
+    :active-sidebar-id="activeSidebarId"
+    @logout="handleLogout"
+    @navigate="handleNavigate"
+  >
+    <!-- Overview -->
+    <template v-if="activeSidebarId === 'overview'">
+      <div class="mb-5">
+        <h1 class="text-lg font-bold text-gray-900">Welcome back, {{ user?.firstName }}!</h1>
+        <p class="mt-0.5 text-xs text-gray-500">Here's your {{ appConfig.shortName }} dashboard overview.</p>
       </div>
 
-      <!-- Workspace Card -->
-      <div class="mb-8 overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
-        <div class="bg-gradient-to-r from-violet-600 to-purple-500 px-6 py-5">
-          <h2 class="text-lg font-semibold text-white">Your Workspace</h2>
-          <p class="mt-0.5 text-sm text-violet-100">{{ user?.tenantName || 'My Business' }}</p>
+      <div class="mb-6 overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
+        <div class="bg-gradient-to-r from-violet-600 to-purple-500 px-5 py-4">
+          <h2 class="text-sm font-semibold text-white">Your Workspace</h2>
+          <p class="mt-0.5 text-xs text-violet-100">{{ user?.tenantName || 'My Business' }}</p>
         </div>
-        <div class="flex items-center justify-between px-6 py-4">
+        <div class="flex items-center justify-between px-5 py-3">
           <div>
-            <p class="text-sm text-gray-500">Workspace URL</p>
-            <p class="text-sm font-medium text-gray-900">{{ dashboardUrl }}</p>
+            <p class="text-xs text-gray-400">Workspace URL</p>
+            <p class="text-xs font-medium text-gray-900">{{ dashboardUrl }}</p>
           </div>
           <a
             :href="dashboardUrl"
-            class="inline-flex items-center gap-2 rounded-lg bg-violet-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-violet-700"
+            class="inline-flex cursor-pointer items-center gap-1.5 rounded-lg bg-violet-600 px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-violet-700"
           >
-            Open Workspace
-            <svg class="size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"/>
+            Open
+            <svg class="size-3.5" viewBox="0 0 24 24" fill="currentColor">
+              <path fill-rule="evenodd" d="M12.97 3.97a.75.75 0 0 1 1.06 0l7.5 7.5a.75.75 0 0 1 0 1.06l-7.5 7.5a.75.75 0 1 1-1.06-1.06l6.22-6.22H3a.75.75 0 0 1 0-1.5h16.19l-6.22-6.22a.75.75 0 0 1 0-1.06Z" clip-rule="evenodd"/>
             </svg>
           </a>
         </div>
       </div>
 
-      <!-- Quick Actions -->
-      <div class="mb-6">
-        <h2 class="text-lg font-semibold text-gray-900">Quick Actions</h2>
-        <p class="text-sm text-gray-500">Common tasks to get you started</p>
-      </div>
-
-      <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        <a
-          v-for="action in quickActions"
-          :key="action.label"
-          :href="dashboardUrl"
-          class="group flex items-center gap-3 rounded-xl border border-gray-200 bg-white p-4 transition-all hover:border-gray-300 hover:shadow-sm"
-        >
-          <div
-            class="flex size-10 items-center justify-center rounded-lg"
-            :class="{
-              'bg-violet-50': action.color === 'violet',
-              'bg-blue-50': action.color === 'blue',
-              'bg-amber-50': action.color === 'amber',
-              'bg-emerald-50': action.color === 'emerald'
-            }"
-          >
-            <!-- Chart icon -->
-            <svg v-if="action.icon === 'chart'" class="size-5 text-violet-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z"/>
-            </svg>
-            <!-- Box icon -->
-            <svg v-else-if="action.icon === 'box'" class="size-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z"/>
-            </svg>
-            <!-- Doc icon -->
-            <svg v-else-if="action.icon === 'doc'" class="size-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"/>
-            </svg>
-            <!-- Settings icon -->
-            <svg v-else class="size-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.324.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 011.37.49l1.296 2.247a1.125 1.125 0 01-.26 1.431l-1.003.827c-.293.24-.438.613-.431.992a6.759 6.759 0 010 .255c-.007.378.138.75.43.99l1.005.828c.424.35.534.954.26 1.43l-1.298 2.247a1.125 1.125 0 01-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.57 6.57 0 01-.22.128c-.331.183-.581.495-.644.869l-.213 1.28c-.09.543-.56.941-1.11.941h-2.594c-.55 0-1.02-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 01-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 01-1.369-.49l-1.297-2.247a1.125 1.125 0 01.26-1.431l1.004-.827c.292-.24.437-.613.43-.992a6.932 6.932 0 010-.255c.007-.378-.138-.75-.43-.99l-1.004-.828a1.125 1.125 0 01-.26-1.43l1.297-2.247a1.125 1.125 0 011.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.087.22-.128.332-.183.582-.495.644-.869l.214-1.281z"/>
-              <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-            </svg>
+      <div class="rounded-xl border border-gray-200 bg-white p-5">
+        <h3 class="text-xs font-semibold text-gray-900">Account Details</h3>
+        <div class="mt-3 grid gap-3 sm:grid-cols-2">
+          <div>
+            <p class="text-[10px] text-gray-400">Full Name</p>
+            <p class="mt-0.5 text-xs text-gray-900">{{ fullName }}</p>
           </div>
           <div>
-            <p class="text-sm font-medium text-gray-900">{{ action.label }}</p>
-            <p class="text-xs text-gray-500">{{ action.description }}</p>
-          </div>
-        </a>
-      </div>
-
-      <!-- Account Info -->
-      <div class="mt-8 rounded-xl border border-gray-200 bg-white p-6">
-        <h3 class="text-sm font-semibold text-gray-900">Account Details</h3>
-        <div class="mt-4 grid gap-4 sm:grid-cols-2">
-          <div>
-            <p class="text-xs text-gray-400">Full Name</p>
-            <p class="mt-0.5 text-sm text-gray-900">{{ fullName }}</p>
+            <p class="text-[10px] text-gray-400">Email</p>
+            <p class="mt-0.5 text-xs text-gray-900">{{ user?.email }}</p>
           </div>
           <div>
-            <p class="text-xs text-gray-400">Email</p>
-            <p class="mt-0.5 text-sm text-gray-900">{{ user?.email }}</p>
+            <p class="text-[10px] text-gray-400">Organization</p>
+            <p class="mt-0.5 text-xs text-gray-900">{{ user?.tenantName || '—' }}</p>
           </div>
           <div>
-            <p class="text-xs text-gray-400">Organization</p>
-            <p class="mt-0.5 text-sm text-gray-900">{{ user?.tenantName || '—' }}</p>
-          </div>
-          <div>
-            <p class="text-xs text-gray-400">Role</p>
-            <p class="mt-0.5 text-sm capitalize text-gray-900">{{ user?.role || 'Owner' }}</p>
+            <p class="text-[10px] text-gray-400">Role</p>
+            <p class="mt-0.5 text-xs capitalize text-gray-900">{{ user?.role || 'Owner' }}</p>
           </div>
         </div>
       </div>
-    </main>
-  </div>
+    </template>
+
+    <!-- My Tenants -->
+    <template v-else-if="activeSidebarId === 'tenants'">
+      <div class="mb-5">
+        <h1 class="text-lg font-bold text-gray-900">My Tenants</h1>
+        <p class="mt-0.5 text-xs text-gray-500">Manage your business workspaces.</p>
+      </div>
+      <div class="space-y-3">
+        <a
+          :href="dashboardUrl"
+          class="group block cursor-pointer overflow-hidden rounded-xl border border-gray-200 bg-white transition-all hover:border-violet-200 hover:shadow-md"
+        >
+          <div class="flex items-start gap-4 p-4">
+            <div class="flex size-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 shadow-sm">
+              <svg class="size-5 text-white" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M5.507 4.048A3 3 0 0 1 7.785 3h8.43a3 3 0 0 1 2.278 1.048l1.722 2.008A4.533 4.533 0 0 0 19.5 6h-15c-.243 0-.482.02-.715.056l1.722-2.008Z"/>
+                <path fill-rule="evenodd" d="M1.5 10.5a3 3 0 0 1 3-3h15a3 3 0 0 1 3 3v6a3 3 0 0 1-3 3h-15a3 3 0 0 1-3-3v-6Zm15 0a.75.75 0 0 1 .75.75v2.25h2.25a.75.75 0 0 1 0 1.5h-2.25v2.25a.75.75 0 0 1-1.5 0v-2.25h-2.25a.75.75 0 0 1 0-1.5h2.25v-2.25a.75.75 0 0 1 .75-.75ZM6 12a.75.75 0 0 1 .75-.75H7a.75.75 0 0 1 0 1.5h-.25A.75.75 0 0 1 6 12Zm3 0a.75.75 0 0 1 .75-.75H10a.75.75 0 0 1 0 1.5h-.25A.75.75 0 0 1 9 12Zm0 3a.75.75 0 0 1 .75-.75H10a.75.75 0 0 1 0 1.5h-.25A.75.75 0 0 1 9 15Zm-3 0a.75.75 0 0 1 .75-.75H7a.75.75 0 0 1 0 1.5h-.25A.75.75 0 0 1 6 15Z" clip-rule="evenodd"/>
+              </svg>
+            </div>
+            <div class="min-w-0 flex-1">
+              <div class="flex items-center gap-2">
+                <p class="text-sm font-semibold text-gray-900">{{ user?.tenantName || 'My Business' }}</p>
+                <span class="inline-flex items-center gap-1 rounded-full bg-blue-50 px-1.5 py-0.5 text-[10px] font-medium text-blue-700">
+                  <span class="size-1 rounded-full bg-blue-500"></span>
+                  Active
+                </span>
+              </div>
+              <p class="mt-0.5 truncate text-xs text-gray-400">{{ dashboardUrl }}</p>
+            </div>
+            <svg class="size-4 shrink-0 text-gray-300 transition-colors group-hover:text-violet-500" viewBox="0 0 24 24" fill="currentColor">
+              <path fill-rule="evenodd" d="M16.28 11.47a.75.75 0 0 1 0 1.06l-7.5 7.5a.75.75 0 0 1-1.06-1.06L14.69 12 7.72 5.03a.75.75 0 0 1 1.06-1.06l7.5 7.5Z" clip-rule="evenodd"/>
+            </svg>
+          </div>
+        </a>
+      </div>
+    </template>
+
+    <!-- My Payments -->
+    <template v-else-if="activeSidebarId === 'payments'">
+      <div class="mb-5">
+        <h1 class="text-lg font-bold text-gray-900">My Payments</h1>
+        <p class="mt-0.5 text-xs text-gray-500">View your payment history and invoices.</p>
+      </div>
+      <div class="rounded-xl border border-gray-200 bg-white p-5 text-center">
+        <div class="mx-auto flex size-10 items-center justify-center rounded-full bg-gray-100">
+          <svg class="size-5 text-gray-400" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M4.5 3.75a3 3 0 0 0-3 3v.75h21v-.75a3 3 0 0 0-3-3h-15Z"/>
+            <path fill-rule="evenodd" d="M22.5 9.75h-21v7.5a3 3 0 0 0 3 3h15a3 3 0 0 0 3-3v-7.5Zm-18 3.75a.75.75 0 0 1 .75-.75h6a.75.75 0 0 1 0 1.5h-6a.75.75 0 0 1-.75-.75Zm.75 2.25a.75.75 0 0 0 0 1.5h3a.75.75 0 0 0 0-1.5h-3Z" clip-rule="evenodd"/>
+          </svg>
+        </div>
+        <p class="mt-2.5 text-xs text-gray-500">No payment history yet.</p>
+      </div>
+    </template>
+
+    <!-- My Subscriptions -->
+    <template v-else-if="activeSidebarId === 'subscriptions'">
+      <div class="mb-5">
+        <h1 class="text-lg font-bold text-gray-900">My Subscriptions</h1>
+        <p class="mt-0.5 text-xs text-gray-500">Manage your active subscriptions and plans.</p>
+      </div>
+      <div class="rounded-xl border border-gray-200 bg-white p-5 text-center">
+        <div class="mx-auto flex size-10 items-center justify-center rounded-full bg-gray-100">
+          <svg class="size-5 text-gray-400" viewBox="0 0 24 24" fill="currentColor">
+            <path fill-rule="evenodd" d="M5.625 1.5c-1.036 0-1.875.84-1.875 1.875v17.25c0 1.035.84 1.875 1.875 1.875h12.75c1.035 0 1.875-.84 1.875-1.875V12.75A3.75 3.75 0 0 0 16.5 9h-1.875a1.875 1.875 0 0 1-1.875-1.875V5.25A3.75 3.75 0 0 0 9 1.5H5.625ZM7.5 15a.75.75 0 0 1 .75-.75h7.5a.75.75 0 0 1 0 1.5h-7.5A.75.75 0 0 1 7.5 15Zm.75 2.25a.75.75 0 0 0 0 1.5H12a.75.75 0 0 0 0-1.5H8.25Z" clip-rule="evenodd"/>
+            <path d="M12.971 1.816A5.23 5.23 0 0 1 14.25 5.25v1.875c0 .207.168.375.375.375H16.5a5.23 5.23 0 0 1 3.434 1.279 9.768 9.768 0 0 0-6.963-6.963Z"/>
+          </svg>
+        </div>
+        <p class="mt-2.5 text-xs text-gray-500">No active subscriptions.</p>
+      </div>
+    </template>
+
+    <!-- My Workspace -->
+    <template v-else-if="activeSidebarId === 'workspace'">
+      <div class="mb-5">
+        <h1 class="text-lg font-bold text-gray-900">My Workspace</h1>
+        <p class="mt-0.5 text-xs text-gray-500">Access your business workspace.</p>
+      </div>
+      <div class="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
+        <div class="bg-gradient-to-r from-violet-600 to-purple-500 px-5 py-4">
+          <h2 class="text-sm font-semibold text-white">{{ user?.tenantName || 'My Business' }}</h2>
+          <p class="mt-0.5 text-xs text-violet-100">{{ dashboardUrl }}</p>
+        </div>
+        <div class="px-5 py-3">
+          <a
+            :href="dashboardUrl"
+            class="inline-flex cursor-pointer items-center gap-1.5 rounded-lg bg-violet-600 px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-violet-700"
+          >
+            Open Workspace
+            <svg class="size-3.5" viewBox="0 0 24 24" fill="currentColor">
+              <path fill-rule="evenodd" d="M12.97 3.97a.75.75 0 0 1 1.06 0l7.5 7.5a.75.75 0 0 1 0 1.06l-7.5 7.5a.75.75 0 1 1-1.06-1.06l6.22-6.22H3a.75.75 0 0 1 0-1.5h16.19l-6.22-6.22a.75.75 0 0 1 0-1.06Z" clip-rule="evenodd"/>
+            </svg>
+          </a>
+        </div>
+      </div>
+    </template>
+
+    <!-- My Account -->
+    <template v-else-if="activeSidebarId === 'account'">
+      <div class="mb-5">
+        <h1 class="text-lg font-bold text-gray-900">My Account</h1>
+        <p class="mt-0.5 text-xs text-gray-500">View and manage your account details.</p>
+      </div>
+      <div class="rounded-xl border border-gray-200 bg-white p-5">
+        <div class="grid gap-3 sm:grid-cols-2">
+          <div>
+            <p class="text-[10px] text-gray-400">Full Name</p>
+            <p class="mt-0.5 text-xs text-gray-900">{{ fullName }}</p>
+          </div>
+          <div>
+            <p class="text-[10px] text-gray-400">Email</p>
+            <p class="mt-0.5 text-xs text-gray-900">{{ user?.email }}</p>
+          </div>
+          <div>
+            <p class="text-[10px] text-gray-400">Organization</p>
+            <p class="mt-0.5 text-xs text-gray-900">{{ user?.tenantName || '—' }}</p>
+          </div>
+          <div>
+            <p class="text-[10px] text-gray-400">Role</p>
+            <p class="mt-0.5 text-xs capitalize text-gray-900">{{ user?.role || 'Owner' }}</p>
+          </div>
+        </div>
+      </div>
+    </template>
+
+    <!-- Settings -->
+    <template v-else-if="activeSidebarId === 'settings'">
+      <div class="mb-5">
+        <h1 class="text-lg font-bold text-gray-900">Settings</h1>
+        <p class="mt-0.5 text-xs text-gray-500">Configure your account and preferences.</p>
+      </div>
+      <div class="rounded-xl border border-gray-200 bg-white p-5 text-center">
+        <div class="mx-auto flex size-10 items-center justify-center rounded-full bg-gray-100">
+          <svg class="size-5 text-gray-400" viewBox="0 0 24 24" fill="currentColor">
+            <path fill-rule="evenodd" d="M11.078 2.25c-.917 0-1.699.663-1.85 1.567L9.05 4.889c-.02.12-.115.26-.297.348a7.493 7.493 0 0 0-.986.57c-.166.115-.334.126-.45.083L6.3 5.508a1.875 1.875 0 0 0-2.282.819l-.922 1.597a1.875 1.875 0 0 0 .432 2.385l.84.692c.095.078.17.229.154.43a7.598 7.598 0 0 0 0 1.139c.015.2-.059.352-.153.43l-.841.692a1.875 1.875 0 0 0-.432 2.385l.922 1.597a1.875 1.875 0 0 0 2.282.818l1.019-.382c.115-.043.283-.031.45.082.312.214.641.405.985.57.182.088.277.228.297.35l.178 1.071c.151.904.933 1.567 1.85 1.567h1.844c.916 0 1.699-.663 1.85-1.567l.178-1.072c.02-.12.114-.26.297-.349.344-.165.673-.356.985-.57.167-.114.335-.125.45-.082l1.02.382a1.875 1.875 0 0 0 2.28-.819l.923-1.597a1.875 1.875 0 0 0-.432-2.385l-.84-.692c-.095-.078-.17-.229-.154-.43a7.614 7.614 0 0 0 0-1.139c-.016-.2.059-.352.153-.43l.84-.692c.708-.582.891-1.59.433-2.385l-.922-1.597a1.875 1.875 0 0 0-2.282-.818l-1.02.382c-.114.043-.282.031-.449-.083a7.49 7.49 0 0 0-.985-.57c-.183-.087-.277-.227-.297-.348l-.179-1.072a1.875 1.875 0 0 0-1.85-1.567h-1.843ZM12 15.75a3.75 3.75 0 1 0 0-7.5 3.75 3.75 0 0 0 0 7.5Z" clip-rule="evenodd"/>
+          </svg>
+        </div>
+        <p class="mt-2.5 text-xs text-gray-500">Settings coming soon.</p>
+      </div>
+    </template>
+  </DashboardLayout>
 </template>
