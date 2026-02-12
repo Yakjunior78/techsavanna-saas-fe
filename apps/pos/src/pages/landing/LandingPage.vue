@@ -353,7 +353,6 @@ function handleSelectPlan(plan: PricingPlan, billing: 'monthly' | 'yearly') {
               :class="{
                 'bg-blue-50 text-blue-600 group-hover:bg-blue-100': industry.color === 'blue',
                 'bg-amber-50 text-amber-600 group-hover:bg-amber-100': industry.color === 'amber',
-                'bg-blue-50 text-blue-600 group-hover:bg-blue-100': industry.color === 'blue',
                 'bg-purple-50 text-purple-600 group-hover:bg-purple-100': industry.color === 'purple',
                 'bg-rose-50 text-rose-600 group-hover:bg-rose-100': industry.color === 'rose',
                 'bg-slate-100 text-slate-600 group-hover:bg-slate-200': industry.color === 'slate'

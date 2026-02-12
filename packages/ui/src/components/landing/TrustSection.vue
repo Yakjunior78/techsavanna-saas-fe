@@ -152,7 +152,7 @@ function getIconTextClass(color: string) {
             class="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-500 group-hover:opacity-100"
             :class="{
               'bg-gradient-to-br from-blue-50/50 via-transparent to-transparent': cert.color === 'blue',
-              'bg-gradient-to-br from-blue-50/50 via-transparent to-transparent': cert.color === 'blue',
+              'bg-gradient-to-br from-red-50/50 via-transparent to-transparent': cert.color === 'red',
               'bg-gradient-to-br from-amber-50/50 via-transparent to-transparent': cert.color === 'amber'
             }"
           ></div>
@@ -162,7 +162,7 @@ function getIconTextClass(color: string) {
             class="absolute -right-8 -top-8 size-24 rounded-full opacity-20 transition-transform duration-500 group-hover:scale-150"
             :class="{
               'bg-blue-200': cert.color === 'blue',
-              'bg-blue-200': cert.color === 'blue',
+              'bg-red-200': cert.color === 'red',
               'bg-amber-200': cert.color === 'amber'
             }"
           ></div>
@@ -173,7 +173,7 @@ function getIconTextClass(color: string) {
               class="flex size-16 items-center justify-center rounded-2xl transition-all duration-300 group-hover:scale-110 group-hover:shadow-lg"
               :class="{
                 'bg-gradient-to-br from-blue-50 to-blue-100 group-hover:shadow-blue-200/50': cert.color === 'blue',
-                'bg-gradient-to-br from-blue-50 to-blue-100 group-hover:shadow-blue-200/50': cert.color === 'blue',
+                'bg-gradient-to-br from-red-50 to-red-100 group-hover:shadow-red-200/50': cert.color === 'red',
                 'bg-gradient-to-br from-amber-50 to-amber-100 group-hover:shadow-amber-200/50': cert.color === 'amber'
               }"
             >
@@ -233,7 +233,7 @@ function getIconTextClass(color: string) {
               class="absolute inset-0 -z-10 rounded-2xl opacity-0 transition-all duration-500 group-hover:scale-125 group-hover:opacity-100"
               :class="{
                 'bg-blue-200/30': cert.color === 'blue',
-                'bg-blue-200/30': cert.color === 'blue',
+                'bg-red-200/30': cert.color === 'red',
                 'bg-amber-200/30': cert.color === 'amber'
               }"
             ></div>
@@ -250,7 +250,7 @@ function getIconTextClass(color: string) {
             class="relative mt-5 inline-flex cursor-pointer items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition-all duration-300 hover:gap-3"
             :class="{
               'bg-blue-50 text-blue-700 hover:bg-blue-100': cert.color === 'blue',
-              'bg-blue-50 text-blue-700 hover:bg-blue-100': cert.color === 'blue',
+              'bg-red-50 text-red-700 hover:bg-red-100': cert.color === 'red',
               'bg-amber-50 text-amber-700 hover:bg-amber-100': cert.color === 'amber'
             }"
             @click="openCertificateModal(cert)"

@@ -136,7 +136,7 @@ const activeProvisioningStepName = computed(() => {
   const active = provisioningStatus.value.steps.find(
     s => s.stepNumber === provisioningStatus.value!.currentStepNumber
   )
-  return active?.displayName || ''
+  return active?.name || ''
 })
 
 // Wizard dynamic props
