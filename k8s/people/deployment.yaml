@@ -20,9 +20,11 @@ spec:
         app.kubernetes.io/name: people
         app.kubernetes.io/part-of: techsavanna-saas
     spec:
+      imagePullSecrets:
+        - name: gitlab-registry-secret
       containers:
         - name: people
-          image: registry.gitlab.com/techsavanna-sass/techsavanna-saas-fe/people:latest
+          image: registry.gitlab.com/techsavanna-sass/techsavanna-saas-fe/people:dev
           ports:
             - containerPort: 80
               protocol: TCP

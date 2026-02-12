@@ -1,63 +1,18 @@
 stages:
-  - detect
   - build
-  - deploy
 
 variables:
   REGISTRY: registry.gitlab.com/techsavanna-sass/techsavanna-saas-fe
   DOCKER_BUILDKIT: "1"
 
 # -----------------------------------------------------------
-# Change detection — only build what changed
-# -----------------------------------------------------------
-detect-changes:
-  stage: detect
-  image: alpine:3.20
-  script:
-    - apk add --no-cache git
-    - |
-      if [ "$CI_PIPELINE_SOURCE" = "web" ] || [ "$CI_PIPELINE_SOURCE" = "api" ]; then
-        echo "Manual trigger — building all apps"
-        echo "BUILD_POS=true"   >> build.env
-        echo "BUILD_PEOPLE=true" >> build.env
-        echo "BUILD_ELIMU=true"  >> build.env
-        echo "BUILD_ERP=true"    >> build.env
-      else
-        MERGE_BASE=$(git merge-base origin/$CI_DEFAULT_BRANCH HEAD 2>/dev/null || echo "$CI_COMMIT_BEFORE_SHA")
-        CHANGED=$(git diff --name-only "$MERGE_BASE" HEAD 2>/dev/null || echo "")
-
-        SHARED_CHANGED="false"
-        echo "$CHANGED" | grep -qE '^(packages/|package\.json|pnpm-lock\.yaml|pnpm-workspace\.yaml|tsconfig\.base\.json)' && SHARED_CHANGED="true"
-
-        for APP in pos people elimu erp; do
-          APP_UPPER=$(echo "$APP" | tr '[:lower:]' '[:upper:]')
-          if [ "$SHARED_CHANGED" = "true" ] || echo "$CHANGED" | grep -q "^apps/${APP}/"; then
-            echo "BUILD_${APP_UPPER}=true" >> build.env
-          else
-            echo "BUILD_${APP_UPPER}=false" >> build.env
-          fi
-        done
-      fi
-    - cat build.env
-  artifacts:
-    reports:
-      dotenv: build.env
-  rules:
-    - if: $CI_COMMIT_BRANCH == "dev" || $CI_COMMIT_BRANCH == "main"
-    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
-    - if: $CI_PIPELINE_SOURCE == "web"
-
-# -----------------------------------------------------------
-# Build & push templates
+# Build & push template
 # -----------------------------------------------------------
 .build-template: &build-template
   stage: build
   image: docker:27
   services:
     - docker:27-dind
-  needs:
-    - job: detect-changes
-      artifacts: true
   before_script:
     - echo "$CI_REGISTRY_PASSWORD" | docker login $CI_REGISTRY -u $CI_REGISTRY_USER --password-stdin
   script:
@@ -91,89 +46,18 @@ build-pos:
   <<: *build-template
   variables:
     APP_NAME: pos
-  rules:
-    - if: $BUILD_POS == "true"
 
 build-people:
   <<: *build-template
   variables:
     APP_NAME: people
-  rules:
-    - if: $BUILD_PEOPLE == "true"
 
 build-elimu:
   <<: *build-template
   variables:
     APP_NAME: elimu
-  rules:
-    - if: $BUILD_ELIMU == "true"
 
 build-erp:
   <<: *build-template
   variables:
     APP_NAME: erp
-  rules:
-    - if: $BUILD_ERP == "true"
-
-# -----------------------------------------------------------
-# Deploy to Kubernetes (manual trigger)
-# -----------------------------------------------------------
-deploy-staging:
-  stage: deploy
-  image:
-    name: bitnami/kubectl:1.31
-    entrypoint: [""]
-  needs:
-    - job: build-pos
-      optional: true
-    - job: build-people
-      optional: true
-    - job: build-elimu
-      optional: true
-    - job: build-erp
-      optional: true
-  script:
-    - |
-      cd k8s
-      kubectl kustomize . | \
-        sed "s|registry.gitlab.com/techsavanna-sass/techsavanna-saas-fe/\(.*\):.*|registry.gitlab.com/techsavanna-sass/techsavanna-saas-fe/\1:${CI_COMMIT_SHORT_SHA}|g" | \
-        kubectl apply -f -
-    - kubectl -n techsavanna-saas rollout status deployment/pos --timeout=120s
-    - kubectl -n techsavanna-saas rollout status deployment/people --timeout=120s
-    - kubectl -n techsavanna-saas rollout status deployment/elimu --timeout=120s
-    - kubectl -n techsavanna-saas rollout status deployment/erp --timeout=120s
-  environment:
-    name: staging
-  rules:
-    - if: $CI_COMMIT_BRANCH == "dev"
-      when: manual
-
-deploy-production:
-  stage: deploy
-  image:
-    name: bitnami/kubectl:1.31
-    entrypoint: [""]
-  needs:
-    - job: build-pos
-      optional: true
-    - job: build-people
-      optional: true
-    - job: build-elimu
-      optional: true
-    - job: build-erp
-      optional: true
-  script:
-    - |
-      cd k8s
-      kubectl kustomize . | \
-        sed "s|registry.gitlab.com/techsavanna-sass/techsavanna-saas-fe/\(.*\):.*|registry.gitlab.com/techsavanna-sass/techsavanna-saas-fe/\1:${CI_COMMIT_SHORT_SHA}|g" | \
-        kubectl apply -f -
-    - kubectl -n techsavanna-saas rollout status deployment/pos --timeout=120s
-    - kubectl -n techsavanna-saas rollout status deployment/people --timeout=120s
-    - kubectl -n techsavanna-saas rollout status deployment/elimu --timeout=120s
-    - kubectl -n techsavanna-saas rollout status deployment/erp --timeout=120s
-  environment:
-    name: production
-  rules:
-    - if: $CI_COMMIT_BRANCH == "main"
-      when: manual
