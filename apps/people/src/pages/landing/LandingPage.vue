@@ -115,7 +115,7 @@ const features: Feature[] = [
 const { plans: pricingPlans, fetchPlans } = usePlans()
 
 onMounted(() => {
-  fetchPlans('PRODUCT_PEOPLE', {
+  fetchPlans('PRODUCT_HRMS', {
     description: 'Complete HR & payroll solution for teams of all sizes',
     features: [
       'Unlimited employees',

@@ -115,7 +115,7 @@ const features: Feature[] = [
 const { plans: pricingPlans, fetchPlans } = usePlans()
 
 onMounted(() => {
-  fetchPlans('PRODUCT_ELIMU', {
+  fetchPlans('PRODUCT_EDUCATION', {
     description: 'Complete school management for institutions of all sizes',
     features: [
       'Unlimited students',

@@ -94,7 +94,7 @@ watch(formData, () => {
 const { rawPlans, fetchPlans } = usePlans()
 
 onMounted(() => {
-  fetchPlans('PRODUCT_ELIMU', { description: '', features: [] })
+  fetchPlans('PRODUCT_EDUCATION', { description: '', features: [] })
 })
 
 const activePlan = computed(() => rawPlans.value[0] || null)
@@ -136,7 +136,7 @@ const activeProvisioningStepName = computed(() => {
   const active = provisioningStatus.value.steps.find(
     s => s.stepNumber === provisioningStatus.value!.currentStepNumber
   )
-  return active?.name || ''
+  return active?.displayName || ''
 })
 
 // Wizard dynamic props
@@ -267,7 +267,7 @@ async function handleNext() {
         industry: String(data.institutionType || ''),
         companySize: String(data.studentCount || ''),
         website: String(data.website || ''),
-        product: 'PRODUCT_ELIMU',
+        product: 'PRODUCT_EDUCATION',
         planId: selectedPlanId.value,
         billingCycle: billingCycle.value
       })

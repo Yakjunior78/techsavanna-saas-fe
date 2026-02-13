@@ -36,6 +36,7 @@ export interface PaymentStatusResponse {
 // Provisioning status
 export interface ProvisioningStepInfo {
   name: string
+  displayName: string
   stepNumber: number
   status: string
   startedAt: string
@@ -51,5 +52,6 @@ export interface ProvisioningStatusResponse {
   totalSteps: number
   progressPercent: number
   steps: ProvisioningStepInfo[]
-  errorMessage: string
+  errorMessage: string,
+  displayName: string
 }

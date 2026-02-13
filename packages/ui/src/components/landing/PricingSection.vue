@@ -3,7 +3,6 @@ import { ref, computed, onMounted, onUnmounted } from 'vue'
 import type { PricingPlan } from '@techsavanna/shared'
 import { formatCurrency } from '@techsavanna/shared'
 import Button from '../base/Button.vue'
-import Badge from '../base/Badge.vue'
 
 interface Props {
   title?: string
@@ -92,32 +91,33 @@ const gridCols = computed(() => {
 
         <!-- Modern Billing Toggle -->
         <div
-          class="relative mt-5 inline-flex items-center gap-0.5 rounded-full bg-gray-100 p-0.5 transition-all delay-200 duration-500"
+          class="relative mt-5 inline-grid grid-cols-2 rounded-full bg-gray-100 p-0.5 transition-all delay-200 duration-500"
           :class="isVisible ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'"
         >
           <button
-            class="relative z-10 rounded-full px-4 py-1.5 text-xs font-medium transition-colors duration-300"
+            class="relative z-10 rounded-full px-5 py-1.5 text-xs font-medium transition-colors duration-300"
             :class="billingPeriod === 'monthly' ? 'text-white' : 'text-gray-600 hover:text-gray-900'"
             @click="billingPeriod = 'monthly'"
           >
             Monthly
           </button>
           <button
-            class="relative z-10 rounded-full px-4 py-1.5 text-xs font-medium transition-colors duration-300"
+            class="relative z-10 flex items-center justify-center gap-1 rounded-full px-5 py-1.5 text-xs font-medium transition-colors duration-300"
             :class="billingPeriod === 'yearly' ? 'text-white' : 'text-gray-600 hover:text-gray-900'"
             @click="billingPeriod = 'yearly'"
           >
             Yearly
             <span
               v-if="yearlyDiscount"
-              class="ml-1 inline-flex items-center rounded-full bg-blue-100 px-1.5 py-0.5 text-[10px] font-medium text-blue-700"
+              class="inline-flex items-center rounded-full px-1.5 py-0.5 text-[10px] font-medium transition-colors duration-300"
+              :class="billingPeriod === 'yearly' ? 'bg-white/20 text-white' : 'bg-blue-100 text-blue-700'"
             >
               -{{ yearlyDiscount }}%
             </span>
           </button>
           <!-- Sliding background -->
           <div
-            class="absolute left-0.5 h-[calc(100%-4px)] w-[calc(50%-2px)] rounded-full bg-blue-600 shadow-md transition-transform duration-300 ease-out"
+            class="absolute left-0.5 top-0.5 h-[calc(100%-4px)] w-[calc(50%-2px)] rounded-full bg-blue-600 shadow-md transition-transform duration-300 ease-out"
             :class="billingPeriod === 'yearly' ? 'translate-x-[calc(100%+2px)]' : 'translate-x-0'"
           ></div>
         </div>
@@ -150,13 +150,6 @@ const gridCols = computed(() => {
 
           <!-- Card Content -->
           <div class="relative">
-            <!-- Featured Badge -->
-            <div v-if="plan.featured" class="absolute -top-9 left-1/2 -translate-x-1/2">
-              <Badge variant="primary" class="!bg-gradient-to-r !from-blue-500 !to-indigo-600 !text-xs !px-2 !py-0.5 shadow-md">
-                Most Popular
-              </Badge>
-            </div>
-
             <!-- Plan Header -->
             <div>
               <h3 class="text-base font-semibold text-gray-900">{{ plan.name }}</h3>

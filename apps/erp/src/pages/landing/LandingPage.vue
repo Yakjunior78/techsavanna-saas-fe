@@ -115,7 +115,7 @@ const features: Feature[] = [
 const { plans: pricingPlans, fetchPlans } = usePlans()
 
 onMounted(() => {
-  fetchPlans('PRODUCT_ERP', {
+  fetchPlans('PRODUCT_ERP_SUITE', {
     description: 'Complete ERP solution for enterprises of all sizes',
     features: [
       'Unlimited users',
