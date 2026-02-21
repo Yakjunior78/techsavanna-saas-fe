@@ -1,0 +1,80 @@
+apiVersion: gateway.networking.k8s.io/v1
+kind: GatewayClass
+metadata:
+  name: envoy-gateway
+spec:
+  controllerName: gateway.envoyproxy.io/gatewayclass-controller
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: techsavanna-gateway
+  namespace: techsavanna-saas
+  labels:
+    app.kubernetes.io/part-of: techsavanna-saas
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+spec:
+  gatewayClassName: envoy-gateway
+  listeners:
+    - name: http
+      protocol: HTTP
+      port: 80
+      allowedRoutes:
+        namespaces:
+          from: All
+    - name: https-pos
+      protocol: HTTPS
+      port: 443
+      hostname: savannapaypos.saas.techsavanna.technology
+      tls:
+        mode: Terminate
+        certificateRefs:
+          - name: techsavanna-pos-tls
+      allowedRoutes:
+        namespaces:
+          from: Same
+    - name: https-people
+      protocol: HTTPS
+      port: 443
+      hostname: workwisehrm.saas.techsavanna.technology
+      tls:
+        mode: Terminate
+        certificateRefs:
+          - name: techsavanna-people-tls
+      allowedRoutes:
+        namespaces:
+          from: Same
+    - name: https-elimu
+      protocol: HTTPS
+      port: 443
+      hostname: elimucore.saas.techsavanna.technology
+      tls:
+        mode: Terminate
+        certificateRefs:
+          - name: techsavanna-elimu-tls
+      allowedRoutes:
+        namespaces:
+          from: Same
+    - name: https-erp
+      protocol: HTTPS
+      port: 443
+      hostname: savanna360erp.saas.techsavanna.technology
+      tls:
+        mode: Terminate
+        certificateRefs:
+          - name: techsavanna-erp-tls
+      allowedRoutes:
+        namespaces:
+          from: Same
+    - name: https-grafana
+      protocol: HTTPS
+      port: 443
+      hostname: grafana.saas.techsavanna.technology
+      tls:
+        mode: Terminate
+        certificateRefs:
+          - name: techsavanna-grafana-tls
+      allowedRoutes:
+        namespaces:
+          from: All

@@ -1,0 +1,51 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: techsavanna-pos-tls
+  namespace: techsavanna-saas
+spec:
+  secretName: techsavanna-pos-tls
+  issuerRef:
+    name: letsencrypt-prod
+    kind: ClusterIssuer
+  dnsNames:
+    - savannapaypos.saas.techsavanna.technology
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: techsavanna-people-tls
+  namespace: techsavanna-saas
+spec:
+  secretName: techsavanna-people-tls
+  issuerRef:
+    name: letsencrypt-prod
+    kind: ClusterIssuer
+  dnsNames:
+    - workwisehrm.saas.techsavanna.technology
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: techsavanna-elimu-tls
+  namespace: techsavanna-saas
+spec:
+  secretName: techsavanna-elimu-tls
+  issuerRef:
+    name: letsencrypt-prod
+    kind: ClusterIssuer
+  dnsNames:
+    - elimucore.saas.techsavanna.technology
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: techsavanna-erp-tls
+  namespace: techsavanna-saas
+spec:
+  secretName: techsavanna-erp-tls
+  issuerRef:
+    name: letsencrypt-prod
+    kind: ClusterIssuer
+  dnsNames:
+    - savanna360erp.saas.techsavanna.technology
