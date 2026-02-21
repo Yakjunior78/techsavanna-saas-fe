@@ -50,7 +50,14 @@ interface SignupResponse {
   amount: number
   currency: string
   subdomainSlug: string
+  siteUrl?: string
   message: string
+}
+
+interface VerifyEmailResponse {
+  accessToken: string
+  refreshToken: string
+  message?: string
 }
 
 export const useAuthStore = defineStore('auth', () => {
@@ -186,7 +193,17 @@ export const useAuthStore = defineStore('auth', () => {
     error.value = null
 
     try {
-      await apiPost(API_ENDPOINTS.AUTH.VERIFY_EMAIL, { email, otp })
+      const response = await apiPost<VerifyEmailResponse>(API_ENDPOINTS.AUTH.VERIFY_EMAIL, { email, otp })
+
+      if (response.accessToken) {
+        token.value = response.accessToken
+        setItem(STORAGE_KEYS.AUTH_TOKEN, response.accessToken)
+      }
+      if (response.refreshToken) {
+        refreshToken.value = response.refreshToken
+        setItem(STORAGE_KEYS.REFRESH_TOKEN, response.refreshToken)
+      }
+
       return true
     } catch (e) {
       const apiError = e as ApiError

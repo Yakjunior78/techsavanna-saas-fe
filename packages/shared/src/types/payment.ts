@@ -33,6 +33,17 @@ export interface PaymentStatusResponse {
   payment: Payment
 }
 
+// Tenant
+export interface Tenant {
+  id: string
+  name: string
+  subdomainSlug: string
+  siteUrl?: string
+  status: string
+  product: string
+  createdAt: string
+}
+
 // Provisioning status
 export interface ProvisioningStepInfo {
   name: string

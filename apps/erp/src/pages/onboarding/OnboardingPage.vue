@@ -132,9 +132,28 @@ const {
   status: provisioningStatus,
   isPolling: provisioningPolling,
   isReady: _provisioningReady,
+  isFailed: provisioningFailed,
   error: provisioningError,
   startPolling: startProvisioningPolling
 } = useProvisioning()
+
+const currentProvisioningStep = computed(() => {
+  const steps = provisioningStatus.value?.steps
+  if (steps?.length) {
+    const inProgress = steps.find(s => s.status === 'IN_PROGRESS')
+    if (inProgress) return inProgress
+    // Fallback: match by currentStepNumber
+    const byNumber = steps.find(s => s.stepNumber === provisioningStatus.value!.currentStepNumber)
+    if (byNumber) return byNumber
+    const completed = steps.filter(s => s.status === 'COMPLETED')
+    if (completed.length) return completed[completed.length - 1]
+  }
+  // Use top-level displayName from response when steps aren't available
+  if (provisioningStatus.value?.displayName) {
+    return { name: provisioningStatus.value.currentStep || 'current', displayName: provisioningStatus.value.displayName } as any
+  }
+  return null
+})
 
 // Dev preview: force ready state with ?preview=complete
 const provisioningReady = computed(() => devPreview === 'complete' || _provisioningReady.value)
@@ -413,7 +432,8 @@ async function handleNext() {
       // Store signup response data for provisioning step
       updateFormData({
         tenantId: response.tenantId,
-        subscriptionId: response.subscriptionId
+        subscriptionId: response.subscriptionId,
+        siteUrl: response.siteUrl
       })
 
       completeStep('plan')
@@ -484,6 +504,7 @@ const redirectCountdown = ref(5)
 let countdownTimer: ReturnType<typeof setInterval> | null = null
 
 const redirectUrl = computed(() => {
+  if (formData.value.siteUrl) return formData.value.siteUrl
   const subdomain = tenantSubdomain.value
   return subdomain
     ? `https://${subdomain}.${appDomain}`
@@ -491,8 +512,7 @@ const redirectUrl = computed(() => {
 })
 
 function redirectToApp() {
-  const subdomain = tenantSubdomain.value
-  if (subdomain) {
+  if (formData.value.siteUrl || tenantSubdomain.value) {
     window.location.href = redirectUrl.value
   } else {
     router.push('/')
@@ -863,7 +883,7 @@ const canContinue = computed(() => {
 
         <button
           :disabled="!isOtpComplete || isVerifying"
-          class="w-full rounded-lg py-2.5 text-sm font-semibold text-white transition-all disabled:cursor-not-allowed disabled:opacity-50"
+          class="w-full cursor-pointer rounded-lg py-2.5 text-sm font-semibold text-white transition-all disabled:cursor-not-allowed disabled:opacity-50"
           :class="isOtpComplete && !isVerifying ? 'bg-violet-600 hover:bg-violet-700 shadow-sm' : 'bg-gray-300'"
           @click="handleVerifyEmail"
         >
@@ -920,73 +940,78 @@ const canContinue = computed(() => {
           </div>
         </div>
 
+        <!-- Failed state -->
+        <div v-else-if="provisioningFailed" class="space-y-5 py-4">
+          <div class="text-center">
+            <div class="mx-auto mb-3 flex size-12 items-center justify-center rounded-full bg-amber-50">
+              <svg class="size-6 text-amber-500" viewBox="0 0 24 24" fill="currentColor">
+                <path fill-rule="evenodd" d="M9.401 3.003c1.155-2 4.043-2 5.197 0l7.355 12.748c1.154 2-.29 4.5-2.599 4.5H4.645c-2.309 0-3.752-2.5-2.598-4.5L9.4 3.003ZM12 8.25a.75.75 0 0 1 .75.75v3.75a.75.75 0 0 1-1.5 0V9a.75.75 0 0 1 .75-.75Zm0 8.25a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Z" clip-rule="evenodd"/>
+              </svg>
+            </div>
+            <h2 class="text-lg font-semibold text-gray-900">We could not complete setting up your workspace</h2>
+            <p class="mt-2 text-sm text-gray-500">Contact us for further assistance.</p>
+          </div>
+          <div class="flex justify-center pt-2">
+            <a
+              href="/onboarding"
+              class="inline-flex items-center gap-2 rounded-lg bg-violet-600 px-4 py-2.5 text-sm font-medium text-white transition-all hover:bg-violet-700"
+            >
+              Try again
+            </a>
+          </div>
+        </div>
+
         <!-- In-progress state -->
         <template v-else>
           <div class="space-y-6">
             <!-- Header -->
             <div>
-              <h2 class="text-lg font-semibold text-gray-900">Setting up your workspace...</h2>
-              <p class="mt-0.5 text-xs text-gray-400">This may take a moment. Please don't close this page.</p>
+              <h2 class="animate-ellipsis text-lg font-semibold text-gray-900">Setting up your workspace</h2>
+              <p class="mt-0.5 text-xs text-gray-400">This may take a moment, kindly be patient</p>
             </div>
 
             <!-- Progress bar with percentage -->
             <div class="space-y-2">
-              <div class="flex items-center justify-between">
-                <span v-if="provisioningStatus" class="text-xs text-gray-500">
-                  {{ activeProvisioningStepName }}
-                </span>
-                <span v-else class="text-xs text-gray-400">Initializing...</span>
+              <div class="flex items-center justify-end">
                 <span class="text-sm font-semibold text-violet-600">
                   {{ provisioningStatus?.progressPercent ?? 0 }}%
                 </span>
               </div>
               <div class="relative h-3 overflow-hidden rounded-full bg-gray-100">
                 <div
-                  v-if="provisioningStatus"
                   class="h-full rounded-full bg-gradient-to-r from-violet-400 to-violet-500 transition-all duration-700 ease-out"
-                  :style="{ width: `${provisioningStatus.progressPercent}%` }"
+                  :style="{ width: `${(provisioningStatus?.progressPercent ?? 0)}%` }"
                 />
                 <div
-                  v-else
-                  class="absolute inset-y-0 w-1/3 animate-progress-slide rounded-full bg-gradient-to-r from-violet-300 to-violet-400"
+                  class="absolute inset-y-0 w-1/4 animate-progress-slide rounded-full bg-gradient-to-r from-white/0 via-white/30 to-white/0"
                 />
               </div>
             </div>
 
             <!-- Step status -->
-            <div class="relative min-h-[40px] overflow-hidden">
-              <TransitionGroup
+            <div class="relative min-h-[44px] overflow-hidden">
+              <Transition
                 enter-active-class="transition-all duration-500 ease-out"
-                enter-from-class="translate-y-3 opacity-0"
+                enter-from-class="translate-y-6 opacity-0"
                 enter-to-class="translate-y-0 opacity-100"
                 leave-active-class="transition-all duration-300 ease-in absolute inset-x-0"
                 leave-from-class="translate-y-0 opacity-100"
-                leave-to-class="-translate-y-4 opacity-0"
-                move-class="transition-all duration-300"
+                leave-to-class="-translate-y-6 opacity-0"
+                mode="out-in"
               >
                 <div
-                  v-if="!provisioningStatus?.steps?.length"
-                  key="init"
-                  class="flex items-center gap-3 py-1.5"
+                  :key="currentProvisioningStep?.name || 'init'"
+                  class="flex items-center gap-3 rounded-lg bg-violet-50/60 px-3 py-2.5"
                 >
-                  <svg class="size-5 shrink-0 animate-spin text-blue-500" viewBox="0 0 24 24" fill="none">
-                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3" />
-                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-                  </svg>
-                  <span class="text-sm text-gray-500">Initializing...</span>
+                  <div class="flex size-7 shrink-0 items-center justify-center rounded-full border-2 border-violet-200 bg-white">
+                    <svg class="size-4 animate-spin text-violet-500" viewBox="0 0 24 24" fill="none">
+                      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3" />
+                      <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                    </svg>
+                  </div>
+                  <span class="text-sm font-medium text-gray-700">{{ currentProvisioningStep?.displayName || 'Initializing...' }}</span>
                 </div>
-                <div
-                  v-for="step in (provisioningStatus?.steps || []).filter(s => s.status === 'IN_PROGRESS')"
-                  :key="step.name"
-                  class="flex items-center gap-3 py-1.5"
-                >
-                  <svg class="size-5 shrink-0 animate-spin text-blue-500" viewBox="0 0 24 24" fill="none">
-                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3" />
-                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-                  </svg>
-                  <span class="text-sm font-medium text-gray-700">{{ step.displayName }}</span>
-                </div>
-              </TransitionGroup>
+              </Transition>
             </div>
 
             <!-- Typing message -->

@@ -51,6 +51,7 @@ export interface OnboardingFormData {
   // Signup response data
   tenantId?: string
   subscriptionId?: string
+  siteUrl?: string
 
   // Payment tracking
   paymentId?: string

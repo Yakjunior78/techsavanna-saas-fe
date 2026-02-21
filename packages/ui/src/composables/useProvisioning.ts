@@ -6,6 +6,7 @@ export function useProvisioning() {
   const status = ref<ProvisioningStatusResponse | null>(null)
   const isPolling = ref(false)
   const isReady = ref(false)
+  const isFailed = ref(false)
   const error = ref<string | null>(null)
   let pollTimer: ReturnType<typeof setInterval> | null = null
 
@@ -26,17 +27,19 @@ export function useProvisioning() {
         `${API_ENDPOINTS.TENANTS.STATUS}/${tenantId}/status`
       )
       status.value = res
+      error.value = null
 
       if (res.status.includes('ACTIVE') || res.status.includes('READY') || res.progressPercent >= 100) {
         isReady.value = true
         stopPolling()
-      } else if (res.status.includes('FAILED')) {
+      } else if (res.status === 'TENANT_STATUS_FAILED') {
+        isFailed.value = true
         error.value = res.errorMessage || 'Provisioning failed'
         stopPolling()
       }
     } catch (e) {
       error.value = (e as any).message || 'Failed to check provisioning status'
-      stopPolling()
+      // Keep polling — transient errors should not stop the process
     }
   }
 
@@ -50,5 +53,5 @@ export function useProvisioning() {
 
   onUnmounted(() => stopPolling())
 
-  return { status, isPolling, isReady, error, startPolling, stopPolling }
+  return { status, isPolling, isReady, isFailed, error, startPolling, stopPolling }
 }

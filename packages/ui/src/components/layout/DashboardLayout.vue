@@ -16,6 +16,7 @@ const props = defineProps<{
   userInitials: string
   organizationName?: string
   avatarColor?: string
+  siteUrl?: string
   sidebarItems: SidebarItem[]
   activeSidebarId?: string
 }>()
@@ -225,6 +226,19 @@ onUnmounted(() => document.removeEventListener('click', handleClickOutside))
               </svg>
               View Profile
             </button>
+            <a
+              v-if="siteUrl"
+              :href="siteUrl"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="flex w-full cursor-pointer items-center gap-2 px-3 py-1.5 text-left text-xs text-gray-600 transition-colors hover:bg-gray-50"
+              @click="dropdownOpen = false"
+            >
+              <svg class="size-3.5" viewBox="0 0 24 24" fill="currentColor">
+                <path fill-rule="evenodd" d="M15.75 2.25H21a.75.75 0 0 1 .75.75v5.25a.75.75 0 0 1-1.5 0V4.81l-8.47 8.47a.75.75 0 1 1-1.06-1.06l8.47-8.47h-3.44a.75.75 0 0 1 0-1.5Zm-10.5 4.5a1.5 1.5 0 0 0-1.5 1.5v10.5a1.5 1.5 0 0 0 1.5 1.5h10.5a1.5 1.5 0 0 0 1.5-1.5V10.5a.75.75 0 0 1 1.5 0v8.25a3 3 0 0 1-3 3H5.25a3 3 0 0 1-3-3V8.25a3 3 0 0 1 3-3h8.25a.75.75 0 0 1 0 1.5H5.25Z" clip-rule="evenodd"/>
+              </svg>
+              Visit Site
+            </a>
             <button
               class="flex w-full cursor-pointer items-center gap-2 px-3 py-1.5 text-left text-xs text-gray-600 transition-colors hover:bg-gray-50"
               @click="emit('logout'); dropdownOpen = false"

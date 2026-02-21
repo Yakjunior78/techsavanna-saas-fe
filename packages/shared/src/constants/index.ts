@@ -43,6 +43,7 @@ export const API_ENDPOINTS = {
     STATUS: '/payments'
   },
   TENANTS: {
+    LIST: '/tenants',
     STATUS: '/tenants'
   },
   BILLING: {

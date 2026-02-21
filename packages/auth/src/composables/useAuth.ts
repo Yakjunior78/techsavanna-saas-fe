@@ -12,7 +12,8 @@ export function useAuth() {
     error,
     isAuthenticated,
     fullName,
-    initials
+    initials,
+    signupResponse
   } = storeToRefs(store)
 
   return {
@@ -25,6 +26,7 @@ export function useAuth() {
     isAuthenticated,
     fullName,
     initials,
+    signupResponse,
     // Actions
     initialize: store.initialize,
     login: store.login,

@@ -1,16 +1,43 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { SAVANNA_APPS, slugify } from '@techsavanna/shared'
+import { SAVANNA_APPS, slugify, apiGet, API_ENDPOINTS } from '@techsavanna/shared'
+import type { Tenant } from '@techsavanna/shared'
 import { useAuth } from '@techsavanna/auth'
 import { DashboardLayout, type SidebarItem } from '@techsavanna/ui'
 
 const router = useRouter()
 const appConfig = SAVANNA_APPS.people
 const appDomain = import.meta.env.VITE_PEOPLE_DOMAIN || 'saas.techsavanna.technology'
-const { user, fullName, initials, logout } = useAuth()
+const { user, fullName, initials, logout, signupResponse } = useAuth()
+
+const tenants = ref<Tenant[]>([])
+const tenantsLoading = ref(false)
+
+async function fetchTenants() {
+  tenantsLoading.value = true
+  try {
+    const res = await apiGet<Tenant[]>(API_ENDPOINTS.TENANTS.LIST)
+    tenants.value = res
+  } catch {
+    // Silently handle — will show empty state
+  } finally {
+    tenantsLoading.value = false
+  }
+}
+
+onMounted(() => fetchTenants())
+
+function getTenantUrl(tenant: Tenant) {
+  if (tenant.siteUrl) return tenant.siteUrl
+  const subdomain = tenant.subdomainSlug || slugify(tenant.name)
+  return subdomain ? `https://${subdomain}.${appDomain}` : '#'
+}
+
+const siteUrl = computed(() => signupResponse.value?.siteUrl || '')
 
 const dashboardUrl = computed(() => {
+  if (siteUrl.value) return siteUrl.value
   const tenantName = user.value?.tenantName
   const subdomain = tenantName ? slugify(tenantName) : ''
   return subdomain ? `https://${subdomain}.${appDomain}` : '#'
@@ -43,6 +70,7 @@ function handleNavigate(id: string) {
     :user-initials="initials"
     :organization-name="user?.tenantName"
     :avatar-color="appConfig.primaryColor"
+    :site-url="dashboardUrl"
     :sidebar-items="sidebarItems"
     :active-sidebar-id="activeSidebarId"
     @logout="handleLogout"
@@ -55,33 +83,64 @@ function handleNavigate(id: string) {
           <h2 class="text-base font-semibold text-gray-900">My Tenants</h2>
           <p class="mt-0.5 text-xs text-gray-500">Your active workspaces and subscriptions.</p>
         </div>
-        <div class="space-y-3">
-        <a
-          :href="dashboardUrl"
-          class="group block cursor-pointer overflow-hidden rounded-xl border border-gray-200 bg-white transition-all hover:border-indigo-200 hover:shadow-md"
-        >
-          <div class="flex items-start gap-4 p-4">
-            <div class="flex size-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-500 to-indigo-600 shadow-sm">
-              <svg class="size-5 text-white" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M5.507 4.048A3 3 0 0 1 7.785 3h8.43a3 3 0 0 1 2.278 1.048l1.722 2.008A4.533 4.533 0 0 0 19.5 6h-15c-.243 0-.482.02-.715.056l1.722-2.008Z"/>
-                <path fill-rule="evenodd" d="M1.5 10.5a3 3 0 0 1 3-3h15a3 3 0 0 1 3 3v6a3 3 0 0 1-3 3h-15a3 3 0 0 1-3-3v-6Zm15 0a.75.75 0 0 1 .75.75v2.25h2.25a.75.75 0 0 1 0 1.5h-2.25v2.25a.75.75 0 0 1-1.5 0v-2.25h-2.25a.75.75 0 0 1 0-1.5h2.25v-2.25a.75.75 0 0 1 .75-.75ZM6 12a.75.75 0 0 1 .75-.75H7a.75.75 0 0 1 0 1.5h-.25A.75.75 0 0 1 6 12Zm3 0a.75.75 0 0 1 .75-.75H10a.75.75 0 0 1 0 1.5h-.25A.75.75 0 0 1 9 12Zm0 3a.75.75 0 0 1 .75-.75H10a.75.75 0 0 1 0 1.5h-.25A.75.75 0 0 1 9 15Zm-3 0a.75.75 0 0 1 .75-.75H7a.75.75 0 0 1 0 1.5h-.25A.75.75 0 0 1 6 15Z" clip-rule="evenodd"/>
+
+        <!-- Loading state -->
+        <div v-if="tenantsLoading" class="space-y-3">
+          <div v-for="i in 2" :key="i" class="animate-pulse rounded-xl border border-gray-200 bg-white p-4">
+            <div class="flex items-start gap-4">
+              <div class="size-10 shrink-0 rounded-xl bg-gray-200" />
+              <div class="flex-1 space-y-2">
+                <div class="h-4 w-32 rounded bg-gray-200" />
+                <div class="h-3 w-48 rounded bg-gray-100" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tenant list -->
+        <div v-else-if="tenants.length" class="space-y-3">
+          <a
+            v-for="tenant in tenants"
+            :key="tenant.id"
+            :href="getTenantUrl(tenant)"
+            class="group block cursor-pointer overflow-hidden rounded-xl border border-gray-200 bg-white transition-all hover:border-indigo-200 hover:shadow-md"
+          >
+            <div class="flex items-start gap-4 p-4">
+              <div class="flex size-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-500 to-indigo-600 shadow-sm">
+                <svg class="size-5 text-white" viewBox="0 0 24 24" fill="currentColor">
+                  <path fill-rule="evenodd" d="M4.5 2.25a.75.75 0 0 0 0 1.5v16.5h-.75a.75.75 0 0 0 0 1.5h16.5a.75.75 0 0 0 0-1.5h-.75V3.75a.75.75 0 0 0 0-1.5h-15ZM9 6a.75.75 0 0 0 0 1.5h1.5a.75.75 0 0 0 0-1.5H9Zm-.75 3.75A.75.75 0 0 1 9 9h1.5a.75.75 0 0 1 0 1.5H9a.75.75 0 0 1-.75-.75ZM9 12a.75.75 0 0 0 0 1.5h1.5a.75.75 0 0 0 0-1.5H9Zm3.75-5.25A.75.75 0 0 1 13.5 6H15a.75.75 0 0 1 0 1.5h-1.5a.75.75 0 0 1-.75-.75ZM13.5 9a.75.75 0 0 0 0 1.5H15a.75.75 0 0 0 0-1.5h-1.5Zm-.75 3.75a.75.75 0 0 1 .75-.75H15a.75.75 0 0 1 0 1.5h-1.5a.75.75 0 0 1-.75-.75ZM9 19.5v-2.25a.75.75 0 0 1 .75-.75h4.5a.75.75 0 0 1 .75.75v2.25a.75.75 0 0 1-.75.75h-4.5A.75.75 0 0 1 9 19.5Z" clip-rule="evenodd"/>
+                </svg>
+              </div>
+              <div class="min-w-0 flex-1">
+                <div class="flex items-center gap-2">
+                  <p class="text-sm font-semibold text-gray-900">{{ tenant.name }}</p>
+                  <span
+                    class="inline-flex items-center gap-1 rounded-full px-1.5 py-0.5 text-[10px] font-medium"
+                    :class="tenant.status === 'TENANT_STATUS_ACTIVE'
+                      ? 'bg-indigo-50 text-indigo-700'
+                      : 'bg-gray-100 text-gray-500'"
+                  >
+                    <span class="size-1 rounded-full" :class="tenant.status === 'TENANT_STATUS_ACTIVE' ? 'bg-indigo-500' : 'bg-gray-400'" />
+                    {{ tenant.status === 'TENANT_STATUS_ACTIVE' ? 'Active' : 'Pending' }}
+                  </span>
+                </div>
+                <p class="mt-0.5 truncate text-xs text-gray-400">{{ getTenantUrl(tenant) }}</p>
+              </div>
+              <svg class="size-4 shrink-0 text-gray-300 transition-colors group-hover:text-indigo-500" viewBox="0 0 24 24" fill="currentColor">
+                <path fill-rule="evenodd" d="M16.28 11.47a.75.75 0 0 1 0 1.06l-7.5 7.5a.75.75 0 0 1-1.06-1.06L14.69 12 7.72 5.03a.75.75 0 0 1 1.06-1.06l7.5 7.5Z" clip-rule="evenodd"/>
               </svg>
             </div>
-            <div class="min-w-0 flex-1">
-              <div class="flex items-center gap-2">
-                <p class="text-sm font-semibold text-gray-900">{{ user?.tenantName || 'My Business' }}</p>
-                <span class="inline-flex items-center gap-1 rounded-full bg-blue-50 px-1.5 py-0.5 text-[10px] font-medium text-blue-700">
-                  <span class="size-1 rounded-full bg-blue-500"></span>
-                  Active
-                </span>
-              </div>
-              <p class="mt-0.5 truncate text-xs text-gray-400">{{ dashboardUrl }}</p>
-            </div>
-            <svg class="size-4 shrink-0 text-gray-300 transition-colors group-hover:text-indigo-500" viewBox="0 0 24 24" fill="currentColor">
-              <path fill-rule="evenodd" d="M16.28 11.47a.75.75 0 0 1 0 1.06l-7.5 7.5a.75.75 0 0 1-1.06-1.06L14.69 12 7.72 5.03a.75.75 0 0 1 1.06-1.06l7.5 7.5Z" clip-rule="evenodd"/>
+          </a>
+        </div>
+
+        <!-- Empty state -->
+        <div v-else class="flex flex-col items-center justify-center rounded-xl border border-dashed border-gray-300 bg-white py-10">
+          <div class="mx-auto flex size-10 items-center justify-center rounded-full bg-gray-100">
+            <svg class="size-5 text-gray-400" viewBox="0 0 24 24" fill="currentColor">
+              <path fill-rule="evenodd" d="M4.5 2.25a.75.75 0 0 0 0 1.5v16.5h-.75a.75.75 0 0 0 0 1.5h16.5a.75.75 0 0 0 0-1.5h-.75V3.75a.75.75 0 0 0 0-1.5h-15ZM9 6a.75.75 0 0 0 0 1.5h1.5a.75.75 0 0 0 0-1.5H9Zm-.75 3.75A.75.75 0 0 1 9 9h1.5a.75.75 0 0 1 0 1.5H9a.75.75 0 0 1-.75-.75ZM9 12a.75.75 0 0 0 0 1.5h1.5a.75.75 0 0 0 0-1.5H9Zm3.75-5.25A.75.75 0 0 1 13.5 6H15a.75.75 0 0 1 0 1.5h-1.5a.75.75 0 0 1-.75-.75ZM13.5 9a.75.75 0 0 0 0 1.5H15a.75.75 0 0 0 0-1.5h-1.5Zm-.75 3.75a.75.75 0 0 1 .75-.75H15a.75.75 0 0 1 0 1.5h-1.5a.75.75 0 0 1-.75-.75ZM9 19.5v-2.25a.75.75 0 0 1 .75-.75h4.5a.75.75 0 0 1 .75.75v2.25a.75.75 0 0 1-.75.75h-4.5A.75.75 0 0 1 9 19.5Z" clip-rule="evenodd"/>
             </svg>
           </div>
-        </a>
+          <p class="mt-2.5 text-xs text-gray-500">No tenants yet.</p>
         </div>
       </div>
     </template>

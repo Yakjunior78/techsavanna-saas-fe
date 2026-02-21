@@ -233,7 +233,7 @@ const isSetupStep = computed(() => props.currentStepId === 'setup')
 
     <!-- Header -->
     <header class="relative z-30 shrink-0 border-b border-gray-200/60 bg-white/60 backdrop-blur-md">
-      <div class="mx-auto flex h-14 max-w-6xl items-center justify-between px-4 sm:px-6 lg:px-8">
+      <div class="mx-auto flex h-14 max-w-6xl items-center justify-between px-2 sm:px-3 lg:px-4">
         <a href="/" class="flex shrink-0 items-center">
           <img
             :src="logoPath"
@@ -242,31 +242,72 @@ const isSetupStep = computed(() => props.currentStepId === 'setup')
           />
         </a>
 
-        <!-- Step Indicators (centered, hidden on mobile) -->
-        <div class="hidden items-center gap-1 sm:flex">
-          <div
-            v-for="(step, index) in steps"
-            :key="step.id"
-            class="flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-medium"
-            :class="[
-              currentStepIndex === index
-                ? 'bg-gray-900 text-white'
-                : completedSteps.includes(step.id)
-                  ? 'bg-gray-200 text-gray-700'
-                  : 'bg-gray-100 text-gray-500'
-            ]"
-          >
-            <span
-              v-if="completedSteps.includes(step.id) && currentStepIndex !== index"
-              class="flex size-3 items-center justify-center rounded-full text-white"
-              :style="{ backgroundColor: appColor }"
-            >
-              <svg class="size-2" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
-              </svg>
-            </span>
-            <span v-else class="text-[9px]">{{ index + 1 }}</span>
-            <span class="hidden sm:inline">{{ step.title.split(' ').slice(0, 3).join(' ') }}</span>
+        <!-- Step Progress (centered, hidden on mobile and during setup) -->
+        <div v-if="!isSetupStep" class="hidden items-center sm:flex">
+          <template v-for="(step, index) in steps" :key="step.id">
+            <!-- Connector line between steps -->
+            <div v-if="index > 0" class="relative mx-0.5 h-0.5 w-6 overflow-hidden rounded-full bg-gray-200 lg:w-8">
+              <div
+                class="absolute inset-y-0 left-0 rounded-full transition-all duration-700 ease-out"
+                :style="{ width: index <= currentStepIndex ? '100%' : '0%', backgroundColor: appColor }"
+              />
+            </div>
+
+            <!-- Step circle + label -->
+            <div class="flex items-center gap-1.5">
+              <div
+                class="relative flex size-6 items-center justify-center rounded-full text-[10px] font-bold transition-all duration-300"
+                :class="[
+                  currentStepIndex === index
+                    ? 'shadow-md'
+                    : completedSteps.includes(step.id)
+                      ? 'text-white'
+                      : 'border border-blue-200 bg-blue-50 text-blue-400'
+                ]"
+                :style="currentStepIndex === index ? { backgroundColor: '#60a5fa', color: '#fff' } : completedSteps.includes(step.id) ? { backgroundColor: appColor } : {}"
+              >
+                <!-- Pulse ring on active step -->
+                <span
+                  v-if="currentStepIndex === index"
+                  class="absolute inset-0 animate-ping rounded-full opacity-20"
+                  :style="{ backgroundColor: appColor }"
+                />
+                <!-- Completed check icon -->
+                <svg
+                  v-if="completedSteps.includes(step.id) && currentStepIndex !== index"
+                  class="size-3"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                >
+                  <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                </svg>
+                <!-- Step number -->
+                <span v-else class="relative">{{ index + 1 }}</span>
+              </div>
+
+              <!-- Step label (visible on larger screens) -->
+              <span
+                class="hidden text-[11px] font-medium transition-colors lg:inline"
+                :class="[
+                  currentStepIndex === index
+                    ? 'text-gray-900'
+                    : completedSteps.includes(step.id)
+                      ? 'text-gray-600'
+                      : 'text-gray-400'
+                ]"
+              >{{ step.title.split(' ').slice(0, 2).join(' ') }}</span>
+            </div>
+          </template>
+        </div>
+
+        <!-- Mobile progress: step counter + mini bar (hidden during setup) -->
+        <div v-if="!isSetupStep" class="flex items-center gap-2 sm:hidden">
+          <span class="text-[11px] font-medium text-gray-500">{{ currentStepIndex + 1 }}/{{ steps.length }}</span>
+          <div class="h-1.5 w-16 overflow-hidden rounded-full bg-gray-200">
+            <div
+              class="h-full rounded-full transition-all duration-500"
+              :style="{ width: `${progress}%`, backgroundColor: appColor }"
+            />
           </div>
         </div>
 
@@ -373,6 +414,18 @@ const isSetupStep = computed(() => props.currentStepId === 'setup')
           <!-- Step Content -->
           <div>
             <slot :step="currentStep" />
+          </div>
+
+          <!-- Setup step footer -->
+          <div v-if="isSetupStep" class="-mx-6 -mb-8 mt-6 rounded-b-3xl border-t border-gray-200/60 bg-gray-50/80 px-6 py-4 sm:-mx-8 sm:px-8">
+            <div class="flex items-start gap-2.5">
+              <svg class="mt-0.5 size-4 shrink-0 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75" />
+              </svg>
+              <p class="text-xs leading-relaxed text-gray-500">
+                Your site details will be sent to your email. You can safely close this page and check your email later.
+              </p>
+            </div>
           </div>
         </div>
       </div>
