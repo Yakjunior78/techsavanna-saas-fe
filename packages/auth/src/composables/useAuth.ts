@@ -30,6 +30,8 @@ export function useAuth() {
     login: store.login,
     register: store.register,
     signup: store.signup,
+    verifyEmail: store.verifyEmail,
+    resendOtp: store.resendOtp,
     logout: store.logout,
     refreshUser: store.refreshUser,
     updateProfile: store.updateProfile,

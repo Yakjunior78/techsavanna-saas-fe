@@ -181,6 +181,35 @@ export const useAuthStore = defineStore('auth', () => {
     }
   }
 
+  async function verifyEmail(email: string, otp: string): Promise<boolean> {
+    isLoading.value = true
+    error.value = null
+
+    try {
+      await apiPost(API_ENDPOINTS.AUTH.VERIFY_EMAIL, { email, otp })
+      return true
+    } catch (e) {
+      const apiError = e as ApiError
+      error.value = apiError.message || 'Verification failed'
+      return false
+    } finally {
+      isLoading.value = false
+    }
+  }
+
+  async function resendOtp(email: string): Promise<boolean> {
+    error.value = null
+
+    try {
+      await apiPost(API_ENDPOINTS.AUTH.RESEND_OTP, { email })
+      return true
+    } catch (e) {
+      const apiError = e as ApiError
+      error.value = apiError.message || 'Failed to resend code'
+      return false
+    }
+  }
+
   async function logout(): Promise<void> {
     try {
       await apiPost(API_ENDPOINTS.AUTH.LOGOUT)
@@ -250,6 +279,8 @@ export const useAuthStore = defineStore('auth', () => {
     login,
     register,
     signup,
+    verifyEmail,
+    resendOtp,
     logout,
     refreshUser,
     updateProfile,

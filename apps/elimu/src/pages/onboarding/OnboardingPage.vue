@@ -11,7 +11,7 @@ const router = useRouter()
 const route = useRoute()
 const appConfig = SAVANNA_APPS.elimu
 const appDomain = import.meta.env.VITE_ELIMU_DOMAIN || 'saas.techsavanna.technology'
-const { signup, logout, isLoading: authLoading, error: authError, isAuthenticated, fullName, initials } = useAuth()
+const { signup, verifyEmail, resendOtp, logout, isLoading: authLoading, error: authError, isAuthenticated, fullName, initials } = useAuth()
 
 // Define onboarding steps
 const steps: OnboardingStep[] = [
@@ -40,12 +40,20 @@ const steps: OnboardingStep[] = [
     order: 3
   },
   {
+    id: 'verification',
+    title: 'Verify Email',
+    description: 'Confirm your email address',
+    icon: 'mail',
+    required: true,
+    order: 4
+  },
+  {
     id: 'setup',
     title: 'Setting Up',
     description: 'We\'re preparing your workspace',
     icon: 'cog',
     required: true,
-    order: 4
+    order: 5
   }
 ]
 
@@ -76,7 +84,7 @@ resetProgress()
 // Dev preview: ?preview=setup or ?preview=complete to jump to setup/completion
 const devPreview = route.query.preview as string | undefined
 if (devPreview === 'setup' || devPreview === 'complete') {
-  ;['account', 'institution', 'plan'].forEach(id => completeStep(id))
+  ;['account', 'institution', 'plan', 'verification'].forEach(id => completeStep(id))
 }
 
 // Local form state for validation
@@ -179,8 +187,8 @@ const wizardCtaText = computed(() => {
   if (currentStep.value?.id === 'plan') return 'Submit'
   return ''
 })
-const wizardHideFooter = computed(() => currentStep.value?.id === 'setup')
-const wizardHideBackButton = computed(() => currentStep.value?.id === 'setup')
+const wizardHideFooter = computed(() => currentStep.value?.id === 'setup' || currentStep.value?.id === 'verification')
+const wizardHideBackButton = computed(() => currentStep.value?.id === 'setup' || currentStep.value?.id === 'verification')
 
 const siteUrl = computed(() => {
   const subdomain = tenantSubdomain.value
@@ -220,6 +228,95 @@ function handleSubdomainInput(e: Event) {
   customSubdomain.value = slugify(raw)
   subdomainManuallyEdited.value = true
 }
+
+// OTP verification state
+const otpDigits = ref<string[]>(['', '', '', '', '', ''])
+const otpError = ref('')
+const isVerifying = ref(false)
+const resendCountdown = ref(0)
+let resendTimer: ReturnType<typeof setInterval> | null = null
+
+function startResendCountdown() {
+  resendCountdown.value = 60
+  if (resendTimer) clearInterval(resendTimer)
+  resendTimer = setInterval(() => {
+    resendCountdown.value--
+    if (resendCountdown.value <= 0) {
+      if (resendTimer) clearInterval(resendTimer)
+      resendTimer = null
+    }
+  }, 1000)
+}
+
+function handleOtpInput(index: number, event: Event) {
+  const input = event.target as HTMLInputElement
+  const value = input.value.replace(/\D/g, '')
+  otpDigits.value[index] = value.charAt(0) || ''
+  otpError.value = ''
+  if (value && index < 5) {
+    const next = input.parentElement?.children[index + 1] as HTMLInputElement
+    next?.focus()
+  }
+}
+
+function handleOtpKeydown(index: number, event: KeyboardEvent) {
+  if (event.key === 'Backspace' && !otpDigits.value[index] && index > 0) {
+    const prev = (event.target as HTMLInputElement).parentElement?.children[index - 1] as HTMLInputElement
+    prev?.focus()
+  }
+}
+
+function handleOtpPaste(event: ClipboardEvent) {
+  event.preventDefault()
+  const pasted = (event.clipboardData?.getData('text') || '').replace(/\D/g, '').slice(0, 6)
+  for (let i = 0; i < 6; i++) {
+    otpDigits.value[i] = pasted[i] || ''
+  }
+  otpError.value = ''
+  const container = (event.target as HTMLInputElement).parentElement
+  const lastIndex = Math.min(pasted.length, 5)
+  ;(container?.children[lastIndex] as HTMLInputElement)?.focus()
+}
+
+const otpCode = computed(() => otpDigits.value.join(''))
+const isOtpComplete = computed(() => otpCode.value.length === 6)
+
+const maskedEmail = computed(() => {
+  const email = String(formData.value.email || '')
+  const [local, domain] = email.split('@')
+  if (!local || !domain) return email
+  const visible = local.length <= 2 ? local.charAt(0) : local.slice(0, 2)
+  return `${visible}${'*'.repeat(Math.max(local.length - 2, 1))}@${domain}`
+})
+
+async function handleVerifyEmail() {
+  if (!isOtpComplete.value) return
+  isVerifying.value = true
+  otpError.value = ''
+  const success = await verifyEmail(String(formData.value.email), otpCode.value)
+  isVerifying.value = false
+  if (success) {
+    completeStep('verification')
+  } else {
+    otpError.value = authError.value || 'Invalid verification code. Please try again.'
+  }
+}
+
+async function handleResendOtp() {
+  if (resendCountdown.value > 0) return
+  const success = await resendOtp(String(formData.value.email))
+  if (success) {
+    startResendCountdown()
+    otpDigits.value = ['', '', '', '', '', '']
+    otpError.value = ''
+  }
+}
+
+watch(() => currentStep.value?.id, (id) => {
+  if (id === 'verification') {
+    startResendCountdown()
+  }
+})
 
 const institutionTypeOptions = [
   { label: 'Primary School', value: 'primary' },
@@ -438,6 +535,7 @@ onUnmounted(() => {
   if (messageTimer) clearInterval(messageTimer)
   if (typingTimer) clearInterval(typingTimer)
   if (countdownTimer) clearInterval(countdownTimer)
+  if (resendTimer) clearInterval(resendTimer)
 })
 
 function handleBack() {
@@ -728,6 +826,81 @@ const canContinue = computed(() => {
         </div>
 
         <p class="text-center text-[11px] text-gray-400">All prices include 16% VAT. Billing starts after your {{ TRIAL_DAYS }}-day trial ends.</p>
+      </div>
+    </template>
+
+    <!-- Email Verification Step -->
+    <template v-else-if="currentStep?.id === 'verification'">
+      <div class="space-y-5">
+        <div class="text-center">
+          <div class="mx-auto mb-3 flex size-12 items-center justify-center rounded-full bg-gradient-to-br from-amber-50 to-amber-100">
+            <svg class="size-6 text-amber-500" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75" />
+            </svg>
+          </div>
+          <h2 class="text-base font-semibold text-gray-900">Verify your email</h2>
+          <p class="mt-1 text-xs text-gray-500">Enter the 6-digit code sent to</p>
+          <div class="mt-1 inline-flex items-center gap-1.5 rounded-full bg-gray-100 px-3 py-1">
+            <svg class="size-3 text-gray-400" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
+            </svg>
+            <span class="text-xs font-medium text-gray-700">{{ maskedEmail }}</span>
+          </div>
+        </div>
+
+        <div class="flex items-center justify-center gap-1.5">
+          <input
+            v-for="(_, i) in otpDigits"
+            :key="i"
+            type="text"
+            inputmode="numeric"
+            maxlength="1"
+            :value="otpDigits[i]"
+            class="size-10 rounded-lg border text-center text-base font-bold transition-all focus:outline-none"
+            :class="[
+              otpError
+                ? 'border-red-300 bg-red-50/50 text-red-600 focus:border-red-400 focus:ring-1 focus:ring-red-100'
+                : otpDigits[i]
+                  ? 'border-amber-300 bg-amber-50/30 text-gray-900 focus:border-amber-500 focus:ring-1 focus:ring-amber-100'
+                  : 'border-gray-200 bg-white text-gray-900 focus:border-amber-500 focus:ring-1 focus:ring-amber-100'
+            ]"
+            @input="handleOtpInput(i, $event)"
+            @keydown="handleOtpKeydown(i, $event)"
+            @paste="handleOtpPaste"
+          />
+        </div>
+
+        <p v-if="otpError" class="text-center text-xs text-red-600">{{ otpError }}</p>
+
+        <button
+          :disabled="!isOtpComplete || isVerifying"
+          class="w-full rounded-lg py-2.5 text-sm font-semibold text-white transition-all disabled:cursor-not-allowed disabled:opacity-50"
+          :class="isOtpComplete && !isVerifying ? 'bg-amber-600 hover:bg-amber-700 shadow-sm' : 'bg-gray-300'"
+          @click="handleVerifyEmail"
+        >
+          <span v-if="isVerifying" class="inline-flex items-center gap-2">
+            <svg class="size-3.5 animate-spin" viewBox="0 0 24 24" fill="none">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3" />
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+            </svg>
+            Verifying...
+          </span>
+          <span v-else>Verify & Continue</span>
+        </button>
+
+        <div class="text-center">
+          <p class="text-xs text-gray-400">
+            Didn't get the code?
+            <button
+              :disabled="resendCountdown > 0"
+              class="font-medium transition-colors"
+              :class="resendCountdown > 0 ? 'cursor-not-allowed text-gray-400' : 'text-amber-600 hover:text-amber-700'"
+              @click="handleResendOtp"
+            >
+              {{ resendCountdown > 0 ? `Resend in ${resendCountdown}s` : 'Resend code' }}
+            </button>
+          </p>
+        </div>
       </div>
     </template>
 
