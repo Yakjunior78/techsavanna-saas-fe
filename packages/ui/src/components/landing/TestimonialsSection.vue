@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted, watch } from 'vue'
+import BackgroundPattern from './BackgroundPattern.vue'
 
 export interface Testimonial {
   name: string
@@ -97,22 +98,12 @@ function animateCounter(target: typeof businessCount, endValue: number, duration
 
 <template>
   <section ref="sectionRef" class="relative overflow-hidden bg-white py-14 lg:py-20">
-    <!-- Background grid pattern -->
-    <div class="absolute inset-0 opacity-[0.06]">
-      <svg class="size-full">
-        <defs>
-          <pattern id="testimonials-grid" x="0" y="0" width="40" height="40" patternUnits="userSpaceOnUse">
-            <path d="M40 0v40H0" fill="none" stroke="currentColor" stroke-width="0.5"/>
-          </pattern>
-        </defs>
-        <rect width="100%" height="100%" fill="url(#testimonials-grid)"/>
-      </svg>
-    </div>
+    <BackgroundPattern id="testimonials-pattern" opacity="0.15" />
 
     <!-- Subtle radial gradient background -->
     <div class="absolute inset-0 bg-gradient-to-b from-gray-50/50 to-transparent"></div>
 
-    <div class="relative mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
+    <div class="relative mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
       <!-- Header -->
       <div
         class="mx-auto max-w-2xl text-center transition-all duration-700"

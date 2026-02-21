@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import ImageModal from '../overlays/ImageModal.vue'
+import BackgroundPattern from './BackgroundPattern.vue'
 
 interface Certification {
   title: string
@@ -100,17 +101,7 @@ function getIconTextClass(color: string) {
 
 <template>
   <section ref="sectionRef" class="relative overflow-hidden bg-gradient-to-b from-gray-50 to-white py-16 lg:py-20">
-    <!-- Background grid pattern -->
-    <div class="absolute inset-0 opacity-[0.08]">
-      <svg class="size-full">
-        <defs>
-          <pattern id="trust-grid" x="0" y="0" width="40" height="40" patternUnits="userSpaceOnUse">
-            <path d="M40 0v40H0" fill="none" stroke="currentColor" stroke-width="0.5"/>
-          </pattern>
-        </defs>
-        <rect width="100%" height="100%" fill="url(#trust-grid)"/>
-      </svg>
-    </div>
+    <BackgroundPattern id="trust-pattern" opacity="0.15" />
 
     <!-- Decorative background elements -->
     <div class="pointer-events-none absolute inset-0">
@@ -118,7 +109,7 @@ function getIconTextClass(color: string) {
       <div class="absolute -right-20 bottom-20 size-72 rounded-full bg-blue-100/40 blur-3xl"></div>
     </div>
 
-    <div class="relative mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
+    <div class="relative mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
       <!-- Header -->
       <div
         class="text-center transition-all duration-700"

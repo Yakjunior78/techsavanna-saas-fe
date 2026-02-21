@@ -3,6 +3,7 @@ import { ref, computed, onMounted, onUnmounted } from 'vue'
 import type { PricingPlan } from '@techsavanna/shared'
 import { formatCurrency } from '@techsavanna/shared'
 import Button from '../base/Button.vue'
+import BackgroundPattern from './BackgroundPattern.vue'
 
 interface Props {
   title?: string
@@ -61,19 +62,9 @@ const gridCols = computed(() => {
 
 <template>
   <section ref="sectionRef" id="pricing" class="relative overflow-hidden bg-gradient-to-b from-blue-50/30 to-white py-14 lg:py-20">
-    <!-- Background grid pattern -->
-    <div class="absolute inset-0 opacity-[0.08]">
-      <svg class="size-full">
-        <defs>
-          <pattern id="pricing-grid" x="0" y="0" width="40" height="40" patternUnits="userSpaceOnUse">
-            <path d="M40 0v40H0" fill="none" stroke="currentColor" stroke-width="0.5"/>
-          </pattern>
-        </defs>
-        <rect width="100%" height="100%" fill="url(#pricing-grid)"/>
-      </svg>
-    </div>
+    <BackgroundPattern id="pricing-pattern" opacity="0.15" />
 
-    <div class="relative mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
+    <div class="relative mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
       <!-- Header -->
       <div
         class="mx-auto max-w-2xl text-center transition-all duration-700"

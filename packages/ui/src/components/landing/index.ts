@@ -7,6 +7,7 @@ export { default as CTASection } from './CTASection.vue'
 export { default as ValuePropsSection } from './ValuePropsSection.vue'
 export { default as DownloadSection } from './DownloadSection.vue'
 export { default as TrustSection } from './TrustSection.vue'
+export { default as BackgroundPattern } from './BackgroundPattern.vue'
 
 export type { Feature } from './FeaturesSection.vue'
 export type { Testimonial } from './TestimonialsSection.vue'

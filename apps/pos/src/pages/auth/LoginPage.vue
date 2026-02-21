@@ -42,14 +42,6 @@ function goToHome() {
     subtitle="Sign in to your account to continue"
     @back-to-home="goToHome"
   >
-    <!-- Error Message -->
-    <div
-      v-if="error"
-      class="mb-4 rounded-md bg-red-50 p-3 text-sm text-red-600"
-    >
-      {{ error }}
-    </div>
-
     <!-- Login Form -->
     <form class="space-y-4" @submit.prevent="handleLogin">
       <Input

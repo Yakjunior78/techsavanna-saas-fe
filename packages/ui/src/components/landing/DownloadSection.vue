@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from 'vue'
+import BackgroundPattern from './BackgroundPattern.vue'
 
 interface Props {
   title?: string
@@ -48,23 +49,13 @@ onUnmounted(() => {
 
 <template>
   <section ref="sectionRef" id="download" class="relative overflow-hidden bg-rose-50/50 py-16 lg:py-20">
-    <!-- Background grid pattern -->
-    <div class="absolute inset-0 opacity-[0.3]">
-      <svg class="size-full">
-        <defs>
-          <pattern id="download-grid" x="0" y="0" width="40" height="40" patternUnits="userSpaceOnUse">
-            <path d="M40 0v40H0" fill="none" stroke="currentColor" stroke-width="0.5" class="text-rose-200"/>
-          </pattern>
-        </defs>
-        <rect width="100%" height="100%" fill="url(#download-grid)"/>
-      </svg>
-    </div>
+    <BackgroundPattern id="download-pattern" opacity="0.15" />
 
     <!-- Subtle gradient orbs -->
     <div class="absolute -left-32 top-0 size-64 rounded-full bg-rose-200/30 blur-3xl"></div>
     <div class="absolute -right-32 bottom-0 size-64 rounded-full bg-pink-200/30 blur-3xl"></div>
 
-    <div class="relative mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
+    <div class="relative mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
       <div class="flex flex-col items-center gap-10 lg:flex-row lg:justify-between">
         <!-- Content -->
         <div

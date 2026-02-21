@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from 'vue'
+import BackgroundPattern from './BackgroundPattern.vue'
 
 export interface ValueProp {
   icon: string
@@ -77,19 +78,9 @@ const dashboardVariants = [
 
 <template>
   <section ref="sectionRef" class="relative overflow-hidden bg-slate-50 py-16 lg:py-24">
-    <!-- Background grid pattern -->
-    <div class="absolute inset-0 opacity-[0.08]">
-      <svg class="size-full">
-        <defs>
-          <pattern id="value-grid-pattern" x="0" y="0" width="40" height="40" patternUnits="userSpaceOnUse">
-            <path d="M40 0v40H0" fill="none" stroke="currentColor" stroke-width="0.5"/>
-          </pattern>
-        </defs>
-        <rect width="100%" height="100%" fill="url(#value-grid-pattern)"/>
-      </svg>
-    </div>
+    <BackgroundPattern id="value-pattern" opacity="0.15" />
 
-    <div class="relative mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
+    <div class="relative mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
       <!-- Section Header -->
       <div class="mx-auto mb-12 max-w-2xl text-center lg:mb-16">
         <span class="mb-3 inline-block rounded-full bg-blue-100 px-3 py-1 text-xs font-semibold text-blue-700">

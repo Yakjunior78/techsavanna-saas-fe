@@ -113,14 +113,27 @@ const isSetupStep = computed(() => props.currentStepId === 'setup')
   <div class="relative flex h-screen flex-col overflow-hidden bg-gray-50">
     <!-- Background Pattern -->
     <div class="pointer-events-none absolute inset-0 overflow-hidden">
-      <!-- Grid Pattern -->
+      <!-- App-specific Background Pattern -->
       <svg class="absolute inset-0 h-full w-full" xmlns="http://www.w3.org/2000/svg">
         <defs>
-          <pattern id="grid-pattern" x="0" y="0" width="80" height="80" patternUnits="userSpaceOnUse">
-            <path d="M 80 0 L 0 0 0 80" fill="none" stroke="currentColor" stroke-width="0.5" class="text-gray-200" />
+          <!-- POS: Grid lines -->
+          <pattern v-if="appId === 'pos'" :id="`bg-pattern-${appId}`" x="0" y="0" width="60" height="60" patternUnits="userSpaceOnUse">
+            <path d="M60 0V60H0" fill="none" stroke="currentColor" stroke-width="0.5" class="text-blue-200" />
+          </pattern>
+          <!-- Elimu: Diagonal lines -->
+          <pattern v-else-if="appId === 'elimu'" :id="`bg-pattern-${appId}`" x="0" y="0" width="28" height="28" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+            <line x1="0" y1="0" x2="0" y2="28" stroke="currentColor" stroke-width="0.5" class="text-amber-200" />
+          </pattern>
+          <!-- ERP: Vertical lines -->
+          <pattern v-else-if="appId === 'erp'" :id="`bg-pattern-${appId}`" x="0" y="0" width="120" height="120" patternUnits="userSpaceOnUse">
+            <line x1="60" y1="0" x2="60" y2="120" stroke="currentColor" stroke-width="0.5" class="text-violet-200" />
+          </pattern>
+          <!-- People: Plus/cross -->
+          <pattern v-else :id="`bg-pattern-${appId}`" x="0" y="0" width="72" height="72" patternUnits="userSpaceOnUse">
+            <path d="M36 32v8M32 36h8" fill="none" stroke="currentColor" stroke-width="0.5" stroke-linecap="round" class="text-indigo-200" />
           </pattern>
         </defs>
-        <rect width="100%" height="100%" fill="url(#grid-pattern)" />
+        <rect width="100%" height="100%" :fill="`url(#bg-pattern-${appId})`" />
       </svg>
 
       <!-- App-specific floating icons - POS -->

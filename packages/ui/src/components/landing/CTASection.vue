@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from 'vue'
 import Button from '../base/Button.vue'
+import BackgroundPattern from './BackgroundPattern.vue'
 
 interface Props {
   title?: string
@@ -62,19 +63,9 @@ const trustBadges = [
     class="relative overflow-hidden bg-gradient-to-r py-12 lg:py-16"
     :class="[gradientFrom, gradientTo]"
   >
-    <!-- Background grid pattern -->
-    <div class="absolute inset-0 opacity-20">
-      <svg class="size-full" xmlns="http://www.w3.org/2000/svg">
-        <defs>
-          <pattern id="cta-grid" x="0" y="0" width="40" height="40" patternUnits="userSpaceOnUse">
-            <path d="M40 0v40H0" fill="none" stroke="white" stroke-width="0.5"/>
-          </pattern>
-        </defs>
-        <rect width="100%" height="100%" fill="url(#cta-grid)"/>
-      </svg>
-    </div>
+    <BackgroundPattern id="cta-pattern" variant="dark" opacity="0.2" />
 
-    <div class="relative mx-auto max-w-3xl px-4 text-center sm:px-6 lg:px-8">
+    <div class="relative mx-auto max-w-4xl px-4 text-center sm:px-6 lg:px-8">
       <!-- Title -->
       <h2
         class="text-xl font-bold tracking-tight text-white transition-all duration-700 sm:text-2xl"

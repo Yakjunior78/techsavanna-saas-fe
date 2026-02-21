@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, computed } from 'vue'
+import { onMounted, computed, provide } from 'vue'
 import { useRouter } from 'vue-router'
 import { SAVANNA_APPS, slugify } from '@techsavanna/shared'
 import { useAuth } from '@techsavanna/auth'
@@ -21,6 +21,7 @@ import type { Feature, Testimonial, FAQ, ValueProp } from '@techsavanna/ui'
 
 const router = useRouter()
 const appConfig = SAVANNA_APPS.pos
+provide('landingAppId', 'pos')
 const appDomain = import.meta.env.VITE_POS_DOMAIN || 'saas.techsavanna.technology'
 const { isAuthenticated, fullName, initials, user, logout } = useAuth()
 

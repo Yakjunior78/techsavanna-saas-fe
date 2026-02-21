@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from 'vue'
+import BackgroundPattern from './BackgroundPattern.vue'
 
 export interface FAQ {
   question: string
@@ -83,19 +84,9 @@ function onLeave(el: Element) {
 
 <template>
   <section ref="sectionRef" id="faq" class="relative overflow-hidden bg-slate-50 py-14 lg:py-20">
-    <!-- Background grid pattern -->
-    <div class="absolute inset-0 opacity-[0.08]">
-      <svg class="size-full">
-        <defs>
-          <pattern id="faq-grid" x="0" y="0" width="40" height="40" patternUnits="userSpaceOnUse">
-            <path d="M40 0v40H0" fill="none" stroke="currentColor" stroke-width="0.5"/>
-          </pattern>
-        </defs>
-        <rect width="100%" height="100%" fill="url(#faq-grid)"/>
-      </svg>
-    </div>
+    <BackgroundPattern id="faq-pattern" opacity="0.15" />
 
-    <div class="relative mx-auto max-w-2xl px-4 sm:px-6 lg:px-8">
+    <div class="relative mx-auto max-w-3xl px-4 sm:px-6 lg:px-8">
       <!-- Header -->
       <div
         class="text-center transition-all duration-700"

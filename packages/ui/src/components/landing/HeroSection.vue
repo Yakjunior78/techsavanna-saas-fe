@@ -97,15 +97,28 @@ const trustBadges = [
     <div class="absolute -left-40 -top-40 size-80 animate-float rounded-full bg-white/10 blur-3xl"></div>
     <div class="absolute -bottom-40 -right-40 size-96 animate-float rounded-full bg-white/10 blur-3xl" style="animation-delay: -3s"></div>
 
-    <!-- Background Grid Pattern -->
+    <!-- App-specific Background Pattern -->
     <div class="absolute inset-0 opacity-20">
       <svg class="size-full" xmlns="http://www.w3.org/2000/svg">
         <defs>
-          <pattern id="hero-grid" x="0" y="0" width="40" height="40" patternUnits="userSpaceOnUse">
-            <path d="M40 0v40H0" fill="none" stroke="white" stroke-width="0.5"/>
+          <!-- POS: Grid lines -->
+          <pattern v-if="previewType === 'pos'" id="hero-pattern" x="0" y="0" width="60" height="60" patternUnits="userSpaceOnUse">
+            <path d="M60 0V60H0" fill="none" stroke="white" stroke-width="0.5"/>
+          </pattern>
+          <!-- LMS/Elimu: Diagonal lines -->
+          <pattern v-else-if="previewType === 'lms'" id="hero-pattern" x="0" y="0" width="28" height="28" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+            <line x1="0" y1="0" x2="0" y2="28" stroke="white" stroke-width="0.5"/>
+          </pattern>
+          <!-- ERP: Vertical lines -->
+          <pattern v-else-if="previewType === 'erp'" id="hero-pattern" x="0" y="0" width="120" height="120" patternUnits="userSpaceOnUse">
+            <line x1="60" y1="0" x2="60" y2="120" stroke="white" stroke-width="0.5"/>
+          </pattern>
+          <!-- HRM/People: Plus/cross -->
+          <pattern v-else id="hero-pattern" x="0" y="0" width="72" height="72" patternUnits="userSpaceOnUse">
+            <path d="M36 32v8M32 36h8" fill="none" stroke="white" stroke-width="0.6" stroke-linecap="round"/>
           </pattern>
         </defs>
-        <rect width="100%" height="100%" fill="url(#hero-grid)"/>
+        <rect width="100%" height="100%" fill="url(#hero-pattern)"/>
       </svg>
     </div>
 
@@ -445,101 +458,137 @@ const trustBadges = [
               </div>
             </div>
 
-            <!-- iPhone Mockup for Mobile POS - Overlaid bottom right -->
-            <div class="absolute -bottom-8 -right-2 z-10 hidden animate-bounce-gentle md:block" style="animation-delay: -1.5s">
-              <!-- iPhone Frame -->
-              <div class="relative h-[320px] w-[160px]">
-                <!-- Phone Glow -->
-                <div class="absolute -inset-3 rounded-[2.5rem] bg-gradient-to-br from-blue-400/30 to-blue-500/30 blur-xl"></div>
+            <!-- iPhone 15 Pro Mockup - Overlaid bottom right -->
+            <div class="absolute -bottom-6 -right-4 z-10 hidden animate-bounce-gentle md:block" style="animation-delay: -1.5s">
+              <div class="relative h-[360px] w-[176px]">
+                <!-- Ambient glow -->
+                <div class="absolute -inset-4 rounded-[2.8rem] bg-gradient-to-b from-blue-500/25 via-blue-400/15 to-cyan-400/20 blur-2xl"></div>
 
-                <!-- Phone Body -->
-                <div class="relative h-full overflow-hidden rounded-[1.75rem] bg-gray-900 p-[3px] shadow-2xl ring-1 ring-white/40">
-                  <!-- Inner Screen Bezel -->
-                  <div class="relative h-full overflow-hidden rounded-[1.5rem] bg-white">
-                    <!-- Dynamic Island -->
-                    <div class="absolute left-1/2 top-2 z-10 flex h-5 w-20 -translate-x-1/2 items-center justify-center rounded-full bg-gray-900">
-                      <div class="size-1.5 rounded-full bg-gray-700"></div>
-                    </div>
+                <!-- Titanium Frame -->
+                <div class="relative h-full overflow-hidden rounded-[2.2rem] bg-gradient-to-b from-[#848789] via-[#6e7073] to-[#848789] p-[2.5px] shadow-[0_25px_60px_-12px_rgba(0,0,0,0.4)]">
+                  <!-- Inner bezel -->
+                  <div class="relative h-full overflow-hidden rounded-[2rem] bg-black p-[1.5px]">
+                    <!-- Screen -->
+                    <div class="relative h-full overflow-hidden rounded-[1.85rem] bg-white">
+                      <!-- Dynamic Island -->
+                      <div class="absolute left-1/2 top-[6px] z-20 flex h-[18px] w-[72px] -translate-x-1/2 items-center justify-between rounded-full bg-black px-3">
+                        <div class="size-[5px] rounded-full bg-gray-800 ring-1 ring-gray-700/50"></div>
+                        <div class="size-[4px] rounded-full bg-[#1a3a2a]"></div>
+                      </div>
 
-                    <!-- Status Bar -->
-                    <div class="flex items-center justify-between bg-gradient-to-b from-gray-50 to-white px-3 pb-1 pt-8 text-[8px] font-semibold text-gray-900">
-                      <span>9:41</span>
-                      <div class="flex items-center gap-0.5">
-                        <svg class="size-3" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M17.778 8.222c-4.296-4.296-11.26-4.296-15.556 0A1 1 0 01.808 6.808c5.076-5.077 13.308-5.077 18.384 0a1 1 0 01-1.414 1.414zM14.95 11.05a7 7 0 00-9.9 0 1 1 0 01-1.414-1.414 9 9 0 0112.728 0 1 1 0 01-1.414 1.414zM12.12 13.88a3 3 0 00-4.242 0 1 1 0 01-1.415-1.415 5 5 0 017.072 0 1 1 0 01-1.415 1.415zM9 16a1 1 0 011-1h.01a1 1 0 110 2H10a1 1 0 01-1-1z" clip-rule="evenodd"/></svg>
-                        <div class="flex h-3 w-6 items-center rounded-sm border border-gray-400 p-px">
-                          <div class="h-full w-4/5 rounded-sm bg-blue-500"></div>
-                        </div>
-                      </div>
-                    </div>
-
-                    <!-- App Header with Search -->
-                    <div class="bg-white px-2.5 pb-2">
-                      <div class="mb-1.5 flex items-center justify-between">
-                        <p class="text-[10px] font-bold text-gray-900">Quick Sale</p>
-                        <div class="flex size-5 items-center justify-center rounded-full bg-blue-500 text-white">
-                          <svg class="size-3" fill="currentColor" viewBox="0 0 20 20"><path d="M3 1a1 1 0 000 2h1.22l.305 1.222a.997.997 0 00.01.042l1.358 5.43-.893.892C3.74 11.846 4.632 14 6.414 14H15a1 1 0 000-2H6.414l1-1H14a1 1 0 00.894-.553l3-6A1 1 0 0017 3H6.28l-.31-1.243A1 1 0 005 1H3z"/></svg>
-                        </div>
-                      </div>
-                      <!-- Search Bar -->
-                      <div class="flex items-center gap-1 rounded-lg bg-gray-100 px-2 py-1">
-                        <svg class="size-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
-                        <span class="text-[7px] text-gray-400">Search products...</span>
-                      </div>
-                    </div>
-
-                    <!-- Product Grid -->
-                    <div class="grid grid-cols-2 gap-1.5 bg-gray-50 p-2">
-                      <!-- Product 1 -->
-                      <div class="rounded-lg bg-white p-1.5 shadow-sm">
-                        <div class="mb-1 flex size-8 items-center justify-center rounded-md bg-red-50">
-                          <span class="text-sm">🥤</span>
-                        </div>
-                        <p class="truncate text-[7px] font-medium text-gray-800">Coca-Cola</p>
-                        <p class="text-[8px] font-bold text-blue-600">75</p>
-                      </div>
-                      <!-- Product 2 -->
-                      <div class="rounded-lg bg-white p-1.5 shadow-sm">
-                        <div class="mb-1 flex size-8 items-center justify-center rounded-md bg-amber-50">
-                          <span class="text-sm">🍞</span>
-                        </div>
-                        <p class="truncate text-[7px] font-medium text-gray-800">Bread</p>
-                        <p class="text-[8px] font-bold text-blue-600">85</p>
-                      </div>
-                      <!-- Product 3 -->
-                      <div class="rounded-lg bg-white p-1.5 shadow-sm ring-2 ring-blue-500">
-                        <div class="mb-1 flex size-8 items-center justify-center rounded-md bg-blue-50">
-                          <span class="text-sm">🥛</span>
-                        </div>
-                        <p class="truncate text-[7px] font-medium text-gray-800">Fresh Milk</p>
-                        <p class="text-[8px] font-bold text-blue-600">180</p>
-                      </div>
-                      <!-- Product 4 -->
-                      <div class="rounded-lg bg-white p-1.5 shadow-sm">
-                        <div class="mb-1 flex size-8 items-center justify-center rounded-md bg-yellow-50">
-                          <span class="text-sm">🧈</span>
-                        </div>
-                        <p class="truncate text-[7px] font-medium text-gray-800">Butter</p>
-                        <p class="text-[8px] font-bold text-blue-600">250</p>
-                      </div>
-                    </div>
-
-                    <!-- Cart Summary & Checkout -->
-                    <div class="absolute bottom-0 left-0 right-0 border-t border-gray-100 bg-white/95 px-2.5 py-2 backdrop-blur-sm">
-                      <div class="mb-1.5 flex items-center justify-between">
+                      <!-- Status Bar -->
+                      <div class="flex items-center justify-between px-5 pb-0.5 pt-[28px] text-[9px] font-semibold text-gray-900">
+                        <span>9:41</span>
                         <div class="flex items-center gap-1">
-                          <span class="flex size-4 items-center justify-center rounded-full bg-blue-500 text-[7px] font-bold text-white">3</span>
-                          <p class="text-[8px] text-gray-500">items</p>
+                          <!-- Signal bars -->
+                          <div class="flex items-end gap-px">
+                            <div class="h-1 w-[3px] rounded-sm bg-gray-900"></div>
+                            <div class="h-1.5 w-[3px] rounded-sm bg-gray-900"></div>
+                            <div class="h-2 w-[3px] rounded-sm bg-gray-900"></div>
+                            <div class="h-2.5 w-[3px] rounded-sm bg-gray-300"></div>
+                          </div>
+                          <!-- WiFi -->
+                          <svg class="size-[11px]" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M17.778 8.222c-4.296-4.296-11.26-4.296-15.556 0A1 1 0 01.808 6.808c5.076-5.077 13.308-5.077 18.384 0a1 1 0 01-1.414 1.414zM14.95 11.05a7 7 0 00-9.9 0 1 1 0 01-1.414-1.414 9 9 0 0112.728 0 1 1 0 01-1.414 1.414zM12.12 13.88a3 3 0 00-4.242 0 1 1 0 01-1.415-1.415 5 5 0 017.072 0 1 1 0 01-1.415 1.415zM9 16a1 1 0 011-1h.01a1 1 0 110 2H10a1 1 0 01-1-1z" clip-rule="evenodd"/></svg>
+                          <!-- Battery -->
+                          <div class="flex h-[10px] w-[20px] items-center rounded-[2px] border border-gray-900/80 p-[1.5px]">
+                            <div class="h-full w-3/4 rounded-[1px] bg-gray-900"></div>
+                          </div>
+                          <div class="-ml-px h-[4px] w-[1.5px] rounded-r-full bg-gray-900/80"></div>
                         </div>
-                        <p class="text-[10px] font-bold text-gray-900">KES 590</p>
                       </div>
-                      <button class="flex w-full items-center justify-center gap-1 rounded-lg bg-blue-500 py-2 text-[9px] font-semibold text-white shadow-md">
-                        <svg class="size-3" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"/></svg>
-                        Pay Now
-                      </button>
-                    </div>
 
-                    <!-- Home Indicator -->
-                    <div class="absolute bottom-0.5 left-1/2 h-0.5 w-12 -translate-x-1/2 rounded-full bg-gray-900/20"></div>
+                      <!-- App Header -->
+                      <div class="border-b border-gray-100 bg-white px-3 pb-2 pt-1">
+                        <div class="mb-2 flex items-center justify-between">
+                          <div>
+                            <p class="text-[11px] font-bold tracking-tight text-gray-900">Quick Sale</p>
+                            <p class="text-[7px] text-gray-400">4 categories</p>
+                          </div>
+                          <div class="flex items-center gap-1.5">
+                            <div class="flex size-6 items-center justify-center rounded-full bg-gray-100">
+                              <svg class="size-3 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                            </div>
+                            <div class="relative flex size-6 items-center justify-center rounded-full bg-blue-500 text-white shadow-sm shadow-blue-500/30">
+                              <svg class="size-3" fill="currentColor" viewBox="0 0 20 20"><path d="M3 1a1 1 0 000 2h1.22l.305 1.222a.997.997 0 00.01.042l1.358 5.43-.893.892C3.74 11.846 4.632 14 6.414 14H15a1 1 0 000-2H6.414l1-1H14a1 1 0 00.894-.553l3-6A1 1 0 0017 3H6.28l-.31-1.243A1 1 0 005 1H3z"/></svg>
+                              <span class="absolute -right-0.5 -top-0.5 flex size-3 items-center justify-center rounded-full bg-red-500 text-[6px] font-bold text-white">3</span>
+                            </div>
+                          </div>
+                        </div>
+                        <!-- Category pills -->
+                        <div class="flex gap-1">
+                          <span class="rounded-full bg-gray-900 px-2 py-0.5 text-[7px] font-medium text-white">All</span>
+                          <span class="rounded-full bg-gray-100 px-2 py-0.5 text-[7px] font-medium text-gray-500">Drinks</span>
+                          <span class="rounded-full bg-gray-100 px-2 py-0.5 text-[7px] font-medium text-gray-500">Bakery</span>
+                          <span class="rounded-full bg-gray-100 px-2 py-0.5 text-[7px] font-medium text-gray-500">Dairy</span>
+                        </div>
+                      </div>
+
+                      <!-- Product Grid -->
+                      <div class="grid grid-cols-2 gap-1.5 p-2">
+                        <!-- Product 1 - selected -->
+                        <div class="rounded-xl border-2 border-blue-500 bg-blue-50/50 p-1.5">
+                          <div class="mb-1 flex h-10 items-center justify-center rounded-lg bg-white">
+                            <span class="text-base">🥤</span>
+                          </div>
+                          <p class="truncate text-[8px] font-semibold text-gray-900">Coca-Cola</p>
+                          <div class="flex items-center justify-between">
+                            <p class="text-[8px] font-bold text-blue-600">KES 75</p>
+                            <span class="flex size-3.5 items-center justify-center rounded-full bg-blue-500 text-[6px] font-bold text-white">2</span>
+                          </div>
+                        </div>
+                        <!-- Product 2 -->
+                        <div class="rounded-xl border border-gray-100 bg-white p-1.5 shadow-sm">
+                          <div class="mb-1 flex h-10 items-center justify-center rounded-lg bg-amber-50">
+                            <span class="text-base">🍞</span>
+                          </div>
+                          <p class="truncate text-[8px] font-semibold text-gray-900">Bread</p>
+                          <div class="flex items-center justify-between">
+                            <p class="text-[8px] font-bold text-gray-600">KES 85</p>
+                            <span class="flex size-3.5 items-center justify-center rounded-full bg-gray-100 text-[7px] text-gray-400">+</span>
+                          </div>
+                        </div>
+                        <!-- Product 3 - selected -->
+                        <div class="rounded-xl border-2 border-blue-500 bg-blue-50/50 p-1.5">
+                          <div class="mb-1 flex h-10 items-center justify-center rounded-lg bg-white">
+                            <span class="text-base">🥛</span>
+                          </div>
+                          <p class="truncate text-[8px] font-semibold text-gray-900">Fresh Milk</p>
+                          <div class="flex items-center justify-between">
+                            <p class="text-[8px] font-bold text-blue-600">KES 180</p>
+                            <span class="flex size-3.5 items-center justify-center rounded-full bg-blue-500 text-[6px] font-bold text-white">1</span>
+                          </div>
+                        </div>
+                        <!-- Product 4 -->
+                        <div class="rounded-xl border border-gray-100 bg-white p-1.5 shadow-sm">
+                          <div class="mb-1 flex h-10 items-center justify-center rounded-lg bg-yellow-50">
+                            <span class="text-base">🧈</span>
+                          </div>
+                          <p class="truncate text-[8px] font-semibold text-gray-900">Butter</p>
+                          <div class="flex items-center justify-between">
+                            <p class="text-[8px] font-bold text-gray-600">KES 250</p>
+                            <span class="flex size-3.5 items-center justify-center rounded-full bg-gray-100 text-[7px] text-gray-400">+</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      <!-- Cart Summary - Bottom Sheet Style -->
+                      <div class="absolute bottom-0 left-0 right-0 rounded-t-2xl border-t border-gray-200/80 bg-white px-3 pb-5 pt-2 shadow-[0_-4px_20px_-4px_rgba(0,0,0,0.08)]">
+                        <!-- Drag handle -->
+                        <div class="mx-auto mb-2 h-[3px] w-8 rounded-full bg-gray-300"></div>
+                        <div class="mb-2 flex items-center justify-between">
+                          <div>
+                            <p class="text-[8px] text-gray-400">3 items</p>
+                            <p class="text-[13px] font-bold tracking-tight text-gray-900">KES 330</p>
+                          </div>
+                          <button class="flex items-center gap-1 rounded-xl bg-blue-500 px-4 py-2 text-[9px] font-semibold text-white shadow-lg shadow-blue-500/30">
+                            Checkout
+                            <svg class="size-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>
+                          </button>
+                        </div>
+                        <!-- Home Indicator -->
+                        <div class="absolute bottom-1 left-1/2 h-[4px] w-[100px] -translate-x-1/2 rounded-full bg-gray-900/20"></div>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>

@@ -131,6 +131,41 @@ const {
 // Dev preview: force ready state with ?preview=complete
 const provisioningReady = computed(() => devPreview === 'complete' || _provisioningReady.value)
 
+// Dev preview: simulate provisioning loading with ?preview=setup
+if (devPreview === 'setup') {
+  const mockSteps = [
+    { name: 'create_tenant', displayName: 'Creating workspace', stepNumber: 1, status: 'PENDING', startedAt: '', completedAt: '', errorMessage: '' },
+    { name: 'setup_database', displayName: 'Setting up database', stepNumber: 2, status: 'PENDING', startedAt: '', completedAt: '', errorMessage: '' },
+    { name: 'configure_services', displayName: 'Configuring services', stepNumber: 3, status: 'PENDING', startedAt: '', completedAt: '', errorMessage: '' },
+    { name: 'initialize_data', displayName: 'Initializing data', stepNumber: 4, status: 'PENDING', startedAt: '', completedAt: '', errorMessage: '' },
+    { name: 'finalize', displayName: 'Finalizing setup', stepNumber: 5, status: 'PENDING', startedAt: '', completedAt: '', errorMessage: '' }
+  ]
+  let simStep = 0
+  const simTimer = setInterval(() => {
+    simStep++
+    if (simStep > mockSteps.length) {
+      clearInterval(simTimer)
+      _provisioningReady.value = true
+      return
+    }
+    provisioningStatus.value = {
+      tenantId: 'mock-tenant',
+      status: 'PROVISIONING',
+      currentStep: mockSteps[simStep - 1].name,
+      currentStepNumber: simStep,
+      totalSteps: mockSteps.length,
+      progressPercent: Math.round((simStep / mockSteps.length) * 100),
+      steps: mockSteps.map((s, i) => ({
+        ...s,
+        status: i < simStep - 1 ? 'COMPLETED' : i === simStep - 1 ? 'IN_PROGRESS' : 'PENDING'
+      })),
+      errorMessage: '',
+      displayName: mockSteps[simStep - 1].displayName
+    }
+  }, 2000)
+  onUnmounted(() => clearInterval(simTimer))
+}
+
 const activeProvisioningStepName = computed(() => {
   if (!provisioningStatus.value?.steps?.length) return ''
   const active = provisioningStatus.value.steps.find(
@@ -170,6 +205,21 @@ const tenantSubdomain = computed(() => {
   const name = String(formData.value.institutionName || '')
   return name.trim() ? slugify(name) : ''
 })
+
+const customSubdomain = ref('')
+const subdomainManuallyEdited = ref(false)
+
+watch(tenantSubdomain, (val) => {
+  if (!subdomainManuallyEdited.value) {
+    customSubdomain.value = val
+  }
+})
+
+function handleSubdomainInput(e: Event) {
+  const raw = (e.target as HTMLInputElement).value
+  customSubdomain.value = slugify(raw)
+  subdomainManuallyEdited.value = true
+}
 
 const institutionTypeOptions = [
   { label: 'Primary School', value: 'primary' },
@@ -262,7 +312,7 @@ async function handleNext() {
         phone: String(data.phone || ''),
         password: String(data.password || ''),
         companyName: String(data.institutionName || ''),
-        subdomainSlug: tenantSubdomain.value,
+        subdomainSlug: customSubdomain.value || tenantSubdomain.value,
         country: String(data.country || ''),
         industry: String(data.institutionType || ''),
         companySize: String(data.studentCount || ''),
@@ -372,7 +422,7 @@ watch(provisioningReady, (ready) => {
       typingTimer = null
     }
     // Skip auto-redirect in dev preview mode
-    if (devPreview === 'complete') return
+    if (devPreview === 'complete' || devPreview === 'setup') return
     redirectCountdown.value = 5
     countdownTimer = setInterval(() => {
       redirectCountdown.value--
@@ -557,9 +607,19 @@ const canContinue = computed(() => {
             required
             @update:model-value="updateFormData({ institutionName: String($event) })"
           />
-          <p v-if="tenantSubdomain" class="mt-1 text-xs text-gray-500">
-            Your subdomain: <span class="font-medium text-amber-600">{{ tenantSubdomain }}.{{ appDomain }}</span>
-          </p>
+          <div v-if="tenantSubdomain || customSubdomain" class="mt-2">
+            <label class="mb-1 block text-xs font-medium text-gray-600">Subdomain</label>
+            <div class="flex overflow-hidden rounded-lg border border-gray-300 hover:border-gray-400 focus-within:border-amber-500 focus-within:ring-2 focus-within:ring-amber-100">
+              <input
+                :value="customSubdomain"
+                type="text"
+                placeholder="sunrise-academy"
+                class="w-0 min-w-0 flex-1 bg-white px-3 py-2 text-sm text-amber-600 placeholder:text-xs placeholder:text-gray-400 focus:outline-none"
+                @input="handleSubdomainInput"
+              />
+              <span class="flex shrink-0 items-center border-l border-gray-200 bg-gray-50 px-2.5 text-xs text-gray-500">.{{ appDomain }}</span>
+            </div>
+          </div>
         </div>
         <FormSelect
           v-model="formData.institutionType"
@@ -594,10 +654,6 @@ const canContinue = computed(() => {
     <!-- Plan Selection Step -->
     <template v-else-if="currentStep?.id === 'plan'">
       <div class="space-y-4">
-        <div v-if="authError" class="rounded-md bg-red-50 p-3 text-sm text-red-600">
-          {{ authError }}
-        </div>
-
         <!-- Trial period info -->
         <div v-if="TRIAL_DAYS" class="flex items-center gap-2.5 rounded-lg border border-amber-200 bg-amber-50/60 px-3.5 py-2.5">
           <svg class="size-4 shrink-0 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
@@ -678,10 +734,6 @@ const canContinue = computed(() => {
     <!-- Setup / Provisioning Step -->
     <template v-else-if="currentStep?.id === 'setup'">
       <div class="space-y-6">
-        <div v-if="provisioningError" class="rounded-lg bg-red-50 p-3 text-sm text-red-600">
-          {{ provisioningError }}
-        </div>
-
         <!-- Completion state -->
         <div v-if="provisioningReady" class="space-y-5 py-4">
           <div class="text-center">
@@ -739,29 +791,40 @@ const canContinue = computed(() => {
               </div>
             </div>
 
-            <!-- Skeleton loaders -->
-            <div class="space-y-3">
-              <div class="flex items-center gap-3">
-                <div class="size-8 animate-pulse rounded-lg bg-amber-100" />
-                <div class="flex-1 space-y-1.5">
-                  <div class="h-3 w-3/4 animate-pulse rounded bg-gray-200" />
-                  <div class="h-2 w-1/2 animate-pulse rounded bg-gray-100" />
+            <!-- Step status -->
+            <div class="relative min-h-[40px] overflow-hidden">
+              <TransitionGroup
+                enter-active-class="transition-all duration-500 ease-out"
+                enter-from-class="translate-y-3 opacity-0"
+                enter-to-class="translate-y-0 opacity-100"
+                leave-active-class="transition-all duration-300 ease-in absolute inset-x-0"
+                leave-from-class="translate-y-0 opacity-100"
+                leave-to-class="-translate-y-4 opacity-0"
+                move-class="transition-all duration-300"
+              >
+                <div
+                  v-if="!provisioningStatus?.steps?.length"
+                  key="init"
+                  class="flex items-center gap-3 py-1.5"
+                >
+                  <svg class="size-5 shrink-0 animate-spin text-blue-500" viewBox="0 0 24 24" fill="none">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3" />
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                  </svg>
+                  <span class="text-sm text-gray-500">Initializing...</span>
                 </div>
-              </div>
-              <div class="flex items-center gap-3">
-                <div class="size-8 animate-pulse rounded-lg bg-amber-50" style="animation-delay: 150ms" />
-                <div class="flex-1 space-y-1.5">
-                  <div class="h-3 w-2/3 animate-pulse rounded bg-gray-200" style="animation-delay: 150ms" />
-                  <div class="h-2 w-2/5 animate-pulse rounded bg-gray-100" style="animation-delay: 150ms" />
+                <div
+                  v-for="step in (provisioningStatus?.steps || []).filter(s => s.status === 'IN_PROGRESS')"
+                  :key="step.name"
+                  class="flex items-center gap-3 py-1.5"
+                >
+                  <svg class="size-5 shrink-0 animate-spin text-blue-500" viewBox="0 0 24 24" fill="none">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3" />
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                  </svg>
+                  <span class="text-sm font-medium text-gray-700">{{ step.displayName }}</span>
                 </div>
-              </div>
-              <div class="flex items-center gap-3">
-                <div class="size-8 animate-pulse rounded-lg bg-amber-50" style="animation-delay: 300ms" />
-                <div class="flex-1 space-y-1.5">
-                  <div class="h-3 w-4/5 animate-pulse rounded bg-gray-100" style="animation-delay: 300ms" />
-                  <div class="h-2 w-1/3 animate-pulse rounded bg-gray-50" style="animation-delay: 300ms" />
-                </div>
-              </div>
+              </TransitionGroup>
             </div>
 
             <!-- Typing message -->

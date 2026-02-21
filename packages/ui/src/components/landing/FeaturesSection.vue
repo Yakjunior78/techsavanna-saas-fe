@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue'
+import BackgroundPattern from './BackgroundPattern.vue'
 
 export interface Feature {
   icon: string
@@ -118,19 +119,9 @@ function getAccentClasses(index: number, type: 'bg' | 'text' | 'border' | 'light
 
 <template>
   <section ref="sectionRef" id="features" class="relative overflow-hidden bg-white py-16 lg:py-24">
-    <!-- Background grid pattern -->
-    <div class="absolute inset-0 opacity-[0.06]">
-      <svg class="size-full">
-        <defs>
-          <pattern id="features-grid" x="0" y="0" width="40" height="40" patternUnits="userSpaceOnUse">
-            <path d="M40 0v40H0" fill="none" stroke="currentColor" stroke-width="0.5"/>
-          </pattern>
-        </defs>
-        <rect width="100%" height="100%" fill="url(#features-grid)"/>
-      </svg>
-    </div>
+    <BackgroundPattern id="features-pattern" opacity="0.15" />
 
-    <div class="relative mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
+    <div class="relative mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
       <!-- Header -->
       <div
         data-index="-1"
