@@ -1,5 +1,6 @@
 stages:
   - build
+  - deploy
 
 variables:
   REGISTRY: registry.gitlab.com/techsavanna-sass/techsavanna-saas-fe
@@ -61,3 +62,48 @@ build-erp:
   <<: *build-template
   variables:
     APP_NAME: erp
+
+# -----------------------------------------------------------
+# Deploy to Kubernetes via SSH
+# -----------------------------------------------------------
+# Required CI/CD variables (Settings > CI/CD > Variables):
+#   DEPLOY_SSH_KEY  - SSH private key, base64-encoded (type: Variable, protected)
+#   DEPLOY_HOST     - Server hostname/IP (e.g. 75.119.132.10)
+#   DEPLOY_PORT     - SSH port (e.g. 1191)
+#   DEPLOY_USER     - SSH user (e.g. deploy)
+# -----------------------------------------------------------
+
+deploy:
+  stage: deploy
+  image: alpine:3.20
+  needs:
+    - job: build-pos
+      optional: true
+    - job: build-people
+      optional: true
+    - job: build-elimu
+      optional: true
+    - job: build-erp
+      optional: true
+  rules:
+    - if: $CI_COMMIT_BRANCH == "dev" || $CI_COMMIT_BRANCH == "main"
+  before_script:
+    - apk add --no-cache openssh-client
+    - echo "$DEPLOY_SSH_KEY" | base64 -d > /tmp/deploy_key
+    - chmod 600 /tmp/deploy_key
+  script:
+    - |
+      ssh -o StrictHostKeyChecking=no -i /tmp/deploy_key -p ${DEPLOY_PORT} ${DEPLOY_USER}@${DEPLOY_HOST} bash -s <<DEPLOY_SCRIPT
+        set -euo pipefail
+        export PATH=\$PATH:/var/lib/rancher/rke2/bin
+        export KUBECONFIG=/etc/rancher/rke2/rke2.yaml
+
+        # Restart deployments to pull latest images
+        kubectl -n techsavanna-saas rollout restart deployment pos people elimu erp
+
+        # Verify rollouts
+        kubectl -n techsavanna-saas rollout status deployment/pos --timeout=120s
+        kubectl -n techsavanna-saas rollout status deployment/people --timeout=120s
+        kubectl -n techsavanna-saas rollout status deployment/elimu --timeout=120s
+        kubectl -n techsavanna-saas rollout status deployment/erp --timeout=120s
+      DEPLOY_SCRIPT
