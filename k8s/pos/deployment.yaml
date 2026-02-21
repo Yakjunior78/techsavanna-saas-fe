@@ -25,6 +25,7 @@ spec:
       containers:
         - name: pos
           image: registry.gitlab.com/techsavanna-sass/techsavanna-saas-fe/pos:dev
+          imagePullPolicy: Always
           ports:
             - containerPort: 80
               protocol: TCP

@@ -25,6 +25,7 @@ spec:
       containers:
         - name: elimu
           image: registry.gitlab.com/techsavanna-sass/techsavanna-saas-fe/elimu:dev
+          imagePullPolicy: Always
           ports:
             - containerPort: 80
               protocol: TCP

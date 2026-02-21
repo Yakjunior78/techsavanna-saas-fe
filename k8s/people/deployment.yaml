@@ -25,6 +25,7 @@ spec:
       containers:
         - name: people
           image: registry.gitlab.com/techsavanna-sass/techsavanna-saas-fe/people:dev
+          imagePullPolicy: Always
           ports:
             - containerPort: 80
               protocol: TCP
