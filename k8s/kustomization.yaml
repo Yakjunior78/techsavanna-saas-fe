@@ -18,8 +18,10 @@ resources:
   # ERP
   - erp/deployment.yaml
   - erp/service.yaml
-  # Ingress
-  - ingress.yaml
+  # Gateway API
+  - gateway.yaml
+  - httproutes.yaml
+  - certificates.yaml
 
 labels:
   - pairs:

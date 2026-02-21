@@ -1,0 +1,105 @@
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: pos-route
+  namespace: techsavanna-saas
+  labels:
+    app.kubernetes.io/part-of: techsavanna-saas
+spec:
+  parentRefs:
+    - name: techsavanna-gateway
+      sectionName: https-pos
+  hostnames:
+    - savannapaypos.saas.techsavanna.technology
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
+      backendRefs:
+        - name: pos
+          port: 80
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: people-route
+  namespace: techsavanna-saas
+  labels:
+    app.kubernetes.io/part-of: techsavanna-saas
+spec:
+  parentRefs:
+    - name: techsavanna-gateway
+      sectionName: https-people
+  hostnames:
+    - workwisehrm.saas.techsavanna.technology
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
+      backendRefs:
+        - name: people
+          port: 80
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: elimu-route
+  namespace: techsavanna-saas
+  labels:
+    app.kubernetes.io/part-of: techsavanna-saas
+spec:
+  parentRefs:
+    - name: techsavanna-gateway
+      sectionName: https-elimu
+  hostnames:
+    - elimucore.saas.techsavanna.technology
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
+      backendRefs:
+        - name: elimu
+          port: 80
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: erp-route
+  namespace: techsavanna-saas
+  labels:
+    app.kubernetes.io/part-of: techsavanna-saas
+spec:
+  parentRefs:
+    - name: techsavanna-gateway
+      sectionName: https-erp
+  hostnames:
+    - savanna360erp.saas.techsavanna.technology
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
+      backendRefs:
+        - name: erp
+          port: 80
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: http-redirect
+  namespace: techsavanna-saas
+  labels:
+    app.kubernetes.io/part-of: techsavanna-saas
+spec:
+  parentRefs:
+    - name: techsavanna-gateway
+      sectionName: http
+  rules:
+    - filters:
+        - type: RequestRedirect
+          requestRedirect:
+            scheme: https
+            statusCode: 301
