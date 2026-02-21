@@ -96,7 +96,7 @@ deploy:
       ssh -o StrictHostKeyChecking=no -i /tmp/deploy_key -p ${DEPLOY_PORT} ${DEPLOY_USER}@${DEPLOY_HOST} bash -s <<DEPLOY_SCRIPT
         set -euo pipefail
         export PATH=\$PATH:/var/lib/rancher/rke2/bin
-        export KUBECONFIG=/etc/rancher/rke2/rke2.yaml
+        export KUBECONFIG=\$HOME/.kube/config
 
         # Restart deployments to pull latest images
         kubectl -n techsavanna-saas rollout restart deployment pos people elimu erp
